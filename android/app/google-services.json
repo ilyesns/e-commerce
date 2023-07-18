@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "655433305840",
+    "project_id": "blueray-market",
+    "storage_bucket": "blueray-market.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:655433305840:android:017ee796451b6c941afc35",
+        "android_client_info": {
+          "package_name": "com.blueray.blueraymarket"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "655433305840-du78ebl7fkfgdvj6m0aaqprt5esdonnd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEE_cH9PGOJ-zopfVvMI7VOSmjMfWWt1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "655433305840-du78ebl7fkfgdvj6m0aaqprt5esdonnd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
