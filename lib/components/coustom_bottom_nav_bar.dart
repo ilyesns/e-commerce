@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shop_app/screens/home/home_screen.dart';
-import 'package:shop_app/screens/profile/profile_screen.dart';
+import 'package:blueraymarket/screens/home/home_screen.dart';
+import 'package:blueraymarket/screens/profile/profile_screen.dart';
 
 import '../tools/constants.dart';
 import '../tools/enums.dart';

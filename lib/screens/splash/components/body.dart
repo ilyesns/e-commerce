@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/tools/constants.dart';
-import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/tools/constants.dart';
+import 'package:blueraymarket/screens/sign_in/sign_in_screen.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 // This is the best practice
 import '../components/splash_content.dart';

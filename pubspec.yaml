@@ -1,4 +1,4 @@
-name: shop_app
+name: blueraymarket
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -40,10 +40,19 @@ dependencies:
   mime_type: 1.0.0
   firebase_core: ^2.15.0
   cloud_firestore: ^4.8.3
+  built_value: ^8.6.1
+  built_collection: ^5.1.1
+  json_annotation: ^4.8.1
+  json_serializable: ^6.7.1
+  built_value_generator: ^8.6.1
+  from_css_color: ^2.0.0
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.6
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
