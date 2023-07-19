@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/tools/constants.dart';
+import 'package:blueraymarket/tools/constants.dart';
 
 ThemeData theme() {
   return ThemeData(

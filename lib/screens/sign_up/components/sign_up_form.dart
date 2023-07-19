@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/custom_surfix_icon.dart';
-import 'package:shop_app/components/default_button.dart';
-import 'package:shop_app/components/form_error.dart';
-import 'package:shop_app/screens/complete_profile/complete_profile_screen.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/components/custom_surfix_icon.dart';
+import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/components/form_error.dart';
+import 'package:blueraymarket/screens/complete_profile/complete_profile_screen.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
+import '../../../auth/auth_util.dart';
+import '../../../auth/credentials.dart';
 import '../../../tools/constants.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -49,10 +51,21 @@ class _SignUpFormState extends State<SignUpForm> {
           SizedBox(height: getProportionateScreenHeight(40)),
           DefaultButton(
             text: "Continue",
-            press: () {
+            press: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 // if all are valid then go to success screen
+                final user = await createAccountWithEmail(
+                  context,
+                  email!,
+                  password!,
+                );
+
+                if (user == null) {
+                  return;
+                }
+
+                await sendEmailVerification();
                 Navigator.pushNamed(context, CompleteProfileScreen.routeName);
               }
             },

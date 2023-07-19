@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/custom_surfix_icon.dart';
-import 'package:shop_app/components/default_button.dart';
-import 'package:shop_app/components/form_error.dart';
-import 'package:shop_app/components/no_account_text.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/components/custom_surfix_icon.dart';
+import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/components/form_error.dart';
+import 'package:blueraymarket/components/no_account_text.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 

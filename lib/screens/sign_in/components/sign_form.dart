@@ -1,12 +1,14 @@
+import 'package:blueraymarket/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shop_app/tools/app_state.dart';
-import 'package:shop_app/components/custom_surfix_icon.dart';
-import 'package:shop_app/components/form_error.dart';
-import 'package:shop_app/helper/keyboard.dart';
-import 'package:shop_app/screens/forgot_password/forgot_password_screen.dart';
-import 'package:shop_app/screens/login_success/login_success_screen.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/tools/app_state.dart';
+import 'package:blueraymarket/components/custom_surfix_icon.dart';
+import 'package:blueraymarket/components/form_error.dart';
+import 'package:blueraymarket/helper/keyboard.dart';
+import 'package:blueraymarket/screens/forgot_password/forgot_password_screen.dart';
+import 'package:blueraymarket/screens/login_success/login_success_screen.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
+import '../../../auth/credentials.dart';
 import '../../../components/default_button.dart';
 import '../../../tools/constants.dart';
 
@@ -73,28 +75,37 @@ class _SignFormState extends State<SignForm> {
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(20)),
           DefaultButton(
-            text: "Continue",
-            press: () {
+            text: "Sign in",
+            press: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 // if all are valid then go to success screen
                 KeyboardUtil.hideKeyboard(context);
-                Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+                //  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
 
-                List<String>? credentials = [];
-                print(email);
-                if (email != null && password != null) {
-                  if (remember == true) {
-                    credentials = [email!, password!];
-                    appState.prefs?.setStringList(kRemember, credentials);
-                    print(appState.prefs?.get(kRemember));
-                  } else {
-                    appState.prefs?.setStringList(kRemember, []);
-                  }
+                final user = await signInWithEmail(
+                  context,
+                  email!,
+                  password!,
+                );
+                if (user != null) {
+                  print("succes auth $user");
+                  Navigator.pushNamed(context, HomeScreen.routeName);
+                } else {
+                  print("failed auth");
                 }
               }
             },
           ),
+          SizedBox(height: getProportionateScreenHeight(20)),
+          DefaultButton(
+            text: "Skip",
+            textColor: kPrimaryColor,
+            bgColor: Colors.white,
+            press: () {
+              Navigator.pushNamed(context, HomeScreen.routeName);
+            },
+          )
         ],
       ),
     );
@@ -102,9 +113,6 @@ class _SignFormState extends State<SignForm> {
 
   TextFormField buildPasswordFormField() {
     return TextFormField(
-      initialValue: appState.remember!.isNotEmpty && appState.remember != null
-          ? appState.remember![1]
-          : null,
       obscureText: true,
       onSaved: (newValue) => password = newValue,
       onChanged: (value) {
@@ -119,7 +127,7 @@ class _SignFormState extends State<SignForm> {
         if (value!.isEmpty) {
           addError(error: kPassNullError);
           return "";
-        } else if (value.length < 8) {
+        } else if (value.length < 5) {
           addError(error: kShortPassError);
           return "";
         }
@@ -138,9 +146,6 @@ class _SignFormState extends State<SignForm> {
 
   TextFormField buildEmailFormField() {
     return TextFormField(
-      initialValue: appState.remember!.isNotEmpty && appState.remember != null
-          ? appState.remember![0]
-          : null,
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue,
       onChanged: (value) {

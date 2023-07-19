@@ -1,6 +1,7 @@
+import 'package:blueraymarket/auth/auth_util.dart';
 import 'package:flutter/material.dart';
-import 'package:shop_app/screens/cart/cart_screen.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/screens/cart/cart_screen.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 import 'icon_btn_with_counter.dart';
 import 'search_field.dart';
@@ -26,7 +27,9 @@ class HomeHeader extends StatelessWidget {
           IconBtnWithCounter(
             svgSrc: "assets/icons/Bell.svg",
             numOfitem: 3,
-            press: () {},
+            press: () {
+              print(currentUserUid);
+            },
           ),
         ],
       ),

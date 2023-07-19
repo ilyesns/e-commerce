@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rxdart/rxdart.dart';
 
+import '../backend/schema/serializers.dart';
+import '../backend/schema/user_record.dart';
+import '../tools/util.dart';
 import 'firebase_user_provider.dart';
 
 Future<User?> signInOrCreateAccount(
@@ -14,7 +18,7 @@ Future<User?> signInOrCreateAccount(
   try {
     final userCredential = await signInFunc();
     if (userCredential?.user != null) {
-      // await maybeCreateUser(userCredential!.user!);
+      await maybeCreateUser(userCredential!.user!);
     }
     return userCredential?.user;
   } on FirebaseAuthException catch (e) {
@@ -26,27 +30,27 @@ Future<User?> signInOrCreateAccount(
   }
 }
 
-// Future maybeCreateUser(User user) async {
-//   final userRecord = UsersRecord.collection.doc(user.uid);
-//   final userExists = await userRecord.get().then((u) => u.exists);
-//   if (userExists) {
-//     currentUserDocument = await UsersRecord.getDocumentOnce(userRecord);
-//     return;
-//   }
+Future maybeCreateUser(User user) async {
+  final userRecord = UserRecord.collection.doc(user.uid);
+  final userExists = await userRecord.get().then((u) => u.exists);
+  if (userExists) {
+    currentUserDocument = await UserRecord.getDocumentOnce(userRecord);
+    return;
+  }
 
-//   final userData = createUsersRecordData(
-//     email: user.email,
-//     displayName: user.displayName,
-//     photoUrl: user.photoURL,
-//     uid: user.uid,
-//     phoneNumber: user.phoneNumber,
-//     createdTime: getCurrentTimestamp,
-//   );
+  final userData = createUserRecordData(
+    email: user.email,
+    name: user.displayName,
+    photoUrl: user.photoURL,
+    uid: user.uid,
+    phoneNumber: user.phoneNumber,
+    createdTime: getCurrentTimestamp,
+  );
 
-//   await userRecord.set(userData);
-//   currentUserDocument =
-//       serializers.deserializeWith(UsersRecord.serializer, userData);
-// }
+  await userRecord.set(userData);
+  currentUserDocument =
+      serializers.deserializeWith(UserRecord.serializer, userData);
+}
 
 Future resetPassword(
     {required String email, required BuildContext context}) async {
@@ -67,21 +71,19 @@ Future resetPassword(
 Future sendEmailVerification() async =>
     currentUser?.user?.sendEmailVerification();
 
-// String get currentUserEmail =>
-//     currentUserDocument?.email ?? currentUser?.user?.email ?? '';
+String get currentUserEmail =>
+    currentUserDocument?.email ?? currentUser?.user?.email ?? '';
 
-// String get currentUserUid => currentUser?.user?.uid ?? '';
+String get currentUserUid => currentUser?.user?.uid ?? '';
 
-// String get currentUserDisplayName =>
-//     currentUserDocument?.displayName ?? currentUser?.user?.displayName ?? '';
+String get currentUserDisplayName =>
+    currentUserDocument?.name ?? currentUser?.user?.displayName ?? '';
 
-// String get currentUserPhoto =>
-//     currentUserDocument?.photoUrl ?? currentUser?.user?.photoURL ?? '';
+String get currentUserPhoto =>
+    currentUserDocument?.photoUrl ?? currentUser?.user?.photoURL ?? '';
 
-// String get currentPhoneNumber =>
-//     currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
-
-// String get currentJwtToken => _currentJwtToken ?? '';
+String get currentPhoneNumber =>
+    currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
 
 bool get currentUserEmailVerified {
   // Reloads the user when checking in order to get the most up to date
@@ -94,12 +96,17 @@ bool get currentUserEmailVerified {
   return currentUser?.user?.emailVerified ?? false;
 }
 
-/// Create a Stream that listens to the current user's JWT Token, since Firebase
-/// generates a new token every hour.
-String? _currentJwtToken;
-final jwtTokenStream = FirebaseAuth.instance
-    .idTokenChanges()
-    .map((user) async => _currentJwtToken = await user?.getIdToken())
+UserRecord? currentUserDocument;
+final authenticatedUserStream = FirebaseAuth.instance
+    .authStateChanges()
+    .map<String>((user) => user?.uid ?? '')
+    .switchMap(
+      (uid) => uid.isEmpty
+          ? Stream.value(null)
+          : UserRecord.getDocument(UserRecord.collection.doc(uid))
+              .handleError((_) {}),
+    )
+    .map((user) => currentUserDocument = user)
     .asBroadcastStream();
 
 // Set when using phone verification (after phone number is provided).
@@ -121,9 +128,7 @@ Future beginPhoneAuth({
   final completer = Completer<bool>();
   // If you'd like auto-verification, without the user having to enter the SMS
   // code manually. Follow these instructions:
-  // * For Android: https://firebase.google.com/docs/auth/android/phone-auth?authuser=0#enable-app-verification (SafetyNet set up)
-  // * For iOS: https://firebase.google.com/docs/auth/ios/phone-auth?authuser=0#start-receiving-silent-notifications
-  // * Finally modify verificationCompleted below as instructed.
+
   await FirebaseAuth.instance.verifyPhoneNumber(
     phoneNumber: phoneNumber,
     timeout: Duration(seconds: 5),
@@ -174,20 +179,3 @@ Future verifySmsCode({
     );
   }
 }
-
-// DocumentReference? get currentUserReference => currentUser?.user != null
-//     ? UsersRecord.collection.doc(currentUser!.user!.uid)
-//     : null;
-
-// UsersRecord? currentUserDocument;
-// final authenticatedUserStream = FirebaseAuth.instance
-//     .authStateChanges()
-//     .map<String>((user) => user?.uid ?? '')
-//     .switchMap(
-//       (uid) => uid.isEmpty
-//           ? Stream.value(null)
-//           : UsersRecord.getDocument(UsersRecord.collection.doc(uid))
-//               .handleError((_) {}),
-//     )
-//     .map((user) => currentUserDocument = user)
-//     .asBroadcastStream();

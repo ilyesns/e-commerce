@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/default_button.dart';
-import 'package:shop_app/models/Product.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/models/Product.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 import 'color_dots.dart';
 import 'product_description.dart';

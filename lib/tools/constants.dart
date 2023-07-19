@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 const kPrimaryColor = Color(0xFFFE4B4B);
 //const kPrimaryColor = Color(0xFFFF7643);

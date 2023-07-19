@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/default_button.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 

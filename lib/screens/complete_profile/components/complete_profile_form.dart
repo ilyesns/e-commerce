@@ -1,9 +1,13 @@
+import 'package:blueraymarket/auth/auth_util.dart';
+import 'package:blueraymarket/auth/firebase_user_provider.dart';
+import 'package:blueraymarket/backend/schema/user_record.dart';
+import 'package:blueraymarket/tools/util.dart';
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/custom_surfix_icon.dart';
-import 'package:shop_app/components/default_button.dart';
-import 'package:shop_app/components/form_error.dart';
-import 'package:shop_app/screens/otp/otp_screen.dart';
-import 'package:shop_app/tools/size_config.dart';
+import 'package:blueraymarket/components/custom_surfix_icon.dart';
+import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/components/form_error.dart';
+import 'package:blueraymarket/screens/otp/otp_screen.dart';
+import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 
@@ -19,6 +23,10 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
   String? lastName;
   String? phoneNumber;
   String? address;
+  TextEditingController fisrtNameC = TextEditingController();
+  TextEditingController lastNameC = TextEditingController();
+  TextEditingController phoneNumberC = TextEditingController();
+  TextEditingController addressC = TextEditingController();
 
   void addError({String? error}) {
     if (!errors.contains(error))
@@ -53,7 +61,14 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
             text: "continue",
             press: () {
               if (_formKey.currentState!.validate()) {
-                Navigator.pushNamed(context, OtpScreen.routeName);
+                // Navigator.pushNamed(context, OtpScreen.routeName);
+                final user = createUserRecordData(
+                    name: '$lastName $firstName', phoneNumber: "phoneNumber");
+
+                print(lastName);
+                // UserRecord.collection
+                //     .doc(currentUserDocument!.uid)
+                //     .update(user);
               }
             },
           ),
@@ -64,12 +79,14 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
   TextFormField buildAddressFormField() {
     return TextFormField(
-      onSaved: (newValue) => address = newValue,
+      controller: addressC,
+      onSaved: (newValue) {
+        setState(() {
+          address = newValue;
+        });
+      },
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kAddressNullError);
-        }
-        return null;
+        address = value;
       },
       validator: (value) {
         if (value!.isEmpty) {
@@ -92,13 +109,11 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
   TextFormField buildPhoneNumberFormField() {
     return TextFormField(
+      controller: phoneNumberC,
       keyboardType: TextInputType.phone,
       onSaved: (newValue) => phoneNumber = newValue,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPhoneNumberNullError);
-        }
-        return null;
+        phoneNumber = value;
       },
       validator: (value) {
         if (value!.isEmpty) {
@@ -120,7 +135,11 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
   TextFormField buildLastNameFormField() {
     return TextFormField(
+      controller: lastNameC,
       onSaved: (newValue) => lastName = newValue,
+      onChanged: (value) {
+        lastName = value;
+      },
       decoration: InputDecoration(
         labelText: "Last Name",
         hintText: "Enter your last name",
@@ -134,12 +153,10 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
   TextFormField buildFirstNameFormField() {
     return TextFormField(
+      controller: fisrtNameC,
       onSaved: (newValue) => firstName = newValue,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kNamelNullError);
-        }
-        return null;
+        firstName = value;
       },
       validator: (value) {
         if (value!.isEmpty) {
