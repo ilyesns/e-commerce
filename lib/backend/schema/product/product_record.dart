@@ -26,6 +26,9 @@ abstract class ProductRecord
   @BuiltValueField(wireName: 'image')
   String? get image;
 
+  @BuiltValueField(wireName: 'rating')
+  double? get rating;
+
   @BuiltValueField(wireName: 'id_brand')
   DocumentReference? get idBrand;
 
@@ -82,7 +85,8 @@ abstract class ProductRecord
     ..title = ''
     ..description = ''
     ..price = 0.0
-    ..image = '';
+    ..image = ''
+    ..rating = 1.0;
 }
 
 Map<String, dynamic> createProductRecordData({
@@ -90,6 +94,7 @@ Map<String, dynamic> createProductRecordData({
   String? description,
   double? price,
   String? image,
+  double? rating,
   DocumentReference? idBrand,
   String? brandName,
   DocumentReference? idCategory,
@@ -107,6 +112,7 @@ Map<String, dynamic> createProductRecordData({
       'description': description,
       'price': price,
       'image': image,
+      'rating': rating,
       'id_brand': idBrand,
       'brand_name': brandName,
       'id_category': idCategory,

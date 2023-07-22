@@ -48,6 +48,13 @@ class _$ProductRecordSerializer implements StructuredSerializer<ProductRecord> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.rating;
+    if (value != null) {
+      result
+        ..add('rating')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(double)));
+    }
     value = object.idBrand;
     if (value != null) {
       result
@@ -162,6 +169,10 @@ class _$ProductRecordSerializer implements StructuredSerializer<ProductRecord> {
           result.image = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'rating':
+          result.rating = serializers.deserialize(value,
+              specifiedType: const FullType(double)) as double?;
+          break;
         case 'id_brand':
           result.idBrand = serializers.deserialize(value,
               specifiedType: const FullType(DocumentReference, const [
@@ -235,6 +246,8 @@ class _$ProductRecord extends ProductRecord {
   @override
   final String? image;
   @override
+  final double? rating;
+  @override
   final DocumentReference<Object?>? idBrand;
   @override
   final String? brandName;
@@ -265,6 +278,7 @@ class _$ProductRecord extends ProductRecord {
       this.description,
       this.price,
       this.image,
+      this.rating,
       this.idBrand,
       this.brandName,
       this.idCategories,
@@ -293,6 +307,7 @@ class _$ProductRecord extends ProductRecord {
         description == other.description &&
         price == other.price &&
         image == other.image &&
+        rating == other.rating &&
         idBrand == other.idBrand &&
         brandName == other.brandName &&
         idCategories == other.idCategories &&
@@ -313,6 +328,7 @@ class _$ProductRecord extends ProductRecord {
     _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, price.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
+    _$hash = $jc(_$hash, rating.hashCode);
     _$hash = $jc(_$hash, idBrand.hashCode);
     _$hash = $jc(_$hash, brandName.hashCode);
     _$hash = $jc(_$hash, idCategories.hashCode);
@@ -335,6 +351,7 @@ class _$ProductRecord extends ProductRecord {
           ..add('description', description)
           ..add('price', price)
           ..add('image', image)
+          ..add('rating', rating)
           ..add('idBrand', idBrand)
           ..add('brandName', brandName)
           ..add('idCategories', idCategories)
@@ -369,6 +386,10 @@ class ProductRecordBuilder
   String? _image;
   String? get image => _$this._image;
   set image(String? image) => _$this._image = image;
+
+  double? _rating;
+  double? get rating => _$this._rating;
+  set rating(double? rating) => _$this._rating = rating;
 
   DocumentReference<Object?>? _idBrand;
   DocumentReference<Object?>? get idBrand => _$this._idBrand;
@@ -430,6 +451,7 @@ class ProductRecordBuilder
       _description = $v.description;
       _price = $v.price;
       _image = $v.image;
+      _rating = $v.rating;
       _idBrand = $v.idBrand;
       _brandName = $v.brandName;
       _idCategories = $v.idCategories;
@@ -467,6 +489,7 @@ class ProductRecordBuilder
             description: description,
             price: price,
             image: image,
+            rating: rating,
             idBrand: idBrand,
             brandName: brandName,
             idCategories: idCategories,
