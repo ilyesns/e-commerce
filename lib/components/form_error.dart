@@ -13,21 +13,21 @@ class FormError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(
-          errors.length, (index) => formErrorText(error: errors[index]!)),
+      children: List.generate(errors.length,
+          (index) => formErrorText(error: errors[index]!, context: context)),
     );
   }
 
-  Row formErrorText({required String error}) {
+  Row formErrorText({required String error, required BuildContext context}) {
     return Row(
       children: [
         SvgPicture.asset(
           "assets/icons/Error.svg",
-          height: getProportionateScreenWidth(14),
-          width: getProportionateScreenWidth(14),
+          height: getProportionateScreenWidth(context, 14),
+          width: getProportionateScreenWidth(context, 14),
         ),
         SizedBox(
-          width: getProportionateScreenWidth(10),
+          width: getProportionateScreenWidth(context, 10),
         ),
         Text(error),
       ],

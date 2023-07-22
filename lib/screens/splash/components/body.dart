@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/constants.dart';
-import 'package:blueraymarket/screens/sign_in/sign_in_screen.dart';
+import 'package:blueraymarket/screens/login/login.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:go_router/go_router.dart';
 
 // This is the best practice
 import '../components/splash_content.dart';
@@ -55,7 +56,7 @@ class _BodyState extends State<Body> {
               flex: 2,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: getProportionateScreenWidth(20)),
+                    horizontal: getProportionateScreenWidth(context, 20)),
                 child: Column(
                   children: <Widget>[
                     Spacer(),
@@ -70,7 +71,7 @@ class _BodyState extends State<Body> {
                     DefaultButton(
                       text: "Continue",
                       press: () {
-                        Navigator.pushNamed(context, SignInScreen.routeName);
+                        context.pushReplacementNamed('Login');
                       },
                     ),
                     Spacer(),

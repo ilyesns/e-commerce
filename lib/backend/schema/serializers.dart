@@ -1,3 +1,7 @@
+import 'package:blueraymarket/backend/schema/brand/brand_record.dart';
+import 'package:blueraymarket/backend/schema/product/product_record.dart';
+import 'package:blueraymarket/backend/schema/size/size_record.dart';
+import 'package:blueraymarket/backend/schema/variant/variant_record.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,7 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:from_css_color/from_css_color.dart';
 
-import 'user_record.dart';
+import 'category/category_record.dart';
+import 'color/color_record.dart';
+import 'discount/discount_record.dart';
+import 'order_details/order_details_record.dart';
+import 'order_item/order_item_record.dart';
+import 'sub_category/sub_category_record.dart';
+import 'user/user_record.dart';
 
 part 'serializers.g.dart';
 
@@ -13,6 +23,16 @@ const kDocumentReferenceField = 'Document__Reference__Field';
 
 @SerializersFor(const [
   UserRecord,
+  ProductRecord,
+  BrandRecord,
+  CategoryRecord,
+  SubCategoryRecord,
+  VariantRecord,
+  DiscountRecord,
+  ColorRecord,
+  SizeRecord,
+  OrderItemRecord,
+  OrderDetailsRecord,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(DocumentReferenceSerializer())
@@ -204,4 +224,12 @@ Map<String, dynamic> mergeNestedFields(Map<String, dynamic> data) {
 extension _WhereMapExtension<K, V> on Map<K, V> {
   Map<K, V> where(bool Function(K, V) test) =>
       Map.fromEntries(entries.where((e) => test(e.key, e.value)));
+}
+
+extension MapDataExtensions on Map<String, dynamic> {
+  Map<String, dynamic> get withoutNulls => Map.fromEntries(
+        entries
+            .where((e) => e.value != null)
+            .map((e) => MapEntry(e.key, e.value!)),
+      );
 }

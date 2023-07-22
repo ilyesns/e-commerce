@@ -75,20 +75,22 @@ Map<String, dynamic> createUserRecordData({
   String? role,
   String? age,
 }) {
-  final firestoreData = serializers.toFirestore(
-    UserRecord.serializer,
-    UserRecord(
-      (u) => u
-        ..name = name
-        ..email = email
-        ..phoneNumber = phoneNumber
-        ..photoUrl = photoUrl
-        ..createdTime = createdTime
-        ..uid = uid
-        ..role = role
-        ..age = age,
-    ),
-  );
+  final firestoreData = serializers
+      .toFirestore(
+        UserRecord.serializer,
+        UserRecord(
+          (u) => u
+            ..name = name
+            ..email = email
+            ..phoneNumber = phoneNumber
+            ..photoUrl = photoUrl
+            ..createdTime = createdTime
+            ..uid = uid
+            ..role = role
+            ..age = age,
+        ),
+      )
+      .withoutNulls;
 
   return firestoreData;
 }
