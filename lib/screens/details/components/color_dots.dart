@@ -1,40 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/components/rounded_icon_btn.dart';
-import 'package:blueraymarket/models/Product.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 
 class ColorDots extends StatelessWidget {
-  const ColorDots({
-    Key? key,
-    required this.product,
-  }) : super(key: key);
-
-  final Product product;
-
   @override
   Widget build(BuildContext context) {
     // Now this is fixed and only for demo
     int selectedColor = 3;
     return Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+      padding: EdgeInsets.symmetric(
+          horizontal: getProportionateScreenWidth(context, 20)),
       child: Row(
         children: [
-          ...List.generate(
-            product.colors.length,
-            (index) => ColorDot(
-              color: product.colors[index],
-              isSelected: index == selectedColor,
-            ),
-          ),
+          // ...List.generate(
+          //   product.colors.length,
+          //   (index) => ColorDot(
+          //     color: product.colors[index],
+          //     isSelected: index == selectedColor,
+          //   ),
+          // ),
           Spacer(),
           RoundedIconBtn(
             icon: Icons.remove,
             press: () {},
           ),
-          SizedBox(width: getProportionateScreenWidth(20)),
+          SizedBox(width: getProportionateScreenWidth(context, 20)),
           RoundedIconBtn(
             icon: Icons.add,
             showShadow: true,
@@ -60,9 +52,9 @@ class ColorDot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(right: 2),
-      padding: EdgeInsets.all(getProportionateScreenWidth(8)),
-      height: getProportionateScreenWidth(40),
-      width: getProportionateScreenWidth(40),
+      padding: EdgeInsets.all(getProportionateScreenWidth(context, 8)),
+      height: getProportionateScreenWidth(context, 40),
+      width: getProportionateScreenWidth(context, 40),
       decoration: BoxDecoration(
         color: Colors.transparent,
         border:

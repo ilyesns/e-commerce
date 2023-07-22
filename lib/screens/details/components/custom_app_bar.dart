@@ -4,9 +4,7 @@ import 'package:blueraymarket/tools/constants.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
 class CustomAppBar extends StatelessWidget {
-  final double rating;
-
-  CustomAppBar({required this.rating});
+  CustomAppBar();
 
   @override
   // AppBar().preferredSize.height provide us the height that appy on our app bar
@@ -16,13 +14,13 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+        padding: EdgeInsets.symmetric(
+            horizontal: getProportionateScreenWidth(context, 20)),
         child: Row(
           children: [
             SizedBox(
-              height: getProportionateScreenWidth(40),
-              width: getProportionateScreenWidth(40),
+              height: getProportionateScreenWidth(context, 40),
+              width: getProportionateScreenWidth(context, 40),
               child: TextButton(
                 style: TextButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -49,7 +47,7 @@ class CustomAppBar extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    "$rating",
+                    "rating", // rating
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

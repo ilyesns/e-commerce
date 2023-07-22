@@ -1,6 +1,6 @@
 import 'package:blueraymarket/auth/auth_util.dart';
 import 'package:blueraymarket/auth/firebase_user_provider.dart';
-import 'package:blueraymarket/backend/schema/user_record.dart';
+import 'package:blueraymarket/backend/schema/user/user_record.dart';
 import 'package:blueraymarket/tools/util.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/components/custom_surfix_icon.dart';
@@ -49,14 +49,14 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
       child: Column(
         children: [
           buildFirstNameFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          SizedBox(height: getProportionateScreenHeight(context, 30)),
           buildLastNameFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          SizedBox(height: getProportionateScreenHeight(context, 30)),
           buildPhoneNumberFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          SizedBox(height: getProportionateScreenHeight(context, 30)),
           buildAddressFormField(),
           FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(40)),
+          SizedBox(height: getProportionateScreenHeight(context, 40)),
           DefaultButton(
             text: "continue",
             press: () {

@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../backend/schema/serializers.dart';
-import '../backend/schema/user_record.dart';
+import '../backend/schema/user/user_record.dart';
 import '../tools/util.dart';
 import 'firebase_user_provider.dart';
 
@@ -84,6 +85,9 @@ String get currentUserPhoto =>
 
 String get currentPhoneNumber =>
     currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
+
+DocumentReference<Object?>? get currentUserRef =>
+    currentUserDocument?.reference ?? null;
 
 bool get currentUserEmailVerified {
   // Reloads the user when checking in order to get the most up to date
@@ -178,4 +182,8 @@ Future verifySmsCode({
       'PHONE',
     );
   }
+}
+
+Future signOut() {
+  return FirebaseAuth.instance.signOut();
 }

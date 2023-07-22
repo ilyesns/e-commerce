@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:blueraymarket/models/Cart.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
 import 'cart_card.dart';
@@ -14,18 +13,18 @@ class _BodyState extends State<Body> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+      padding: EdgeInsets.symmetric(
+          horizontal: getProportionateScreenWidth(context, 20)),
       child: ListView.builder(
-        itemCount: demoCarts.length,
+        itemCount: 0, // cart length
         itemBuilder: (context, index) => Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Dismissible(
-            key: Key(demoCarts[index].product.id.toString()),
+            key: Key("demoCarts[index].product.id.toString()"),
             direction: DismissDirection.endToStart,
             onDismissed: (direction) {
               setState(() {
-                demoCarts.removeAt(index);
+                //  Carts.removeAt(index);
               });
             },
             background: Container(
@@ -41,7 +40,7 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            child: CartCard(cart: demoCarts[index]),
+            child: CartCard(),
           ),
         ),
       ),

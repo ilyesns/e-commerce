@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:blueraymarket/models/Product.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 
 class ProductDescription extends StatelessWidget {
-  const ProductDescription({
-    Key? key,
-    required this.product,
-    this.pressOnSeeMore,
-  }) : super(key: key);
-
-  final Product product;
-  final GestureTapCallback? pressOnSeeMore;
+  // final Product product;
+  // final GestureTapCallback? pressOnSeeMore;
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +14,21 @@ class ProductDescription extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+          padding: EdgeInsets.symmetric(
+              horizontal: getProportionateScreenWidth(context, 20)),
           child: Text(
-            product.title,
+            "product.title", // product title
             style: Theme.of(context).textTheme.headline6,
           ),
         ),
         Align(
           alignment: Alignment.centerRight,
           child: Container(
-            padding: EdgeInsets.all(getProportionateScreenWidth(15)),
-            width: getProportionateScreenWidth(64),
+            padding: EdgeInsets.all(getProportionateScreenWidth(context, 15)),
+            width: getProportionateScreenWidth(context, 64),
             decoration: BoxDecoration(
-              color:
-                  product.isFavourite ? Color(0xFFFFE6E6) : Color(0xFFF5F6F9),
+              // color:
+              //     product.isFavourite ? Color(0xFFFFE6E6) : Color(0xFFF5F6F9),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
@@ -43,25 +36,25 @@ class ProductDescription extends StatelessWidget {
             ),
             child: SvgPicture.asset(
               "assets/icons/Heart Icon_2.svg",
-              color:
-                  product.isFavourite ? Color(0xFFFF4848) : Color(0xFFDBDEE4),
-              height: getProportionateScreenWidth(16),
+              // color:
+              // product.isFavourite ? Color(0xFFFF4848) : Color(0xFFDBDEE4),
+              // height: getProportionateScreenWidth(context, 16),
             ),
           ),
         ),
         Padding(
           padding: EdgeInsets.only(
-            left: getProportionateScreenWidth(20),
-            right: getProportionateScreenWidth(64),
+            left: getProportionateScreenWidth(context, 20),
+            right: getProportionateScreenWidth(context, 64),
           ),
           child: Text(
-            product.description,
+            " product.description",
             maxLines: 3,
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(20),
+            horizontal: getProportionateScreenWidth(context, 20),
             vertical: 10,
           ),
           child: GestureDetector(

@@ -1,5 +1,8 @@
+import 'package:blueraymarket/tools/size_config.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:blueraymarket/screens/splash/splash_screen.dart';
 import 'package:blueraymarket/tools/nav/routes.dart';
@@ -24,38 +27,49 @@ class MyApp extends StatefulWidget {
 
   @override
   State<MyApp> createState() => _MyAppState();
+  // static _MyAppState of(BuildContext context) =>
+  //     context.findAncestorStateOfType<_MyAppState>()!;
 }
 
 class _MyAppState extends State<MyApp> {
   final authUserSub = authenticatedUserStream.listen((_) {});
   late Stream<FirebaseUserProvider> userStream;
   late AppStateNotifier _appStateNotifier;
+  late GoRouter _router;
 
+  SizeConfig sizeConfig = SizeConfig();
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      sizeConfig.init(context);
+    });
+
     _appStateNotifier = AppStateNotifier();
+    _router = createRouter(_appStateNotifier);
     userStream = firebaseUserProviderStream()
       ..listen((user) => _appStateNotifier.update(user));
-    super.initState();
+
+    Future.delayed(
+      Duration(seconds: 3),
+      () => _appStateNotifier.stopShowingSplashImage(),
+    );
   }
 
   @override
   void dispose() {
     authUserSub.cancel();
-    // TODO: implement dispose
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: theme(),
-      // home: SplashScreen(),
-      // We use routeName so that we dont need to remember the name
-      initialRoute: SplashScreen.routeName,
-      routes: routes,
+      routerConfig: _router,
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:blueraymarket/helper/keyboard.dart';
 import 'package:blueraymarket/screens/forgot_password/forgot_password_screen.dart';
 import 'package:blueraymarket/screens/login_success/login_success_screen.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../auth/credentials.dart';
 import '../../../components/default_button.dart';
@@ -46,22 +47,13 @@ class _SignFormState extends State<SignForm> {
       child: Column(
         children: [
           buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          SizedBox(height: getProportionateScreenHeight(context, 30)),
           buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          SizedBox(height: getProportionateScreenHeight(context, 30)),
           Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Checkbox(
-                value: remember,
-                activeColor: kPrimaryColor,
-                onChanged: (value) {
-                  setState(() {
-                    remember = value;
-                  });
-                },
-              ),
-              Text("Remember me"),
-              Spacer(),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(
                     context, ForgotPasswordScreen.routeName),
@@ -73,7 +65,7 @@ class _SignFormState extends State<SignForm> {
             ],
           ),
           FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(20)),
+          SizedBox(height: getProportionateScreenHeight(context, 20)),
           DefaultButton(
             text: "Sign in",
             press: () async {
@@ -90,20 +82,20 @@ class _SignFormState extends State<SignForm> {
                 );
                 if (user != null) {
                   print("succes auth $user");
-                  Navigator.pushNamed(context, HomeScreen.routeName);
+                  context.go('HomePage');
                 } else {
                   print("failed auth");
                 }
               }
             },
           ),
-          SizedBox(height: getProportionateScreenHeight(20)),
+          SizedBox(height: getProportionateScreenHeight(context, 20)),
           DefaultButton(
             text: "Skip",
             textColor: kPrimaryColor,
             bgColor: Colors.white,
             press: () {
-              Navigator.pushNamed(context, HomeScreen.routeName);
+              context.pushNamed('HomePage');
             },
           )
         ],
