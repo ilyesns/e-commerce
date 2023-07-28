@@ -86,8 +86,8 @@ String get currentUserPhoto =>
 String get currentPhoneNumber =>
     currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
 
-DocumentReference<Object?>? get currentUserRef =>
-    currentUserDocument?.reference ?? null;
+DocumentReference? get currentUserReference =>
+    loggedIn ? UserRecord.collection.doc(currentUser!.user!.uid) : null;
 
 bool get currentUserEmailVerified {
   // Reloads the user when checking in order to get the most up to date

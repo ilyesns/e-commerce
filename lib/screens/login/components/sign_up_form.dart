@@ -4,6 +4,7 @@ import 'package:blueraymarket/components/default_button.dart';
 import 'package:blueraymarket/components/form_error.dart';
 import 'package:blueraymarket/screens/complete_profile/complete_profile_screen.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../auth/auth_util.dart';
 import '../../../auth/credentials.dart';
@@ -66,7 +67,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 }
 
                 await sendEmailVerification();
-                Navigator.pushNamed(context, CompleteProfileScreen.routeName);
+                context.pushReplacementNamed('CompleteProfile');
               }
             },
           ),

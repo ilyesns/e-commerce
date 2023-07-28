@@ -19,6 +19,9 @@ abstract class ColorRecord implements Built<ColorRecord, ColorRecordBuilder> {
   @BuiltValueField(wireName: 'color_code')
   Color? get colorCode;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('colors');
 

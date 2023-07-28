@@ -29,6 +29,10 @@ abstract class CategoryRecord
   @BuiltValueField(wireName: 'created_by')
   DocumentReference? get createdBy;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
+
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('categories');
 

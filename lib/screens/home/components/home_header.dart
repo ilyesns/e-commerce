@@ -17,50 +17,27 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserRecord>(
-        future: !currentUser!.loggedIn
-            ? null
-            : UserRecord.getDocumentOnce(currentUserRef!),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (!snapshot.hasData) {
-            return Container(
-              child: Text("no users "),
-            );
-          }
-
-          final userRecord = snapshot.data!;
-
-          return Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: getProportionateScreenWidth(context, 20)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                //SearchField(),
-                Text("user name ${userRecord.name} "),
-                IconBtnWithCounter(
-                  svgSrc: "assets/icons/Cart Icon.svg",
-                  press: () =>
-                      Navigator.pushNamed(context, CartScreen.routeName),
-                ),
-                IconBtnWithCounter(
-                  svgSrc: "assets/icons/Bell.svg",
-                  numOfitem: 3,
-                  press: () {
-                    context.pushReplacementNamed(
-                      'Login',
-                    );
-                    signOut();
-                  },
-                ),
-              ],
-            ),
-          );
-        });
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: getProportionateScreenWidth(context, 20)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+              width: getProportionateScreenWidth(context, 240),
+              child:
+                  SearchField(onChanged: (string) {}, hintText: "Search bar")),
+          IconBtnWithCounter(
+            svgSrc: "assets/icons/Cart Icon.svg",
+            press: () => Navigator.pushNamed(context, CartScreen.routeName),
+          ),
+          IconBtnWithCounter(
+            svgSrc: "assets/icons/Bell.svg",
+            numOfitem: 3,
+            press: () {},
+          ),
+        ],
+      ),
+    );
   }
 }

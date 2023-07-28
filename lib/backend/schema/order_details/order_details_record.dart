@@ -31,6 +31,10 @@ abstract class OrderDetailsRecord
   @BuiltValueField(wireName: 'modified_at')
   DateTime? get modifiedAt;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
+
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('order_details');
 

@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
@@ -9,34 +10,31 @@ class DefaultButton extends StatelessWidget {
       {Key? key,
       this.text,
       this.press,
-      this.textColor = Colors.white,
-      this.bgColor = kPrimaryColor})
+      this.bgColor,
+      this.textColor = Colors.white})
       : super(key: key);
   final String? text;
   final Function? press;
-  Color? textColor;
   Color? bgColor;
+  Color textColor;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
-      height: getProportionateScreenHeight(context, 56),
+      width: double.maxFinite,
+      height: double.maxFinite,
       child: TextButton(
         style: TextButton.styleFrom(
           side: BorderSide(),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: bgColor,
+          backgroundColor: bgColor ?? MyTheme.of(context).primary,
         ),
         onPressed: press as void Function()?,
-        child: Text(
-          text!,
-          style: TextStyle(
-            fontSize: getProportionateScreenWidth(context, 18),
-            color: textColor,
-          ),
-        ),
+        child: Text(text!,
+            style: MyTheme.of(context)
+                .titleMedium
+                .override(color: textColor, fontFamily: 'Roboto')),
       ),
     );
   }

@@ -16,6 +16,10 @@ abstract class SizeRecord implements Built<SizeRecord, SizeRecordBuilder> {
   @BuiltValueField(wireName: 'size_code')
   String? get sizeCode;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
+
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('sizes');
 
@@ -35,7 +39,7 @@ abstract class SizeRecord implements Built<SizeRecord, SizeRecordBuilder> {
   factory SizeRecord([updates(SizeRecordBuilder b)]) = _$SizeRecord;
 }
 
-Map<String, dynamic> createColorRecordData({String? sizeName}) {
+Map<String, dynamic> createSizeRecordData({String? sizeName}) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'size_code': sizeName,

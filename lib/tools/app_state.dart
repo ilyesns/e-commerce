@@ -11,7 +11,9 @@ class AppState extends ChangeNotifier {
 
   static SharedPreferences? _prefs;
 
-  AppState._internal();
+  AppState._internal() {
+    initialize();
+  }
 
   Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();

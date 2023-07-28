@@ -28,6 +28,10 @@ abstract class SubCategoryRecord
   @BuiltValueField(wireName: 'created_by')
   DocumentReference? get createdBy;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
+
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
       parent != null
           ? parent.collection('sub_categories')

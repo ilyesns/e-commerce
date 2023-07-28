@@ -61,14 +61,14 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
             text: "continue",
             press: () {
               if (_formKey.currentState!.validate()) {
-                // Navigator.pushNamed(context, OtpScreen.routeName);
                 final user = createUserRecordData(
-                    name: '$lastName $firstName', phoneNumber: "phoneNumber");
+                    name: '$lastName $firstName',
+                    phoneNumber: "phoneNumber",
+                    role: roleUser);
 
-                print(lastName);
-                // UserRecord.collection
-                //     .doc(currentUserDocument!.uid)
-                //     .update(user);
+                UserRecord.collection
+                    .doc(currentUserDocument!.uid)
+                    .update(user);
               }
             },
           ),

@@ -57,6 +57,14 @@ class _$SubCategoryRecordSerializer
             specifiedType: const FullType(
                 DocumentReference, const [const FullType.nullable(Object)])));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -94,6 +102,12 @@ class _$SubCategoryRecordSerializer
                 const FullType.nullable(Object)
               ])) as DocumentReference<Object?>?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -112,6 +126,8 @@ class _$SubCategoryRecord extends SubCategoryRecord {
   final DateTime? modifiedAt;
   @override
   final DocumentReference<Object?>? createdBy;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$SubCategoryRecord(
           [void Function(SubCategoryRecordBuilder)? updates]) =>
@@ -122,7 +138,8 @@ class _$SubCategoryRecord extends SubCategoryRecord {
       this.image,
       this.createdAt,
       this.modifiedAt,
-      this.createdBy})
+      this.createdBy,
+      this.ffRef})
       : super._();
 
   @override
@@ -141,7 +158,8 @@ class _$SubCategoryRecord extends SubCategoryRecord {
         image == other.image &&
         createdAt == other.createdAt &&
         modifiedAt == other.modifiedAt &&
-        createdBy == other.createdBy;
+        createdBy == other.createdBy &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -152,6 +170,7 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
     _$hash = $jc(_$hash, createdBy.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -163,7 +182,8 @@ class _$SubCategoryRecord extends SubCategoryRecord {
           ..add('image', image)
           ..add('createdAt', createdAt)
           ..add('modifiedAt', modifiedAt)
-          ..add('createdBy', createdBy))
+          ..add('createdBy', createdBy)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -194,6 +214,10 @@ class SubCategoryRecordBuilder
   set createdBy(DocumentReference<Object?>? createdBy) =>
       _$this._createdBy = createdBy;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   SubCategoryRecordBuilder() {
     SubCategoryRecord._initializeBuilder(this);
   }
@@ -206,6 +230,7 @@ class SubCategoryRecordBuilder
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
       _createdBy = $v.createdBy;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -232,7 +257,8 @@ class SubCategoryRecordBuilder
             image: image,
             createdAt: createdAt,
             modifiedAt: modifiedAt,
-            createdBy: createdBy);
+            createdBy: createdBy,
+            ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

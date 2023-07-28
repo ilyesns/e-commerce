@@ -55,6 +55,14 @@ class _$BrandRecordSerializer implements StructuredSerializer<BrandRecord> {
             specifiedType: const FullType(
                 DocumentReference, const [const FullType.nullable(Object)])));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -91,6 +99,12 @@ class _$BrandRecordSerializer implements StructuredSerializer<BrandRecord> {
                 const FullType.nullable(Object)
               ])) as DocumentReference<Object?>?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -109,6 +123,8 @@ class _$BrandRecord extends BrandRecord {
   final DateTime? modifiedAt;
   @override
   final DocumentReference<Object?>? createdBy;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$BrandRecord([void Function(BrandRecordBuilder)? updates]) =>
       (new BrandRecordBuilder()..update(updates))._build();
@@ -118,7 +134,8 @@ class _$BrandRecord extends BrandRecord {
       this.image,
       this.createdAt,
       this.modifiedAt,
-      this.createdBy})
+      this.createdBy,
+      this.ffRef})
       : super._();
 
   @override
@@ -136,7 +153,8 @@ class _$BrandRecord extends BrandRecord {
         image == other.image &&
         createdAt == other.createdAt &&
         modifiedAt == other.modifiedAt &&
-        createdBy == other.createdBy;
+        createdBy == other.createdBy &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -147,6 +165,7 @@ class _$BrandRecord extends BrandRecord {
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
     _$hash = $jc(_$hash, createdBy.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -158,7 +177,8 @@ class _$BrandRecord extends BrandRecord {
           ..add('image', image)
           ..add('createdAt', createdAt)
           ..add('modifiedAt', modifiedAt)
-          ..add('createdBy', createdBy))
+          ..add('createdBy', createdBy)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -187,6 +207,10 @@ class BrandRecordBuilder implements Builder<BrandRecord, BrandRecordBuilder> {
   set createdBy(DocumentReference<Object?>? createdBy) =>
       _$this._createdBy = createdBy;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   BrandRecordBuilder() {
     BrandRecord._initializeBuilder(this);
   }
@@ -199,6 +223,7 @@ class BrandRecordBuilder implements Builder<BrandRecord, BrandRecordBuilder> {
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
       _createdBy = $v.createdBy;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -225,7 +250,8 @@ class BrandRecordBuilder implements Builder<BrandRecord, BrandRecordBuilder> {
             image: image,
             createdAt: createdAt,
             modifiedAt: modifiedAt,
-            createdBy: createdBy);
+            createdBy: createdBy,
+            ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

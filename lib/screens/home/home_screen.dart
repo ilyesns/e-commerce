@@ -6,8 +6,6 @@ import '../../tools/size_config.dart';
 import 'components/body.dart';
 
 class HomeScreen extends StatefulWidget {
-  static String routeName = "/home";
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

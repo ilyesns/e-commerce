@@ -66,37 +66,44 @@ class _SignFormState extends State<SignForm> {
           ),
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(context, 20)),
-          DefaultButton(
-            text: "Sign in",
-            press: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                KeyboardUtil.hideKeyboard(context);
-                //  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+          Container(
+            width: 200,
+            height: 100,
+            child: DefaultButton(
+              text: "Sign in",
+              press: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  // if all are valid then go to success screen
+                  KeyboardUtil.hideKeyboard(context);
+                  //  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
 
-                final user = await signInWithEmail(
-                  context,
-                  email!,
-                  password!,
-                );
-                if (user != null) {
-                  print("succes auth $user");
-                  context.go('HomePage');
-                } else {
-                  print("failed auth");
+                  final user = await signInWithEmail(
+                    context,
+                    email!,
+                    password!,
+                  );
+                  if (user != null) {
+                    print("succes auth $user");
+                    context.go('HomePage');
+                  } else {
+                    print("failed auth");
+                  }
                 }
-              }
-            },
+              },
+            ),
           ),
           SizedBox(height: getProportionateScreenHeight(context, 20)),
-          DefaultButton(
-            text: "Skip",
-            textColor: kPrimaryColor,
-            bgColor: Colors.white,
-            press: () {
-              context.pushNamed('HomePage');
-            },
+          Container(
+            width: 200,
+            height: 100,
+            child: DefaultButton(
+              text: "Skip",
+              bgColor: Colors.white,
+              press: () {
+                context.pushNamed('HomePage');
+              },
+            ),
           )
         ],
       ),

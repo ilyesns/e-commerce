@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/screens/home/home_screen.dart';
 import 'package:blueraymarket/screens/profile/profile_screen.dart';
+import 'package:go_router/go_router.dart';
 
 import '../tools/constants.dart';
 import '../tools/enums.dart';
@@ -16,7 +17,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color inActiveIconColor = Color(0xFFB6B6B6);
+    final Color inActiveIconColor = Color.fromARGB(255, 87, 85, 85);
     return Container(
       padding: EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
@@ -39,21 +40,29 @@ class CustomBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
+                  icon: SvgPicture.asset(
+                    "assets/icons/Shop Icon.svg",
+                    color: MenuState.home == selectedMenu
+                        ? kPrimaryColor
+                        : inActiveIconColor,
+                  ),
+                  onPressed: () => context.pushReplacementNamed('HomePage')),
+              IconButton(
                 icon: SvgPicture.asset(
-                  "assets/icons/Shop Icon.svg",
-                  color: MenuState.home == selectedMenu
+                  "assets/icons/Heart Icon.svg",
+                  color: MenuState.favourite == selectedMenu
                       ? kPrimaryColor
                       : inActiveIconColor,
                 ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, HomeScreen.routeName),
-              ),
-              IconButton(
-                icon: SvgPicture.asset("assets/icons/Heart Icon.svg"),
                 onPressed: () {},
               ),
               IconButton(
-                icon: SvgPicture.asset("assets/icons/Chat bubble Icon.svg"),
+                icon: SvgPicture.asset(
+                  "assets/icons/Chat bubble Icon.svg",
+                  color: MenuState.message == selectedMenu
+                      ? kPrimaryColor
+                      : inActiveIconColor,
+                ),
                 onPressed: () {},
               ),
               IconButton(
@@ -63,8 +72,7 @@ class CustomBottomNavBar extends StatelessWidget {
                       ? kPrimaryColor
                       : inActiveIconColor,
                 ),
-                onPressed: () => Navigator.pushReplacementNamed(
-                    context, ProfileScreen.routeName),
+                onPressed: () => context.pushNamed('ProfilePage'),
               ),
             ],
           )),

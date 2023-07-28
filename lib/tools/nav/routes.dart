@@ -1,3 +1,4 @@
+import 'package:blueraymarket/screens/dashboard/manage_products/brands/brands_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:blueraymarket/screens/cart/cart_screen.dart';
@@ -15,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import '../../auth/auth_util.dart';
 import '../../auth/firebase_user_provider.dart';
 import '../../auth/firebase_user_provider.dart';
+import '../../screens/dashboard/darshboard_screen.dart';
 import 'serializer.dart';
 
 const kTransitionInfoKey = '__transition_info__';
@@ -97,6 +99,24 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
             path: 'cartPage',
             requireAuth: true,
             builder: (context, state) => CartScreen(),
+          ),
+          MyRoute(
+            name: 'ProfilePage',
+            path: 'profilePage',
+            requireAuth: true,
+            builder: (context, state) => ProfileScreen(),
+          ),
+          MyRoute(
+            name: 'DashboardScreen',
+            path: 'dashboardScreen',
+            requireAuth: true,
+            builder: (context, state) => DashboardScreen(),
+          ),
+          MyRoute(
+            name: 'BrandsPage',
+            path: 'brandsPage',
+            requireAuth: true,
+            builder: (context, state) => BrandsScreen(),
           ),
         ].map((r) => r.toRoute(appStateNotifier)).toList(),
       ),

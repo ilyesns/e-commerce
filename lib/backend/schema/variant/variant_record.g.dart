@@ -56,6 +56,14 @@ class _$VariantRecordSerializer implements StructuredSerializer<VariantRecord> {
             specifiedType: const FullType(
                 DocumentReference, const [const FullType.nullable(Object)])));
     }
+    value = object.idFeature;
+    if (value != null) {
+      result
+        ..add('id_feature')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     value = object.images;
     if (value != null) {
       result
@@ -77,6 +85,14 @@ class _$VariantRecordSerializer implements StructuredSerializer<VariantRecord> {
         ..add('modified_at')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
+    }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
     }
     return result;
   }
@@ -117,6 +133,12 @@ class _$VariantRecordSerializer implements StructuredSerializer<VariantRecord> {
                 const FullType.nullable(Object)
               ])) as DocumentReference<Object?>?;
           break;
+        case 'id_feature':
+          result.idFeature = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
         case 'images':
           result.images.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
@@ -130,6 +152,12 @@ class _$VariantRecordSerializer implements StructuredSerializer<VariantRecord> {
         case 'modified_at':
           result.modifiedAt = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
+          break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
           break;
       }
     }
@@ -150,11 +178,15 @@ class _$VariantRecord extends VariantRecord {
   @override
   final DocumentReference<Object?>? idSize;
   @override
+  final DocumentReference<Object?>? idFeature;
+  @override
   final BuiltList<String>? images;
   @override
   final DateTime? createdAt;
   @override
   final DateTime? modifiedAt;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$VariantRecord([void Function(VariantRecordBuilder)? updates]) =>
       (new VariantRecordBuilder()..update(updates))._build();
@@ -165,9 +197,11 @@ class _$VariantRecord extends VariantRecord {
       this.idColor,
       this.sizeCode,
       this.idSize,
+      this.idFeature,
       this.images,
       this.createdAt,
-      this.modifiedAt})
+      this.modifiedAt,
+      this.ffRef})
       : super._();
 
   @override
@@ -186,9 +220,11 @@ class _$VariantRecord extends VariantRecord {
         idColor == other.idColor &&
         sizeCode == other.sizeCode &&
         idSize == other.idSize &&
+        idFeature == other.idFeature &&
         images == other.images &&
         createdAt == other.createdAt &&
-        modifiedAt == other.modifiedAt;
+        modifiedAt == other.modifiedAt &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -199,9 +235,11 @@ class _$VariantRecord extends VariantRecord {
     _$hash = $jc(_$hash, idColor.hashCode);
     _$hash = $jc(_$hash, sizeCode.hashCode);
     _$hash = $jc(_$hash, idSize.hashCode);
+    _$hash = $jc(_$hash, idFeature.hashCode);
     _$hash = $jc(_$hash, images.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -214,9 +252,11 @@ class _$VariantRecord extends VariantRecord {
           ..add('idColor', idColor)
           ..add('sizeCode', sizeCode)
           ..add('idSize', idSize)
+          ..add('idFeature', idFeature)
           ..add('images', images)
           ..add('createdAt', createdAt)
-          ..add('modifiedAt', modifiedAt))
+          ..add('modifiedAt', modifiedAt)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -245,6 +285,11 @@ class VariantRecordBuilder
   DocumentReference<Object?>? get idSize => _$this._idSize;
   set idSize(DocumentReference<Object?>? idSize) => _$this._idSize = idSize;
 
+  DocumentReference<Object?>? _idFeature;
+  DocumentReference<Object?>? get idFeature => _$this._idFeature;
+  set idFeature(DocumentReference<Object?>? idFeature) =>
+      _$this._idFeature = idFeature;
+
   ListBuilder<String>? _images;
   ListBuilder<String> get images =>
       _$this._images ??= new ListBuilder<String>();
@@ -258,6 +303,10 @@ class VariantRecordBuilder
   DateTime? get modifiedAt => _$this._modifiedAt;
   set modifiedAt(DateTime? modifiedAt) => _$this._modifiedAt = modifiedAt;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   VariantRecordBuilder() {
     VariantRecord._initializeBuilder(this);
   }
@@ -270,9 +319,11 @@ class VariantRecordBuilder
       _idColor = $v.idColor;
       _sizeCode = $v.sizeCode;
       _idSize = $v.idSize;
+      _idFeature = $v.idFeature;
       _images = $v.images?.toBuilder();
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -302,9 +353,11 @@ class VariantRecordBuilder
               idColor: idColor,
               sizeCode: sizeCode,
               idSize: idSize,
+              idFeature: idFeature,
               images: _images?.build(),
               createdAt: createdAt,
-              modifiedAt: modifiedAt);
+              modifiedAt: modifiedAt,
+              ffRef: ffRef);
     } catch (_) {
       late String _$failedField;
       try {
