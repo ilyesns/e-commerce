@@ -1,13 +1,25 @@
+import 'package:blueraymarket/tools/app_state.dart';
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:provider/provider.dart';
 
+import '../../../backend/schema/product/product_record.dart';
 import '../../../tools/constants.dart';
 
-class ProductDescription extends StatelessWidget {
-  // final Product product;
-  // final GestureTapCallback? pressOnSeeMore;
+class ProductDescription extends StatefulWidget {
+  ProductDescription({required this.product, this.pressOnSeeMore});
 
+  final ProductRecord? product;
+  final GestureTapCallback? pressOnSeeMore;
+
+  @override
+  State<ProductDescription> createState() => _ProductDescriptionState();
+}
+
+class _ProductDescriptionState extends State<ProductDescription> {
+  bool seeMore = false;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -17,8 +29,20 @@ class ProductDescription extends StatelessWidget {
           padding: EdgeInsets.symmetric(
               horizontal: getProportionateScreenWidth(context, 20)),
           child: Text(
-            "product.title", // product title
-            style: Theme.of(context).textTheme.headline6,
+            widget.product!.title!.toUpperCase(), // product title
+            style: MyTheme.of(context).titleLarge,
+          ),
+        ),
+        SizedBox(
+          height: getProportionateScreenHeight(context, 20),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: getProportionateScreenWidth(context, 20)),
+          child: Text(
+            'US\$ ${widget.product!.price.toString()}', // product title
+            style: MyTheme.of(context).titleLarge.copyWith(
+                fontFamily: 'Open Sans', color: MyTheme.of(context).primary),
           ),
         ),
         Align(
@@ -27,8 +51,9 @@ class ProductDescription extends StatelessWidget {
             padding: EdgeInsets.all(getProportionateScreenWidth(context, 15)),
             width: getProportionateScreenWidth(context, 64),
             decoration: BoxDecoration(
-              // color:
-              //     product.isFavourite ? Color(0xFFFFE6E6) : Color(0xFFF5F6F9),
+              color: AppState().favorite.contains(widget.product!.reference)
+                  ? Color(0xFFFFE6E6)
+                  : Color(0xFFF5F6F9),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
@@ -36,9 +61,10 @@ class ProductDescription extends StatelessWidget {
             ),
             child: SvgPicture.asset(
               "assets/icons/Heart Icon_2.svg",
-              // color:
-              // product.isFavourite ? Color(0xFFFF4848) : Color(0xFFDBDEE4),
-              // height: getProportionateScreenWidth(context, 16),
+              color: AppState().favorite.contains(widget.product!.reference)
+                  ? Color(0xFFFF4848)
+                  : Color(0xFFDBDEE4),
+              height: getProportionateScreenWidth(context, 16),
             ),
           ),
         ),
@@ -48,8 +74,9 @@ class ProductDescription extends StatelessWidget {
             right: getProportionateScreenWidth(context, 64),
           ),
           child: Text(
-            " product.description",
-            maxLines: 3,
+            overflow: seeMore ? null : TextOverflow.ellipsis,
+            widget.product!.description!,
+            maxLines: seeMore ? null : 3,
           ),
         ),
         Padding(
@@ -58,20 +85,40 @@ class ProductDescription extends StatelessWidget {
             vertical: 10,
           ),
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                seeMore = !seeMore;
+                // AppState().favorite.add(widget.product!.ffRef!);
+              });
+            },
             child: Row(
               children: [
-                Text(
-                  "See More Detail",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: kPrimaryColor),
-                ),
-                SizedBox(width: 5),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12,
-                  color: kPrimaryColor,
-                ),
+                if (!seeMore)
+                  Text(
+                    "See More Detail",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600, color: kPrimaryColor),
+                  ),
+                if (!seeMore) SizedBox(width: 5),
+                if (!seeMore)
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 12,
+                    color: kPrimaryColor,
+                  ),
+                if (seeMore)
+                  Text(
+                    "See Less Detail",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600, color: kPrimaryColor),
+                  ),
+                if (seeMore) SizedBox(width: 5),
+                if (seeMore)
+                  Icon(
+                    Icons.arrow_back_ios,
+                    size: 12,
+                    color: kPrimaryColor,
+                  ),
               ],
             ),
           ),

@@ -43,8 +43,9 @@ abstract class ColorRecord implements Built<ColorRecord, ColorRecordBuilder> {
 
 Map<String, dynamic> createColorRecordData(
     {String? colorName, Color? colorCode}) {
+  print(colorName);
   final firestoreData = mapToFirestore(
-    <String, dynamic>{
+    {
       'color_name': colorName,
       'color_code': colorCode,
     },

@@ -11,7 +11,10 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  SizeConfig sizeConfig = SizeConfig();
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

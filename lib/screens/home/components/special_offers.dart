@@ -1,13 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
+import '../../../backend/schema/product/product_record.dart';
+import '../../../backend/schema/sub_category/sub_category_record.dart';
 import 'section_title.dart';
 
 class SpecialOffers extends StatelessWidget {
-  const SpecialOffers({
-    Key? key,
-  }) : super(key: key);
-
+  SpecialOffers({Key? key, required this.subCategories, required this.products})
+      : super(key: key);
+  List<SubCategoryRecord?> subCategories;
+  List<ProductRecord?> products;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -21,26 +24,25 @@ class SpecialOffers extends StatelessWidget {
           ),
         ),
         SizedBox(height: getProportionateScreenWidth(context, 20)),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              SpecialOfferCard(
-                image: "assets/images/Image Banner 2.png",
-                category: "Smartphone",
-                numOfBrands: 18,
-                press: () {},
-              ),
-              SpecialOfferCard(
-                image: "assets/images/Image Banner 3.png",
-                category: "Fashion",
-                numOfBrands: 24,
-                press: () {},
-              ),
-              SizedBox(width: getProportionateScreenWidth(context, 20)),
-            ],
-          ),
-        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: 120,
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: subCategories.length,
+              itemBuilder: (_, index) {
+                final subCategory = subCategories[index];
+                return SpecialOfferCard(
+                  image: subCategory!.image!,
+                  category: subCategory.subCategoryName!,
+                  numOfBrands: products
+                      .where((product) =>
+                          product!.idSubCategory == subCategory.reference)
+                      .length,
+                  press: () {},
+                );
+              }),
+        )
       ],
     );
   }
@@ -72,10 +74,12 @@ class SpecialOfferCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                ),
+                CachedNetworkImage(
+                    imageUrl: image,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Image.asset(
+                        'assets/images/blue_ray_image.jpg'), // Placeholder widget
+                    errorWidget: (context, url, error) => Icon(Icons.error)),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -104,7 +108,7 @@ class SpecialOfferCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        TextSpan(text: "$numOfBrands Brands")
+                        TextSpan(text: "$numOfBrands Products")
                       ],
                     ),
                   ),

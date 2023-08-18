@@ -71,7 +71,6 @@ Future resetPassword(
 
 Future sendEmailVerification() async =>
     currentUser?.user?.sendEmailVerification();
-
 String get currentUserEmail =>
     currentUserDocument?.email ?? currentUser?.user?.email ?? '';
 
@@ -85,6 +84,8 @@ String get currentUserPhoto =>
 
 String get currentPhoneNumber =>
     currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
+
+String get currentUserRole => currentUserDocument?.role ?? '';
 
 DocumentReference? get currentUserReference =>
     loggedIn ? UserRecord.collection.doc(currentUser!.user!.uid) : null;

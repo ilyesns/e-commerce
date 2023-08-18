@@ -1,8 +1,8 @@
 import 'package:blueraymarket/screens/login/components/sign_up_form.dart';
 import 'package:blueraymarket/tools/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:blueraymarket/components/socal_card.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import '../../../tools/nav/theme.dart';
 import 'sign_form.dart';
 
 class Body extends StatefulWidget {
@@ -18,28 +18,22 @@ class _BodyState extends State<Body> {
     return SafeArea(
       child: Container(
         width: widget.sizeConfig.screenWidth,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: getProportionateScreenWidth(context, 20)),
-            child: Column(
-              children: [
-                SizedBox(height: widget.sizeConfig.screenHeight * 0.04),
-                Text(
-                  "Welcome Back",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: getProportionateScreenWidth(context, 28),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "Sign in with your email and password  \nor continue with social media",
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: widget.sizeConfig.screenHeight * 0.08),
-                Container(
-                  height: widget.sizeConfig.screenHeight / 1.9,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: getProportionateScreenWidth(context, 20)),
+          child: Column(
+            children: [
+              SizedBox(height: widget.sizeConfig.screenHeight * 0.04),
+              Text("Welcome Back", style: MyTheme.of(context).headlineLarge),
+              Text(
+                "Sign in with your email and password  \nor continue with social media",
+                style: MyTheme.of(context).bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: widget.sizeConfig.screenHeight * 0.08),
+              Expanded(
+                child: Container(
+                  height: widget.sizeConfig.screenHeight / 1.8,
                   child: DefaultTabController(
                     length: 2,
                     initialIndex: 0,
@@ -89,27 +83,8 @@ class _BodyState extends State<Body> {
                     ),
                   ),
                 ),
-                SizedBox(height: widget.sizeConfig.screenHeight * 0.08),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SocalCard(
-                      icon: "assets/icons/google-icon.svg",
-                      press: () {},
-                    ),
-                    SocalCard(
-                      icon: "assets/icons/facebook-2.svg",
-                      press: () {},
-                    ),
-                    SocalCard(
-                      icon: "assets/icons/twitter.svg",
-                      press: () {},
-                    ),
-                  ],
-                ),
-                SizedBox(height: getProportionateScreenHeight(context, 20)),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

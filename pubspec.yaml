@@ -57,6 +57,15 @@ dependencies:
   file_picker: ^5.3.3
   video_player: ^2.7.0
   awesome_dialog: ^3.1.0
+  dropdown_button2: ^2.3.7
+  iglu_color_picker_flutter: ^1.0.4
+  page_transition:  2.0.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_animate: ^4.2.0+1
+  flutter_rating_bar: ^4.0.1
+  shimmer: ^3.0.0
+  infinite_scroll_pagination: ^4.0.0
   
 
 dev_dependencies:
@@ -104,6 +113,15 @@ flutter:
         - asset: assets/fonts/roboto/Roboto-Medium.ttf
           weight: 500
         - asset: assets/fonts/roboto/Roboto-Light.ttf
+          weight: 300
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/open_sans/OpenSans-Regular.ttf
+        - asset: assets/fonts/open_sans/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/open_sans/OpenSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/open_sans/OpenSans-Light.ttf
           weight: 300
   #   - family: Trajan Pro
   #     fonts:

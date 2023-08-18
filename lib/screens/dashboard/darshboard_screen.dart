@@ -1,7 +1,10 @@
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 
+import '../../backend/cache/hive_box.dart';
+import '../../tools/nav/routes.dart';
 import '../../tools/size_config.dart';
 import 'components/header.dart';
 import 'components/manage_item.dart';
@@ -14,6 +17,14 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    clearSubcategoryBox();
+    clearDiscountsBox();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,14 +138,43 @@ class Body extends StatelessWidget {
                                                       'assets/icons/brandfolder.svg',
                                                   onPress: () {
                                                     context.pushNamed(
-                                                        'BrandsPage');
+                                                      'BrandsPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
                                                   },
                                                 ),
                                                 ManageItem(
                                                   nameItem: "Categories",
                                                   pathSvg:
                                                       'assets/icons/category.svg',
-                                                  onPress: () {},
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'CategoriesPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
                                                 ),
                                               ],
                                             ),
@@ -153,13 +193,45 @@ class Body extends StatelessWidget {
                                                   nameItem: "Sub Categories",
                                                   pathSvg:
                                                       'assets/icons/subcategory.svg',
-                                                  onPress: () {},
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'SubCategoriesPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
                                                 ),
                                                 ManageItem(
                                                   nameItem: 'Products',
                                                   pathSvg:
                                                       'assets/icons/product.svg',
-                                                  onPress: () {},
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'ProductsPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
                                                 )
                                               ],
                                             ),
@@ -178,13 +250,81 @@ class Body extends StatelessWidget {
                                                   nameItem: 'Variants',
                                                   pathSvg:
                                                       'assets/icons/variation.svg',
-                                                  onPress: () {},
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'VariantsPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
                                                 ),
                                                 ManageItem(
                                                   nameItem: 'Discounts',
                                                   pathSvg:
                                                       'assets/icons/discounts.svg',
-                                                  onPress: () {},
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'DiscountsPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height:
+                                                  getProportionateScreenHeight(
+                                                      context, 20),
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                ManageItem(
+                                                  nameItem:
+                                                      'Products / Variants',
+                                                  pathSvg:
+                                                      'assets/icons/variation.svg',
+                                                  onPress: () {
+                                                    context.pushNamed(
+                                                      'ProductsVariantsPage',
+                                                      extra: <String, dynamic>{
+                                                        kTransitionInfoKey:
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .rightToLeftWithFade,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  kTransitionDuration),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
                                                 ),
                                               ],
                                             ),

@@ -35,6 +35,13 @@ class _$SubCategoryRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.displayAtHome;
+    if (value != null) {
+      result
+        ..add('display_at_home')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
     value = object.createdAt;
     if (value != null) {
       result
@@ -88,6 +95,10 @@ class _$SubCategoryRecordSerializer
           result.image = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'display_at_home':
+          result.displayAtHome = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
         case 'created_at':
           result.createdAt = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
@@ -121,6 +132,8 @@ class _$SubCategoryRecord extends SubCategoryRecord {
   @override
   final String? image;
   @override
+  final bool? displayAtHome;
+  @override
   final DateTime? createdAt;
   @override
   final DateTime? modifiedAt;
@@ -136,6 +149,7 @@ class _$SubCategoryRecord extends SubCategoryRecord {
   _$SubCategoryRecord._(
       {this.subCategoryName,
       this.image,
+      this.displayAtHome,
       this.createdAt,
       this.modifiedAt,
       this.createdBy,
@@ -156,6 +170,7 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     return other is SubCategoryRecord &&
         subCategoryName == other.subCategoryName &&
         image == other.image &&
+        displayAtHome == other.displayAtHome &&
         createdAt == other.createdAt &&
         modifiedAt == other.modifiedAt &&
         createdBy == other.createdBy &&
@@ -167,6 +182,7 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     var _$hash = 0;
     _$hash = $jc(_$hash, subCategoryName.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
+    _$hash = $jc(_$hash, displayAtHome.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
     _$hash = $jc(_$hash, createdBy.hashCode);
@@ -180,6 +196,7 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     return (newBuiltValueToStringHelper(r'SubCategoryRecord')
           ..add('subCategoryName', subCategoryName)
           ..add('image', image)
+          ..add('displayAtHome', displayAtHome)
           ..add('createdAt', createdAt)
           ..add('modifiedAt', modifiedAt)
           ..add('createdBy', createdBy)
@@ -200,6 +217,11 @@ class SubCategoryRecordBuilder
   String? _image;
   String? get image => _$this._image;
   set image(String? image) => _$this._image = image;
+
+  bool? _displayAtHome;
+  bool? get displayAtHome => _$this._displayAtHome;
+  set displayAtHome(bool? displayAtHome) =>
+      _$this._displayAtHome = displayAtHome;
 
   DateTime? _createdAt;
   DateTime? get createdAt => _$this._createdAt;
@@ -227,6 +249,7 @@ class SubCategoryRecordBuilder
     if ($v != null) {
       _subCategoryName = $v.subCategoryName;
       _image = $v.image;
+      _displayAtHome = $v.displayAtHome;
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
       _createdBy = $v.createdBy;
@@ -255,6 +278,7 @@ class SubCategoryRecordBuilder
         new _$SubCategoryRecord._(
             subCategoryName: subCategoryName,
             image: image,
+            displayAtHome: displayAtHome,
             createdAt: createdAt,
             modifiedAt: modifiedAt,
             createdBy: createdBy,

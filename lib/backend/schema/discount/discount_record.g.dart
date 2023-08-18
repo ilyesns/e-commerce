@@ -42,6 +42,20 @@ class _$DiscountRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(double)));
     }
+    value = object.active;
+    if (value != null) {
+      result
+        ..add('active')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
+    value = object.displayAtHome;
+    if (value != null) {
+      result
+        ..add('display_at_home')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
     value = object.image;
     if (value != null) {
       result
@@ -112,6 +126,14 @@ class _$DiscountRecordSerializer
           result.discountPercent = serializers.deserialize(value,
               specifiedType: const FullType(double)) as double?;
           break;
+        case 'active':
+          result.active = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
+        case 'display_at_home':
+          result.displayAtHome = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
         case 'image':
           result.image = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
@@ -153,6 +175,10 @@ class _$DiscountRecord extends DiscountRecord {
   @override
   final double? discountPercent;
   @override
+  final bool? active;
+  @override
+  final bool? displayAtHome;
+  @override
   final String? image;
   @override
   final DateTime? createdAt;
@@ -172,6 +198,8 @@ class _$DiscountRecord extends DiscountRecord {
       {this.title,
       this.description,
       this.discountPercent,
+      this.active,
+      this.displayAtHome,
       this.image,
       this.createdAt,
       this.startedAt,
@@ -195,6 +223,8 @@ class _$DiscountRecord extends DiscountRecord {
         title == other.title &&
         description == other.description &&
         discountPercent == other.discountPercent &&
+        active == other.active &&
+        displayAtHome == other.displayAtHome &&
         image == other.image &&
         createdAt == other.createdAt &&
         startedAt == other.startedAt &&
@@ -209,6 +239,8 @@ class _$DiscountRecord extends DiscountRecord {
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, discountPercent.hashCode);
+    _$hash = $jc(_$hash, active.hashCode);
+    _$hash = $jc(_$hash, displayAtHome.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, startedAt.hashCode);
@@ -225,6 +257,8 @@ class _$DiscountRecord extends DiscountRecord {
           ..add('title', title)
           ..add('description', description)
           ..add('discountPercent', discountPercent)
+          ..add('active', active)
+          ..add('displayAtHome', displayAtHome)
           ..add('image', image)
           ..add('createdAt', createdAt)
           ..add('startedAt', startedAt)
@@ -251,6 +285,15 @@ class DiscountRecordBuilder
   double? get discountPercent => _$this._discountPercent;
   set discountPercent(double? discountPercent) =>
       _$this._discountPercent = discountPercent;
+
+  bool? _active;
+  bool? get active => _$this._active;
+  set active(bool? active) => _$this._active = active;
+
+  bool? _displayAtHome;
+  bool? get displayAtHome => _$this._displayAtHome;
+  set displayAtHome(bool? displayAtHome) =>
+      _$this._displayAtHome = displayAtHome;
 
   String? _image;
   String? get image => _$this._image;
@@ -286,6 +329,8 @@ class DiscountRecordBuilder
       _title = $v.title;
       _description = $v.description;
       _discountPercent = $v.discountPercent;
+      _active = $v.active;
+      _displayAtHome = $v.displayAtHome;
       _image = $v.image;
       _createdAt = $v.createdAt;
       _startedAt = $v.startedAt;
@@ -317,6 +362,8 @@ class DiscountRecordBuilder
             title: title,
             description: description,
             discountPercent: discountPercent,
+            active: active,
+            displayAtHome: displayAtHome,
             image: image,
             createdAt: createdAt,
             startedAt: startedAt,

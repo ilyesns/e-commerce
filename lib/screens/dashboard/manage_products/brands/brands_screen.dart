@@ -68,6 +68,9 @@ class _BodyState extends State<Body> {
   String uploadedFileUrl = '';
   bool uploadImage = false;
   String search = '';
+
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -121,113 +124,7 @@ class _BodyState extends State<Body> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              InkWell(
-                onTap: () async {
-                  final selectedMedia = await selectMediaWithSourceBottomSheet(
-                    context: context,
-                    allowPhoto: true,
-                  );
-                  if (selectedMedia != null &&
-                      selectedMedia.every(
-                          (m) => validateFileFormat(m.storagePath, context))) {
-                    setState(() => isDataUploading = true);
-                    var selectedUploadedFiles = <UploadedFile>[];
-                    var downloadUrls = <String>[];
-                    try {
-                      selectedUploadedFiles = selectedMedia
-                          .map((m) => UploadedFile(
-                                name: m.storagePath.split('/').last,
-                                bytes: m.bytes,
-                                height: m.dimensions?.height,
-                                width: m.dimensions?.width,
-                                blurHash: m.blurHash,
-                              ))
-                          .toList();
-
-                      downloadUrls = (await Future.wait(
-                        selectedMedia.map(
-                          (m) async => await uploadData(m.storagePath, m.bytes),
-                        ),
-                      ))
-                          .where((u) => u != null)
-                          .map((u) => u!)
-                          .toList();
-                    } finally {
-                      isDataUploading = false;
-                    }
-                    if (selectedUploadedFiles.length == selectedMedia.length &&
-                        downloadUrls.length == selectedMedia.length) {
-                      setState(() {
-                        uploadedLocalFile = selectedUploadedFiles.first;
-                        uploadedFileUrl = downloadUrls.first;
-                        uploadImage = false;
-                      });
-                    } else {
-                      setState(() {});
-                      return;
-                    }
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: getProportionateScreenHeight(context, 20)),
-                  child: SizedBox(
-                    height: 115,
-                    width: 115,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      clipBehavior: Clip.none,
-                      children: [
-                        isDataUploading
-                            ? loadingIndicator(context)
-                            : DottedBorder(
-                                color: MyTheme.of(context).primaryText,
-                                dashPattern: [8, 8],
-                                borderType: BorderType.Circle,
-                                child: uploadedFileUrl.isNotEmpty
-                                    ? Container(
-                                        width: 120,
-                                        height: 120,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(50)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5),
-                                          child: CircleAvatar(
-                                            backgroundImage: Image(
-                                                    image: NetworkImage(
-                                                        uploadedFileUrl))
-                                                .image,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(
-                                        width: 120,
-                                        height: 100,
-                                        child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'assets/images/upload_img.png',
-                                                width: 50,
-                                                height: 50,
-                                              ),
-                                              Text(
-                                                "Select an image",
-                                                style: MyTheme.of(context)
-                                                    .labelMedium,
-                                              )
-                                            ]),
-                                      ),
-                              ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              uploadImageComponent(context),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -247,24 +144,7 @@ class _BodyState extends State<Body> {
               SizedBox(
                 height: getProportionateScreenHeight(context, 20),
               ),
-              Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      Container(
-                        child: CustomTextField(
-                          focusNode: focusNodeBrand,
-                          textFieldController: _textFieldControllerBrand,
-                          labelText: 'Brand Name',
-                          hintText: 'Enter Brand Name',
-                          error: "This field is required",
-                          addError: addError,
-                          removeError: removeError,
-                        ),
-                      ),
-                      FormError(errors: errors),
-                    ],
-                  )),
+              FormComponent(),
               SizedBox(
                 height: getProportionateScreenHeight(context, 20),
               ),
@@ -272,6 +152,7 @@ class _BodyState extends State<Body> {
                 width: getProportionateScreenWidth(context, 120),
                 height: getProportionateScreenHeight(context, 50),
                 child: DefaultButton(
+                    isLoading: isLoading,
                     press: () async {
                       if (uploadedFileUrl.isEmpty) {
                         setState(() {
@@ -280,6 +161,9 @@ class _BodyState extends State<Body> {
                       }
                       if (_formKey.currentState!.validate() &&
                           uploadedFileUrl.isNotEmpty) {
+                        setState(() {
+                          isLoading = true;
+                        });
                         _formKey.currentState!.save();
                         KeyboardUtil.hideKeyboard(context);
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -292,12 +176,15 @@ class _BodyState extends State<Body> {
                             createdBy: currentUserReference);
                         await BrandRecord.collection.add(brand);
                         setState(() {
+                          isLoading = false;
+
                           uploadedFileUrl = '';
                           uploadImage = false;
                           _textFieldControllerBrand.clear();
                         });
                         ScaffoldMessenger.of(_context).showSnackBar(
                           SnackBar(
+                            backgroundColor: MyTheme.of(context).alternate,
                             content: Text(
                               'You added a brand item with success!',
                               style: MyTheme.of(context).bodyMedium.override(
@@ -340,213 +227,342 @@ class _BodyState extends State<Body> {
                   ],
                 ),
               ),
-              Padding(
+              ListItemsComponent(context, _context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding ListItemsComponent(BuildContext context, BuildContext _context) {
+    return Padding(
+      padding: EdgeInsets.only(top: getProportionateScreenHeight(context, 20)),
+      child: StreamBuilder<List<BrandRecord>>(
+          stream: stream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return loadingIndicator(context);
+            }
+            if (snapshot.data!.isEmpty) {
+              return listEmpty("Brands", context);
+            }
+            final brands = snapshot.data;
+            final brandAfterSearch = brands!
+                .where((e) =>
+                    e.brandName!.toLowerCase().contains(search.toLowerCase()))
+                .toList();
+
+            if (brandAfterSearch.isEmpty) {
+              return searchNotAvailable("Brands", context);
+            }
+
+            return ListView.builder(
                 padding: EdgeInsets.only(
                     top: getProportionateScreenHeight(context, 20)),
-                child: StreamBuilder<List<BrandRecord>>(
-                    stream: stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return loadingIndicator(context);
-                      }
-                      if (snapshot.data!.isEmpty) {
-                        return listEmpty("Brands", context);
-                      }
-                      final brands = snapshot.data;
-                      final brandAfterSearch = brands!
-                          .where((e) => e.brandName!
-                              .toLowerCase()
-                              .contains(search.toLowerCase()))
-                          .toList();
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: brandAfterSearch.length,
+                itemBuilder: (context, index) {
+                  final brandItem = brandAfterSearch[index];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: getProportionateScreenHeight(context, 10)),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: MyTheme.of(context).primaryBackground,
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  child: CachedNetworkImage(
+                                    imageUrl: brandItem.image!,
+                                    // Placeholder widget while loading
+                                    placeholder: (context, url) => Image.asset(
+                                        'assets/images/blue_ray_image.jpg'), // Placeholder widget
+                                    errorWidget: (context, url, error) => Icon(
+                                      Icons.error,
+                                      color: Colors.black,
+                                    ), // Widget to display on error
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      brandItem.brandName as String,
+                                      style: MyTheme.of(context)
+                                          .labelLarge
+                                          .override(
+                                              fontSize: 15,
+                                              fontFamily: 'Roboto'),
+                                    ),
+                                    SizedBox(
+                                      height: getProportionateScreenHeight(
+                                          context, 3),
+                                    ),
+                                    FutureBuilder<UserRecord>(
+                                        future: UserRecord.getDocumentOnce(
+                                            brandItem.createdBy!),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting)
+                                            Text(
+                                              'Create by :',
+                                              style: MyTheme.of(context)
+                                                  .labelLarge
+                                                  .override(
+                                                      fontSize: 14,
+                                                      fontFamily: 'Roboto'),
+                                            );
 
-                      if (brandAfterSearch.isEmpty) {
-                        return searchNotAvailable("Brands", context);
-                      }
-
-                      return ListView.builder(
-                          padding: EdgeInsets.only(
-                              top: getProportionateScreenHeight(context, 20)),
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: brandAfterSearch.length,
-                          itemBuilder: (context, index) {
-                            final brandItem = brandAfterSearch[index];
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: getProportionateScreenHeight(
-                                      context, 10)),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: MyTheme.of(context).primaryBackground,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 1,
-                                      blurRadius: 3,
-                                      offset: Offset(
-                                          0, 3), // changes position of shadow
+                                          if (!snapshot.hasData) {
+                                            return Text(
+                                              'Create by :',
+                                              style: MyTheme.of(context)
+                                                  .labelLarge
+                                                  .override(
+                                                      fontSize: 14,
+                                                      fontFamily: 'Roboto'),
+                                            );
+                                          }
+                                          final userName = snapshot.data!.name;
+                                          return Text(
+                                            'Create by :$userName',
+                                            style: MyTheme.of(context)
+                                                .labelLarge
+                                                .override(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Roboto'),
+                                          );
+                                        }),
+                                    SizedBox(
+                                      height: getProportionateScreenHeight(
+                                          context, 3),
+                                    ),
+                                    Text(
+                                      'Create at :${dateTimeFormat('M/d H:mm', brandItem.createdAt)}',
+                                      style: MyTheme.of(context)
+                                          .labelLarge
+                                          .override(
+                                              fontSize: 14,
+                                              fontFamily: 'Roboto'),
+                                    ),
+                                    SizedBox(
+                                      height: getProportionateScreenHeight(
+                                          context, 3),
+                                    ),
+                                    Text(
+                                      'Modify at :${dateTimeFormat('M/d H:mm', brandItem.modifiedAt)}',
+                                      style: MyTheme.of(context)
+                                          .labelLarge
+                                          .override(
+                                              fontSize: 14,
+                                              fontFamily: 'Roboto'),
                                     ),
                                   ],
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            child: CachedNetworkImage(
-                                              imageUrl: brandItem.image!,
-                                              // Placeholder widget while loading
-                                              errorWidget:
-                                                  (context, url, error) => Icon(
-                                                Icons.error,
-                                                color: Colors.black,
-                                              ), // Widget to display on error
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                brandItem.brandName as String,
-                                                style: MyTheme.of(context)
-                                                    .labelLarge
-                                                    .override(
-                                                        fontSize: 15,
-                                                        fontFamily: 'Roboto'),
-                                              ),
-                                              SizedBox(
-                                                height:
-                                                    getProportionateScreenHeight(
-                                                        context, 3),
-                                              ),
-                                              FutureBuilder<UserRecord>(
-                                                  future: UserRecord
-                                                      .getDocumentOnce(
-                                                          brandItem.createdBy!),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot
-                                                            .connectionState ==
-                                                        ConnectionState.waiting)
-                                                      Text(
-                                                        'Create by :',
-                                                        style: MyTheme.of(
-                                                                context)
-                                                            .labelLarge
-                                                            .override(
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto'),
-                                                      );
-
-                                                    if (!snapshot.hasData) {
-                                                      return Text(
-                                                        'Create by :',
-                                                        style: MyTheme.of(
-                                                                context)
-                                                            .labelLarge
-                                                            .override(
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto'),
-                                                      );
-                                                    }
-                                                    final userName =
-                                                        snapshot.data!.name;
-                                                    return Text(
-                                                      'Create by :$userName',
-                                                      style: MyTheme.of(context)
-                                                          .labelLarge
-                                                          .override(
-                                                              fontSize: 14,
-                                                              fontFamily:
-                                                                  'Roboto'),
-                                                    );
-                                                  }),
-                                              SizedBox(
-                                                height:
-                                                    getProportionateScreenHeight(
-                                                        context, 3),
-                                              ),
-                                              Text(
-                                                'Create at :${dateTimeFormat('M/d H:mm', brandItem.createdAt)}',
-                                                style: MyTheme.of(context)
-                                                    .labelLarge
-                                                    .override(
-                                                        fontSize: 14,
-                                                        fontFamily: 'Roboto'),
-                                              ),
-                                              SizedBox(
-                                                height:
-                                                    getProportionateScreenHeight(
-                                                        context, 3),
-                                              ),
-                                              Text(
-                                                'Modify at :${dateTimeFormat('M/d H:mm', brandItem.modifiedAt)}',
-                                                style: MyTheme.of(context)
-                                                    .labelLarge
-                                                    .override(
-                                                        fontSize: 14,
-                                                        fontFamily: 'Roboto'),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      InkWell(
-                                        onTap: () async {
-                                          await showModalBottomSheet(
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            enableDrag: true,
-                                            context: context,
-                                            builder: (bottomSheetContext) {
-                                              return Padding(
-                                                padding: MediaQuery.of(
-                                                        bottomSheetContext)
-                                                    .viewInsets,
-                                                child: BrandManage(
-                                                    context: _context,
-                                                    brandId: brandItem.ffRef!),
-                                              );
-                                            },
-                                          ).then((value) => setState(() {}));
-                                        },
-                                        child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          child: SvgPicture.asset(
-                                            'assets/icons/edit.svg',
-                                            color: MyTheme.of(context).primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              ],
+                            ),
+                            InkWell(
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: true,
+                                  context: context,
+                                  builder: (bottomSheetContext) {
+                                    return Padding(
+                                      padding: MediaQuery.of(bottomSheetContext)
+                                          .viewInsets,
+                                      child: BrandManage(
+                                          context: _context,
+                                          brandId: brandItem.ffRef!),
+                                    );
+                                  },
+                                ).then((value) => setState(() {}));
+                              },
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                child: SvgPicture.asset(
+                                  'assets/icons/edit.svg',
+                                  color: MyTheme.of(context).primary,
                                 ),
                               ),
-                            );
-                          });
-                    }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                });
+          }),
+    );
+  }
+
+  Form FormComponent() {
+    return Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Container(
+              child: CustomTextField(
+                focusNode: focusNodeBrand,
+                textFieldController: _textFieldControllerBrand,
+                labelText: 'Brand Name',
+                hintText: "Enter brand name",
+                addError: addError,
+                removeError: removeError,
+                onChanged: (value) {
+                  if (value!.isNotEmpty) {
+                    removeError(error: "This field is required");
+                  }
+                  if (value.length > 3) {
+                    removeError(error: "At least 3 characters");
+                  }
+                  return null;
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    addError(error: "This field is required");
+                    return "";
+                  }
+                  if (value.length < 3) {
+                    addError(error: "At least 3 characters");
+                    return "";
+                  }
+                  return null;
+                },
               ),
+            ),
+            FormError(errors: errors),
+          ],
+        ));
+  }
+
+  InkWell uploadImageComponent(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final selectedMedia = await selectMediaWithSourceBottomSheet(
+          context: context,
+          allowPhoto: true,
+        );
+        if (selectedMedia != null &&
+            selectedMedia
+                .every((m) => validateFileFormat(m.storagePath, context))) {
+          setState(() => isDataUploading = true);
+          var selectedUploadedFiles = <UploadedFile>[];
+          var downloadUrls = <String>[];
+          try {
+            selectedUploadedFiles = selectedMedia
+                .map((m) => UploadedFile(
+                      name: m.storagePath.split('/').last,
+                      bytes: m.bytes,
+                      height: m.dimensions?.height,
+                      width: m.dimensions?.width,
+                      blurHash: m.blurHash,
+                    ))
+                .toList();
+
+            downloadUrls = (await Future.wait(
+              selectedMedia.map(
+                (m) async => await uploadData(m.storagePath, m.bytes),
+              ),
+            ))
+                .where((u) => u != null)
+                .map((u) => u!)
+                .toList();
+          } finally {
+            isDataUploading = false;
+          }
+          if (selectedUploadedFiles.length == selectedMedia.length &&
+              downloadUrls.length == selectedMedia.length) {
+            setState(() {
+              uploadedLocalFile = selectedUploadedFiles.first;
+              uploadedFileUrl = downloadUrls.first;
+              uploadImage = false;
+            });
+          } else {
+            setState(() {});
+            return;
+          }
+        }
+      },
+      child: Padding(
+        padding:
+            EdgeInsets.only(top: getProportionateScreenHeight(context, 20)),
+        child: SizedBox(
+          height: 115,
+          width: 115,
+          child: Stack(
+            fit: StackFit.expand,
+            clipBehavior: Clip.none,
+            children: [
+              isDataUploading
+                  ? loadingIndicator(context)
+                  : DottedBorder(
+                      color: MyTheme.of(context).primaryText,
+                      dashPattern: [8, 8],
+                      borderType: BorderType.Circle,
+                      child: uploadedFileUrl.isNotEmpty
+                          ? Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: CircleAvatar(
+                                  backgroundImage: Image(
+                                          image: NetworkImage(uploadedFileUrl))
+                                      .image,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              width: 120,
+                              height: 100,
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/upload_img.png',
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                                    Text(
+                                      "Select an image",
+                                      style: MyTheme.of(context).labelMedium,
+                                    )
+                                  ]),
+                            ),
+                    ),
             ],
           ),
         ),

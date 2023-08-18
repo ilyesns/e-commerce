@@ -22,6 +22,12 @@ abstract class DiscountRecord
   @BuiltValueField(wireName: 'discount_percent')
   double? get discountPercent;
 
+  @BuiltValueField(wireName: 'active')
+  bool? get active;
+
+  @BuiltValueField(wireName: 'display_at_home')
+  bool? get displayAtHome;
+
   @BuiltValueField(wireName: 'image')
   String? get image;
 
@@ -64,24 +70,28 @@ abstract class DiscountRecord
 
 Map<String, dynamic> createDiscountRecordData({
   String? title,
-  ListBuilder<String>? description,
+  String? description,
   double? discountPercent,
+  bool? active = false,
   String? image,
   DateTime? createdAt,
   DateTime? startedAt,
   DateTime? endAt,
   DateTime? modifiedAt,
+  bool displayAtHome = false,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'title': title,
       'description': description,
       'discount_percent': discountPercent,
+      'active': active,
       'image': image,
       'created_at': createdAt,
       'started_at': startedAt,
       'end_at': endAt,
       'modified_at': modifiedAt,
+      'display_at_home': displayAtHome
     },
   ).withoutNulls;
 

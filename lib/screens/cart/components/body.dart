@@ -40,7 +40,7 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            child: CartCard(),
+            child: SingleChildScrollView(child: CartCard()),
           ),
         ),
       ),

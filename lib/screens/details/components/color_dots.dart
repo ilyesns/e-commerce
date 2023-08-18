@@ -4,23 +4,28 @@ import 'package:blueraymarket/tools/size_config.dart';
 
 import '../../../tools/constants.dart';
 
-class ColorDots extends StatelessWidget {
+class ColorDots extends StatefulWidget {
+  @override
+  State<ColorDots> createState() => _ColorDotsState();
+}
+
+class _ColorDotsState extends State<ColorDots> {
   @override
   Widget build(BuildContext context) {
-    // Now this is fixed and only for demo
     int selectedColor = 3;
+    List<Color> colors = [Colors.black, Colors.green, Colors.blue];
     return Padding(
       padding: EdgeInsets.symmetric(
           horizontal: getProportionateScreenWidth(context, 20)),
       child: Row(
         children: [
-          // ...List.generate(
-          //   product.colors.length,
-          //   (index) => ColorDot(
-          //     color: product.colors[index],
-          //     isSelected: index == selectedColor,
-          //   ),
-          // ),
+          ...List.generate(
+            colors.length,
+            (index) => ColorDot(
+              color: colors[index],
+              isSelected: index == selectedColor,
+            ),
+          ),
           Spacer(),
           RoundedIconBtn(
             icon: Icons.remove,

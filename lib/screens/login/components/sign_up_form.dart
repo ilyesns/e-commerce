@@ -5,10 +5,12 @@ import 'package:blueraymarket/components/form_error.dart';
 import 'package:blueraymarket/screens/complete_profile/complete_profile_screen.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../../auth/auth_util.dart';
 import '../../../auth/credentials.dart';
 import '../../../tools/constants.dart';
+import '../../../tools/nav/routes.dart';
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class _SignUpFormState extends State<SignUpForm> {
   String? password;
   String? conform_password;
   bool remember = false;
+  bool isLoading = false;
   final List<String?> errors = [];
 
   void addError({String? error}) {
@@ -41,37 +44,54 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(context, 30)),
-          buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(context, 30)),
-          buildConformPassFormField(),
-          FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(context, 40)),
-          DefaultButton(
-            text: "Register",
-            press: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                final user = await createAccountWithEmail(
-                  context,
-                  email!,
-                  password!,
-                );
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            buildEmailFormField(),
+            SizedBox(height: getProportionateScreenHeight(context, 30)),
+            buildPasswordFormField(),
+            SizedBox(height: getProportionateScreenHeight(context, 30)),
+            buildConformPassFormField(),
+            FormError(errors: errors),
+            SizedBox(height: getProportionateScreenHeight(context, 40)),
+            Container(
+              width: getProportionateScreenWidth(context, 150),
+              height: getProportionateScreenHeight(context, 50),
+              child: DefaultButton(
+                isLoading: isLoading,
+                text: "Register",
+                press: () async {
+                  if (_formKey.currentState!.validate()) {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    _formKey.currentState!.save();
+                    GoRouter.of(context).prepareAuthEvent();
+                    final user = await createAccountWithEmail(
+                      context,
+                      email!,
+                      password!,
+                    );
 
-                if (user == null) {
-                  return;
-                }
+                    if (user == null) {
+                      return;
+                    }
 
-                await sendEmailVerification();
-                context.pushReplacementNamed('CompleteProfile');
-              }
-            },
-          ),
-        ],
+                    await sendEmailVerification();
+                    context.goNamedAuth('CompleteProfile', context.mounted,
+                        extra: <String, dynamic>{
+                          kTransitionInfoKey: TransitionInfo(
+                              hasTransition: true,
+                              duration: kAnimationDuration,
+                              transitionType:
+                                  PageTransitionType.rightToLeftWithFade)
+                        });
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

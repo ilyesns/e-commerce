@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:blueraymarket/components/coustom_bottom_nav_bar.dart';
 import 'package:blueraymarket/tools/enums.dart';
 
+import '../../backend/cache/hive_box.dart';
 import '../../tools/size_config.dart';
 import 'components/body.dart';
 
@@ -15,7 +16,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(child: Body()),
-      bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.home),
     );
   }
 }

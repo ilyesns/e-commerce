@@ -1,3 +1,7 @@
+import 'package:blueraymarket/backend/schema/product/product_record.dart';
+import 'package:blueraymarket/tools/app_state.dart';
+import 'package:blueraymarket/tools/nav/theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/screens/details/details_screen.dart';
@@ -5,39 +9,43 @@ import 'package:blueraymarket/tools/size_config.dart';
 import 'package:go_router/go_router.dart';
 
 import '../tools/constants.dart';
+import '../tools/nav/serializer.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({
+  ProductCard({
     Key? key,
-    this.width = 140,
     this.aspectRetio = 1.02,
+    required this.product,
   }) : super(key: key);
 
-  final double width, aspectRetio;
-
+  final double aspectRetio;
+  final ProductRecord product;
+  final AppState appState = AppState();
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: getProportionateScreenWidth(context, 20)),
       child: SizedBox(
-        width: getProportionateScreenWidth(context, width),
+        width: 200,
+        height: 170,
         child: GestureDetector(
           onTap: () {
-            // Create a builder function to build the ProductDetailsScreen widget.
-            WidgetBuilder builder = (context) =>
-                ProductDetailsScreen(); // ############# edhy bch nbadlouha b product mte3na
-
-            // Navigate to the ProductDetailsScreen widget with builder.
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: builder),
-            );
+            context.pushNamed('ProductDetailsScreen', queryParameters: {
+              'idproduct': serializeParam(
+                product.ffRef!,
+                ParamType.DocumentReference,
+              ),
+              'idSubCategory': serializeParam(
+                product.idSubCategory,
+                ParamType.DocumentReference,
+              )
+            });
           },
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               AspectRatio(
-                aspectRatio: 1.02,
+                aspectRatio: 3.8 / 2,
                 child: Container(
                   padding:
                       EdgeInsets.all(getProportionateScreenWidth(context, 20)),
@@ -46,55 +54,33 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Hero(
-                    tag:
-                        "product.id.toString()", //                 // ############# edhy bch nbadlouha b product mte3na
+                    tag: product.reference
+                        .toString(), //                 // ############# edhy bch nbadlouha b product mte3na
 
-                    child: Image.asset("product.images[0]"),
+                    child: CachedNetworkImage(
+                      imageUrl: product.image!,
+                      placeholder: (context, url) => Image.asset(
+                          'assets/images/blue_ray_image.jpg'), // Placeholder widget
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
-                " product.title",
-                style: TextStyle(color: Colors.black),
+                product.title!.toUpperCase(),
+                style: MyTheme.of(context).labelLarge,
                 maxLines: 2,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "\$${"product.price"}",
-                    style: TextStyle(
-                      fontSize: getProportionateScreenWidth(context, 18),
-                      fontWeight: FontWeight.w600,
-                      color: kPrimaryColor,
-                    ),
-                  ),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(50),
-                    onTap: () {},
-                    child: Container(
-                      padding: EdgeInsets.all(
-                          getProportionateScreenWidth(context, 8)),
-                      height: getProportionateScreenWidth(context, 28),
-                      width: getProportionateScreenWidth(context, 28),
-                      decoration: BoxDecoration(
-                        // color: "product.isFavourite"
-                        //     ? kPrimaryColor.withOpacity(0.15)
-                        //     : kSecondaryColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: SvgPicture.asset(
-                        "assets/icons/Heart Icon_2.svg",
-                        /*
-                       " color: product.isFavourite
-                            ? Color(0xFFFF4848)
-                            : Color(0xFFDBDEE4)," */
-                      ),
-                    ),
-                  ),
-                ],
-              )
+              SizedBox(height: 10),
+              Text(
+                "\$${product.price}",
+                style: TextStyle(
+                  fontSize: getProportionateScreenWidth(context, 18),
+                  fontWeight: FontWeight.w600,
+                  color: MyTheme.of(context).primary,
+                ),
+              ),
             ],
           ),
         ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'constants.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 DateTime get getCurrentTimestamp => DateTime.now();
 
@@ -63,110 +63,51 @@ extension TruncateText on String {
 }
 
 class CustomTextField extends StatelessWidget {
-  late void Function({String error})? removeError;
-  late void Function({String error})? addError;
-  late String? error;
-
-  late String labelText;
-  late String hintText;
-  bool obscureText;
+  final String labelText;
+  final String hintText;
   final TextEditingController? textFieldController;
-  late String initValue;
+  final FocusNode focusNode;
+  final String? error;
+  final int maxLines;
+  final int minLines;
+  final TextInputType keyboardType;
+  final bool obscureText;
+  final String? Function(String? value)? validator;
+  final String? Function(String? value)? onChanged;
+  final void Function({String? error})? removeError;
+  final void Function({String? error})? addError;
+  late Widget? suffixIcon;
 
   CustomTextField(
       {required this.labelText,
       required this.hintText,
-      this.error,
       required this.focusNode,
-      this.addError,
+      this.error,
       this.removeError,
+      this.addError,
       this.obscureText = false,
       this.textFieldController,
-      this.initValue = ''});
-
-  late FocusNode focusNode;
+      this.keyboardType = TextInputType.text,
+      this.maxLines = 1,
+      this.minLines = 1,
+      this.validator,
+      this.onChanged,
+      this.suffixIcon});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      minLines: minLines,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
       controller: textFieldController,
       obscureText: obscureText,
-      onSaved: (newValue) {},
-      onChanged: (value) {},
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError!(error: error!);
-          return "";
-        } else if (value.length < 3) {
-          addError!(error: error!);
-          return "";
-        }
-        return null;
-      },
-      style: MyTheme.of(context).titleMedium.override(
-          color: MyTheme.of(context).primaryText, fontFamily: 'Roboto'),
-      decoration: InputDecoration(
-        hintStyle: MyTheme.of(context)
-            .titleMedium
-            .override(fontSize: 14, fontFamily: 'Roboto'),
-        labelText: labelText,
-        hintText: hintText,
-        labelStyle: TextStyle(
-          color: focusNode.hasFocus ? MyTheme.of(context).primary : Colors.grey,
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: MyTheme.of(context).primary)),
-      ),
-    );
-  }
-}
-
-class CustomTextFieldUpdated extends StatelessWidget {
-  late void Function({String error})? removeError;
-  late void Function({String error})? addError;
-  late String? error;
-
-  late String labelText;
-  late String hintText;
-  bool obscureText;
-  late String initValue;
-
-  CustomTextFieldUpdated(
-      {required this.labelText,
-      required this.hintText,
-      this.error,
-      required this.focusNode,
-      this.addError,
-      this.removeError,
-      this.obscureText = false,
-      this.initValue = '',
-      this.onChanged});
-
-  late FocusNode focusNode;
-  final ValueChanged<String>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: initValue,
-      obscureText: obscureText,
-      onSaved: (newValue) {},
       onChanged: onChanged,
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError!(error: error!);
-          return "";
-        } else if (value.length < 3) {
-          addError!(error: 'At least 3 character');
-          return "";
-        }
-        return null;
-      },
+      validator: validator,
       style: MyTheme.of(context).titleMedium.override(
           color: MyTheme.of(context).primaryText, fontFamily: 'Roboto'),
       decoration: InputDecoration(
+        suffixIcon: suffixIcon,
         hintStyle: MyTheme.of(context)
             .titleMedium
             .override(fontSize: 14, fontFamily: 'Roboto'),
@@ -185,25 +126,30 @@ class CustomTextFieldUpdated extends StatelessWidget {
 }
 
 Widget loadingIndicator(context) {
-  return Center(
-    child: Container(
-        width: getProportionateScreenWidth(context, 70),
-        height: getProportionateScreenHeight(context, 70),
-        child: LoadingIndicator(
-          indicatorType: Indicator.ballRotateChase,
-          colors: Theme.of(context).brightness == Brightness.dark
-              ? [
-                  Color.fromARGB(255, 245, 151, 117),
-                  Color.fromARGB(255, 247, 132, 91),
-                  Color(0xFFFF7643)
-                ]
-              : [
-                  Color.fromARGB(255, 238, 144, 144),
-                  Color.fromARGB(255, 255, 105, 105),
-                  Color(0xFFFE4B4B)
-                ],
-          strokeWidth: 2,
-        )),
+  return Container(
+    width: SizeConfig().screenWidth,
+    height:
+        SizeConfig().screenHeight - getProportionateScreenWidth(context, 200),
+    child: Center(
+      child: Container(
+          width: getProportionateScreenWidth(context, 40),
+          height: getProportionateScreenHeight(context, 40),
+          child: LoadingIndicator(
+            indicatorType: Indicator.ballRotateChase,
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    Color.fromARGB(255, 245, 151, 117),
+                    Color.fromARGB(255, 247, 132, 91),
+                    Color(0xFFFF7643)
+                  ]
+                : [
+                    Color.fromARGB(255, 238, 144, 144),
+                    Color.fromARGB(255, 255, 105, 105),
+                    Color(0xFFFE4B4B)
+                  ],
+            strokeWidth: 2,
+          )),
+    ),
   );
 }
 
@@ -231,4 +177,75 @@ Widget searchNotAvailable(String label, context) {
       ),
     ),
   );
+}
+
+class CustomDropDownMenu extends StatelessWidget {
+  CustomDropDownMenu(
+      {super.key,
+      required this.items,
+      required this.hint,
+      this.value,
+      required this.validator,
+      required this.onSaved});
+
+  final List<String?> items;
+  final String hint;
+  final String? value;
+  final String? Function(String?)? validator;
+  final String? Function(String?)? onSaved;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField2<String>(
+      isExpanded: true,
+      decoration: InputDecoration(
+        // Add Horizontal padding using menuItemStyleData.padding so it matches
+        // the menu padding when button's width is not specified.
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        // Add more decoration..
+      ),
+      value: value,
+      hint: Text(
+        hint,
+        style: TextStyle(fontSize: 14),
+      ),
+      items: items
+          .map((item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+              ))
+          .toList(),
+      validator: validator,
+      onChanged: (value) {
+        //Do something when selected item is changed.
+      },
+      onSaved: onSaved,
+      buttonStyleData: const ButtonStyleData(
+        padding: EdgeInsets.only(right: 8),
+      ),
+      iconStyleData: const IconStyleData(
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: Colors.black45,
+        ),
+        iconSize: 24,
+      ),
+      dropdownStyleData: DropdownStyleData(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+        ),
+      ),
+      menuItemStyleData: const MenuItemStyleData(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+      ),
+    );
+  }
 }

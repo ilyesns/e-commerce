@@ -21,6 +21,9 @@ abstract class CategoryRecord
   @BuiltValueField(wireName: 'image')
   String? get image;
 
+  @BuiltValueField(wireName: 'display_at_home')
+  bool? get displayAtHome;
+
   @BuiltValueField(wireName: 'created_at')
   DateTime? get createdAt;
 
@@ -55,6 +58,7 @@ abstract class CategoryRecord
 Map<String, dynamic> createCategoryRecordData({
   String? categoryName,
   String? image,
+  bool displayAtHome = false,
   DateTime? createdAt,
   DateTime? modifiedAt,
   DocumentReference? createdBy,
@@ -63,6 +67,7 @@ Map<String, dynamic> createCategoryRecordData({
     <String, dynamic>{
       'category_name': categoryName,
       'image': image,
+      'display_at_home': displayAtHome,
       'created_at': createdAt,
       'modified_at': modifiedAt,
       'created_by': createdBy,

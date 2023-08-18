@@ -52,7 +52,8 @@ class _BrandManageState extends State<BrandManage> {
 
   late Future<BrandRecord> future;
 
-  String brandname = "";
+  TextEditingController? _textEditingController;
+  bool isLoading = false;
 
   void addError({String? error}) {
     if (!errors.contains(error))
@@ -81,9 +82,11 @@ class _BrandManageState extends State<BrandManage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return loadingIndicator(context);
               }
-              final brandItem = snapshot.data;
-
-              uploadedFileUrl = brandItem!.image as String;
+              final brandItem = snapshot.data!;
+              if (_textEditingController == null) {
+                _textEditingController =
+                    TextEditingController(text: brandItem.brandName);
+              }
 
               return Container(
                 width: MediaQuery.of(context).size.width,
@@ -98,6 +101,7 @@ class _BrandManageState extends State<BrandManage> {
                   shape: BoxShape.rectangle,
                 ),
                 child: SingleChildScrollView(
+                  physics: NeverScrollableScrollPhysics(),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -148,11 +152,12 @@ class _BrandManageState extends State<BrandManage> {
                                                   desc:
                                                       'You want delete this item! \n Note: this item may be related by another product items',
                                                   btnOkOnPress: () async {
-                                                    deleteFileFRomFirebase(
-                                                        brandItem.image!);
-                                                    BrandRecord.collection
-                                                        .doc(
-                                                            brandItem.ffRef!.id)
+                                                    if (brandItem
+                                                        .image!.isEmpty)
+                                                      deleteFileFRomFirebase(
+                                                          brandItem.image!);
+
+                                                    brandItem.reference
                                                         .delete();
 
                                                     Navigator.pop(context);
@@ -160,6 +165,9 @@ class _BrandManageState extends State<BrandManage> {
                                                             widget.context)
                                                         .showSnackBar(
                                                       SnackBar(
+                                                        backgroundColor:
+                                                            MyTheme.of(context)
+                                                                .alternate,
                                                         content: Text(
                                                           'You deleted a brand item with success!',
                                                           style: MyTheme.of(
@@ -224,34 +232,29 @@ class _BrandManageState extends State<BrandManage> {
                                                     dashPattern: [8, 8],
                                                     borderType:
                                                         BorderType.Circle,
-                                                    child: uploadedFileUrl
-                                                            .isNotEmpty
-                                                        ? Container(
-                                                            width: 120,
-                                                            height: 120,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            50)),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(5),
-                                                              child:
-                                                                  CircleAvatar(
-                                                                backgroundImage:
-                                                                    Image(image: NetworkImage(uploadedFileUrl))
-                                                                        .image,
-                                                              ),
-                                                            ),
-                                                          )
-                                                        : brandItem!.image!
-                                                                    .isEmpty &&
-                                                                brandItem
-                                                                        .image ==
-                                                                    null
+                                                    child:
+                                                        brandItem.image!
+                                                                .isNotEmpty
                                                             ? Container(
+                                                                width: 120,
+                                                                height: 120,
+                                                                decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            50)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(5),
+                                                                  child:
+                                                                      CircleAvatar(
+                                                                    backgroundImage:
+                                                                        Image(image: NetworkImage(uploadedFileUrl.isEmpty ? brandItem.image! : uploadedFileUrl))
+                                                                            .image,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : Container(
                                                                 width: 120,
                                                                 height: 100,
                                                                 child: Column(
@@ -276,25 +279,6 @@ class _BrandManageState extends State<BrandManage> {
                                                                             .labelMedium,
                                                                       )
                                                                     ]),
-                                                              )
-                                                            : Container(
-                                                                width: 120,
-                                                                height: 120,
-                                                                decoration: BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            50)),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(5),
-                                                                  child:
-                                                                      CircleAvatar(
-                                                                    backgroundImage:
-                                                                        Image(image: NetworkImage(brandItem!.image as String))
-                                                                            .image,
-                                                                  ),
-                                                                ),
                                                               )),
                                           ],
                                         ),
@@ -313,7 +297,7 @@ class _BrandManageState extends State<BrandManage> {
                                         text: "Upload Image",
                                         press: () async {
                                           await deleteFileFRomFirebase(
-                                              brandItem!.image!);
+                                              brandItem.image!);
 
                                           final selectedMedia =
                                               await selectMediaWithSourceBottomSheet(
@@ -368,6 +352,8 @@ class _BrandManageState extends State<BrandManage> {
                                                     selectedUploadedFiles.first;
                                                 uploadedFileUrl =
                                                     downloadUrls.first;
+                                                print("heyy");
+                                                print(uploadedFileUrl);
                                               });
                                             } else {
                                               setState(() {});
@@ -386,17 +372,42 @@ class _BrandManageState extends State<BrandManage> {
                                         child: Column(
                                           children: [
                                             Container(
-                                              child: CustomTextFieldUpdated(
+                                              child: CustomTextField(
                                                 focusNode: focusNodeBrand,
-                                                onChanged: (value) {
-                                                  brandname = value;
-                                                },
-                                                initValue: brandItem.brandName!,
+                                                textFieldController:
+                                                    _textEditingController,
                                                 labelText: 'Brand Name',
                                                 hintText: "Enter brand name",
-                                                error: "This field is required",
                                                 addError: addError,
                                                 removeError: removeError,
+                                                onChanged: (value) {
+                                                  if (value!.isNotEmpty) {
+                                                    removeError(
+                                                        error:
+                                                            "This field is required");
+                                                  }
+                                                  if (value.length > 3) {
+                                                    removeError(
+                                                        error:
+                                                            "At least 3 characters");
+                                                  }
+                                                  return null;
+                                                },
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    addError(
+                                                        error:
+                                                            "This field is required");
+                                                    return "";
+                                                  }
+                                                  if (value.length < 3) {
+                                                    addError(
+                                                        error:
+                                                            "At least 3 characters");
+                                                    return "";
+                                                  }
+                                                  return null;
+                                                },
                                               ),
                                             ),
                                             FormError(errors: errors),
@@ -432,11 +443,13 @@ class _BrandManageState extends State<BrandManage> {
                                           height: getProportionateScreenHeight(
                                               context, 50),
                                           child: DefaultButton(
+                                              isLoading: isLoading,
                                               press: () async {
                                                 if (_formKey.currentState!
-                                                        .validate() &&
-                                                    uploadedFileUrl
-                                                        .isNotEmpty) {
+                                                    .validate()) {
+                                                  setState(() {
+                                                    isLoading = true;
+                                                  });
                                                   _formKey.currentState!.save();
                                                   KeyboardUtil.hideKeyboard(
                                                       context);
@@ -445,15 +458,22 @@ class _BrandManageState extends State<BrandManage> {
                                                       ?.unfocus();
                                                   final brand =
                                                       createBrandRecordData(
-                                                    brandName: brandname,
-                                                    image: uploadedFileUrl,
+                                                    brandName:
+                                                        _textEditingController!
+                                                            .text,
+                                                    image:
+                                                        uploadedFileUrl.isEmpty
+                                                            ? brandItem.image
+                                                            : uploadedFileUrl,
                                                     modifiedAt:
                                                         getCurrentTimestamp,
                                                   );
-                                                  await BrandRecord.collection
-                                                      .doc(brandItem
-                                                          .reference.id)
+
+                                                  await brandItem.reference
                                                       .update(brand);
+                                                  setState(() {
+                                                    isLoading = false;
+                                                  });
                                                 } else {
                                                   return;
                                                 }

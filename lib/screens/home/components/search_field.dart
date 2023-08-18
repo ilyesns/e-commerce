@@ -6,10 +6,17 @@ import '../../../helper/keyboard.dart';
 import '../../../tools/constants.dart';
 
 class SearchField extends StatefulWidget {
-  SearchField({Key? key, required this.onChanged, required this.hintText})
+  SearchField(
+      {Key? key,
+      required this.onChanged,
+      required this.hintText,
+      this.disable = false,
+      this.initValue})
       : super(key: key);
   final ValueChanged<String> onChanged;
   final String hintText;
+  final bool disable;
+  final String? initValue;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
@@ -22,13 +29,15 @@ class _SearchFieldState extends State<SearchField> {
     return Container(
       decoration: BoxDecoration(
         color: kSecondaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: TextField(
+        controller: TextEditingController(text: widget.initValue),
+        readOnly: widget.disable,
         focusNode: focusNode,
         onChanged: widget.onChanged,
-        style: MyTheme.of(context).titleMedium.override(
-            color: MyTheme.of(context).primaryText, fontFamily: 'Roboto'),
+        style: MyTheme.of(context).labelLarge.override(
+            color: MyTheme.of(context).primaryText, fontFamily: 'Open Sans'),
         decoration: InputDecoration(
             contentPadding:
                 EdgeInsets.all(getProportionateScreenHeight(context, 15)),
@@ -36,8 +45,7 @@ class _SearchFieldState extends State<SearchField> {
                 OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: MyTheme.of(context).primary),
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-            labelText: "Search",
+                borderRadius: BorderRadius.all(Radius.circular(100))),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             floatingLabelAlignment: FloatingLabelAlignment.start,
             labelStyle: TextStyle(

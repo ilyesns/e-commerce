@@ -118,7 +118,7 @@ class LightModeTheme extends MyTheme {
   late Color background = Color(0xFFCAEB67);
   late Color darkBackground = Color(0xFF111417);
   late Color textColor = Color(0xFFFFFFFF);
-  late Color grayDark = Color(0xFF57636C);
+  late Color grayDark = Color(0xFFCACACA);
   late Color grayLight = Color(0xFF8B97A2);
 }
 
@@ -162,16 +162,16 @@ class ThemeTypography extends Typography {
 
   final MyTheme theme;
 
-  String get displayLargeFamily => 'Roboto';
+  String get displayLargeFamily => 'OpenSans';
   TextStyle get displayLarge => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 57.0,
       );
-  String get displayMediumFamily => 'Roboto';
+  String get displayMediumFamily => 'OpenSans';
   TextStyle get displayMedium => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 45.0,
@@ -183,9 +183,9 @@ class ThemeTypography extends Typography {
         fontWeight: FontWeight.w500,
         fontSize: 32.0,
       );
-  String get headlineLargeFamily => 'Roboto';
+  String get headlineLargeFamily => 'OpenSans';
   TextStyle get headlineLarge => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 32.0,
@@ -204,9 +204,9 @@ class ThemeTypography extends Typography {
         fontWeight: FontWeight.w500,
         fontSize: 22.0,
       );
-  String get titleLargeFamily => 'Roboto';
+  String get titleLargeFamily => 'OpenSans';
   TextStyle get titleLarge => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.w500,
         fontSize: 22.0,
@@ -225,31 +225,30 @@ class ThemeTypography extends Typography {
         fontWeight: FontWeight.normal,
         fontSize: 18.0,
       );
-  String get labelLargeFamily => 'Roboto';
+  String get labelLargeFamily => 'OpenSans';
   TextStyle get labelLarge => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.w500,
         fontSize: 14.0,
       );
-  String get labelMediumFamily => 'Roboto';
+  String get labelMediumFamily => 'OpenSans';
   TextStyle get labelMedium => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
-  String get labelSmallFamily => 'Roboto';
+  String get labelSmallFamily => 'OpenSans';
   TextStyle get labelSmall => GoogleFonts.getFont(
-        'Roboto',
+        'Open Sans',
         color: theme.primaryText,
         fontWeight: FontWeight.w500,
         fontSize: 9.0,
       );
   String get bodyLargeFamily => '';
-  TextStyle get bodyLarge => GoogleFonts.getFont(
-        'Roboto',
-      );
+  TextStyle get bodyLarge => GoogleFonts.getFont('Open Sans',
+      color: theme.primaryText, fontSize: 16.0);
   String get bodyMediumFamily => 'Outfit';
   TextStyle get bodyMedium => GoogleFonts.getFont(
         'Outfit',
