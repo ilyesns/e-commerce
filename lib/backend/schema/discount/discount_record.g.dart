@@ -42,6 +42,20 @@ class _$DiscountRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(double)));
     }
+    value = object.active;
+    if (value != null) {
+      result
+        ..add('active')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
+    value = object.displayAtHome;
+    if (value != null) {
+      result
+        ..add('display_at_home')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
     value = object.image;
     if (value != null) {
       result
@@ -77,6 +91,14 @@ class _$DiscountRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -104,6 +126,14 @@ class _$DiscountRecordSerializer
           result.discountPercent = serializers.deserialize(value,
               specifiedType: const FullType(double)) as double?;
           break;
+        case 'active':
+          result.active = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
+        case 'display_at_home':
+          result.displayAtHome = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
         case 'image':
           result.image = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
@@ -124,6 +154,12 @@ class _$DiscountRecordSerializer
           result.modifiedAt = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -139,6 +175,10 @@ class _$DiscountRecord extends DiscountRecord {
   @override
   final double? discountPercent;
   @override
+  final bool? active;
+  @override
+  final bool? displayAtHome;
+  @override
   final String? image;
   @override
   final DateTime? createdAt;
@@ -148,6 +188,8 @@ class _$DiscountRecord extends DiscountRecord {
   final DateTime? endAt;
   @override
   final DateTime? modifiedAt;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$DiscountRecord([void Function(DiscountRecordBuilder)? updates]) =>
       (new DiscountRecordBuilder()..update(updates))._build();
@@ -156,11 +198,14 @@ class _$DiscountRecord extends DiscountRecord {
       {this.title,
       this.description,
       this.discountPercent,
+      this.active,
+      this.displayAtHome,
       this.image,
       this.createdAt,
       this.startedAt,
       this.endAt,
-      this.modifiedAt})
+      this.modifiedAt,
+      this.ffRef})
       : super._();
 
   @override
@@ -178,11 +223,14 @@ class _$DiscountRecord extends DiscountRecord {
         title == other.title &&
         description == other.description &&
         discountPercent == other.discountPercent &&
+        active == other.active &&
+        displayAtHome == other.displayAtHome &&
         image == other.image &&
         createdAt == other.createdAt &&
         startedAt == other.startedAt &&
         endAt == other.endAt &&
-        modifiedAt == other.modifiedAt;
+        modifiedAt == other.modifiedAt &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -191,11 +239,14 @@ class _$DiscountRecord extends DiscountRecord {
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, discountPercent.hashCode);
+    _$hash = $jc(_$hash, active.hashCode);
+    _$hash = $jc(_$hash, displayAtHome.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, startedAt.hashCode);
     _$hash = $jc(_$hash, endAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -206,11 +257,14 @@ class _$DiscountRecord extends DiscountRecord {
           ..add('title', title)
           ..add('description', description)
           ..add('discountPercent', discountPercent)
+          ..add('active', active)
+          ..add('displayAtHome', displayAtHome)
           ..add('image', image)
           ..add('createdAt', createdAt)
           ..add('startedAt', startedAt)
           ..add('endAt', endAt)
-          ..add('modifiedAt', modifiedAt))
+          ..add('modifiedAt', modifiedAt)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -232,6 +286,15 @@ class DiscountRecordBuilder
   set discountPercent(double? discountPercent) =>
       _$this._discountPercent = discountPercent;
 
+  bool? _active;
+  bool? get active => _$this._active;
+  set active(bool? active) => _$this._active = active;
+
+  bool? _displayAtHome;
+  bool? get displayAtHome => _$this._displayAtHome;
+  set displayAtHome(bool? displayAtHome) =>
+      _$this._displayAtHome = displayAtHome;
+
   String? _image;
   String? get image => _$this._image;
   set image(String? image) => _$this._image = image;
@@ -252,6 +315,10 @@ class DiscountRecordBuilder
   DateTime? get modifiedAt => _$this._modifiedAt;
   set modifiedAt(DateTime? modifiedAt) => _$this._modifiedAt = modifiedAt;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   DiscountRecordBuilder() {
     DiscountRecord._initializeBuilder(this);
   }
@@ -262,11 +329,14 @@ class DiscountRecordBuilder
       _title = $v.title;
       _description = $v.description;
       _discountPercent = $v.discountPercent;
+      _active = $v.active;
+      _displayAtHome = $v.displayAtHome;
       _image = $v.image;
       _createdAt = $v.createdAt;
       _startedAt = $v.startedAt;
       _endAt = $v.endAt;
       _modifiedAt = $v.modifiedAt;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -292,11 +362,14 @@ class DiscountRecordBuilder
             title: title,
             description: description,
             discountPercent: discountPercent,
+            active: active,
+            displayAtHome: displayAtHome,
             image: image,
             createdAt: createdAt,
             startedAt: startedAt,
             endAt: endAt,
-            modifiedAt: modifiedAt);
+            modifiedAt: modifiedAt,
+            ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

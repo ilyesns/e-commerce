@@ -42,6 +42,10 @@ abstract class OrderItemRecord
   @BuiltValueField(wireName: 'order_details_id')
   DocumentReference? get orderDetailsId;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
+
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('order_items');
 

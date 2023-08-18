@@ -1,4 +1,6 @@
 import 'package:blueraymarket/screens/home/home_screen.dart';
+import 'package:blueraymarket/tools/nav/routes.dart';
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/components/custom_surfix_icon.dart';
@@ -8,9 +10,11 @@ import 'package:blueraymarket/screens/forgot_password/forgot_password_screen.dar
 import 'package:blueraymarket/screens/login_success/login_success_screen.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../../auth/credentials.dart';
 import '../../../components/default_button.dart';
+import '../../../components/socal_card.dart';
 import '../../../tools/constants.dart';
 
 class SignForm extends StatefulWidget {
@@ -25,7 +29,7 @@ class _SignFormState extends State<SignForm> {
   String? password;
   bool? remember = false;
   final List<String?> errors = [];
-
+  bool isLoading = false;
   void addError({String? error}) {
     if (!errors.contains(error))
       setState(() {
@@ -44,61 +48,101 @@ class _SignFormState extends State<SignForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(context, 30)),
-          buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(context, 30)),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(
-                    context, ForgotPasswordScreen.routeName),
-                child: Text(
-                  "Forgot Password",
-                  style: TextStyle(decoration: TextDecoration.underline),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            buildEmailFormField(),
+            SizedBox(height: getProportionateScreenHeight(context, 30)),
+            buildPasswordFormField(),
+            SizedBox(height: getProportionateScreenHeight(context, 30)),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                      context, ForgotPasswordScreen.routeName),
+                  child: Text(
+                    "Forgot Password",
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                )
+              ],
+            ),
+            FormError(errors: errors),
+            SizedBox(height: getProportionateScreenHeight(context, 20)),
+            Container(
+              width: getProportionateScreenWidth(context, 150),
+              height: getProportionateScreenHeight(context, 50),
+              child: DefaultButton(
+                text: "Sign in",
+                isLoading: isLoading,
+                press: () async {
+                  if (_formKey.currentState!.validate()) {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    _formKey.currentState!.save();
+                    // if all are valid then go to success screen
+                    KeyboardUtil.hideKeyboard(context);
+                    GoRouter.of(context).prepareAuthEvent();
+                    print(context.mounted);
+                    final user = await signInWithEmail(
+                      context,
+                      email!,
+                      password!,
+                    );
+                    if (user == null) return;
+                    context.goNamedAuth('NavBarPage', context.mounted,
+                        extra: <String, dynamic>{
+                          kTransitionInfoKey: TransitionInfo(
+                              hasTransition: true,
+                              duration: kAnimationDuration,
+                              transitionType:
+                                  PageTransitionType.rightToLeftWithFade)
+                        });
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: getProportionateScreenHeight(context, 20)),
+            Container(
+              width: getProportionateScreenWidth(context, 100),
+              height: getProportionateScreenHeight(context, 50),
+              child: DefaultButton(
+                text: "Skip",
+                bgColor: Colors.white,
+                textColor: MyTheme.of(context).primary,
+                press: () {
+                  context.pushNamed('NavBarPage', extra: <String, dynamic>{
+                    kTransitionInfoKey: TransitionInfo(
+                        hasTransition: true,
+                        duration: kAnimationDuration,
+                        transitionType: PageTransitionType.rightToLeftWithFade)
+                  });
+                },
+              ),
+            ),
+            SizedBox(height: getProportionateScreenHeight(context, 20)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SocalCard(
+                  icon: "assets/icons/google-icon.svg",
+                  press: () {},
                 ),
-              )
-            ],
-          ),
-          FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(context, 20)),
-          DefaultButton(
-            text: "Sign in",
-            press: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                KeyboardUtil.hideKeyboard(context);
-                //  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-
-                final user = await signInWithEmail(
-                  context,
-                  email!,
-                  password!,
-                );
-                if (user != null) {
-                  print("succes auth $user");
-                  context.go('HomePage');
-                } else {
-                  print("failed auth");
-                }
-              }
-            },
-          ),
-          SizedBox(height: getProportionateScreenHeight(context, 20)),
-          DefaultButton(
-            text: "Skip",
-            textColor: kPrimaryColor,
-            bgColor: Colors.white,
-            press: () {
-              context.pushNamed('HomePage');
-            },
-          )
-        ],
+                SocalCard(
+                  icon: "assets/icons/facebook-2.svg",
+                  press: () {},
+                ),
+                SocalCard(
+                  icon: "assets/icons/twitter.svg",
+                  press: () {},
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -35,6 +35,13 @@ class _$SubCategoryRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.displayAtHome;
+    if (value != null) {
+      result
+        ..add('display_at_home')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
+    }
     value = object.createdAt;
     if (value != null) {
       result
@@ -53,6 +60,14 @@ class _$SubCategoryRecordSerializer
     if (value != null) {
       result
         ..add('created_by')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 DocumentReference, const [const FullType.nullable(Object)])));
@@ -80,6 +95,10 @@ class _$SubCategoryRecordSerializer
           result.image = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'display_at_home':
+          result.displayAtHome = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool?;
+          break;
         case 'created_at':
           result.createdAt = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
@@ -90,6 +109,12 @@ class _$SubCategoryRecordSerializer
           break;
         case 'created_by':
           result.createdBy = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
               specifiedType: const FullType(DocumentReference, const [
                 const FullType.nullable(Object)
               ])) as DocumentReference<Object?>?;
@@ -107,11 +132,15 @@ class _$SubCategoryRecord extends SubCategoryRecord {
   @override
   final String? image;
   @override
+  final bool? displayAtHome;
+  @override
   final DateTime? createdAt;
   @override
   final DateTime? modifiedAt;
   @override
   final DocumentReference<Object?>? createdBy;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$SubCategoryRecord(
           [void Function(SubCategoryRecordBuilder)? updates]) =>
@@ -120,9 +149,11 @@ class _$SubCategoryRecord extends SubCategoryRecord {
   _$SubCategoryRecord._(
       {this.subCategoryName,
       this.image,
+      this.displayAtHome,
       this.createdAt,
       this.modifiedAt,
-      this.createdBy})
+      this.createdBy,
+      this.ffRef})
       : super._();
 
   @override
@@ -139,9 +170,11 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     return other is SubCategoryRecord &&
         subCategoryName == other.subCategoryName &&
         image == other.image &&
+        displayAtHome == other.displayAtHome &&
         createdAt == other.createdAt &&
         modifiedAt == other.modifiedAt &&
-        createdBy == other.createdBy;
+        createdBy == other.createdBy &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -149,9 +182,11 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     var _$hash = 0;
     _$hash = $jc(_$hash, subCategoryName.hashCode);
     _$hash = $jc(_$hash, image.hashCode);
+    _$hash = $jc(_$hash, displayAtHome.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
     _$hash = $jc(_$hash, createdBy.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -161,9 +196,11 @@ class _$SubCategoryRecord extends SubCategoryRecord {
     return (newBuiltValueToStringHelper(r'SubCategoryRecord')
           ..add('subCategoryName', subCategoryName)
           ..add('image', image)
+          ..add('displayAtHome', displayAtHome)
           ..add('createdAt', createdAt)
           ..add('modifiedAt', modifiedAt)
-          ..add('createdBy', createdBy))
+          ..add('createdBy', createdBy)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -181,6 +218,11 @@ class SubCategoryRecordBuilder
   String? get image => _$this._image;
   set image(String? image) => _$this._image = image;
 
+  bool? _displayAtHome;
+  bool? get displayAtHome => _$this._displayAtHome;
+  set displayAtHome(bool? displayAtHome) =>
+      _$this._displayAtHome = displayAtHome;
+
   DateTime? _createdAt;
   DateTime? get createdAt => _$this._createdAt;
   set createdAt(DateTime? createdAt) => _$this._createdAt = createdAt;
@@ -194,6 +236,10 @@ class SubCategoryRecordBuilder
   set createdBy(DocumentReference<Object?>? createdBy) =>
       _$this._createdBy = createdBy;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   SubCategoryRecordBuilder() {
     SubCategoryRecord._initializeBuilder(this);
   }
@@ -203,9 +249,11 @@ class SubCategoryRecordBuilder
     if ($v != null) {
       _subCategoryName = $v.subCategoryName;
       _image = $v.image;
+      _displayAtHome = $v.displayAtHome;
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
       _createdBy = $v.createdBy;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -230,9 +278,11 @@ class SubCategoryRecordBuilder
         new _$SubCategoryRecord._(
             subCategoryName: subCategoryName,
             image: image,
+            displayAtHome: displayAtHome,
             createdAt: createdAt,
             modifiedAt: modifiedAt,
-            createdBy: createdBy);
+            createdBy: createdBy,
+            ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

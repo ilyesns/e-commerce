@@ -27,6 +27,9 @@ abstract class VariantRecord
   @BuiltValueField(wireName: 'id_size')
   DocumentReference? get idSize;
 
+  @BuiltValueField(wireName: 'id_feature')
+  DocumentReference? get idFeature;
+
   @BuiltValueField(wireName: 'images')
   BuiltList<String>? get images;
 
@@ -35,6 +38,10 @@ abstract class VariantRecord
 
   @BuiltValueField(wireName: 'modified_at')
   DateTime? get modifiedAt;
+
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
 
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
       parent != null
@@ -64,7 +71,7 @@ Map<String, dynamic> createVariantRecordData({
   int? quantity,
   ListBuilder<String>? images,
   Color? colorCode,
-  Size? sizeCode,
+  String? sizeCode,
   DocumentReference? idColor,
   DocumentReference? idSize,
   DateTime? createdAt,
@@ -77,7 +84,7 @@ Map<String, dynamic> createVariantRecordData({
       'id_color': idColor,
       'size_code': sizeCode,
       'id_size': idSize,
-      'images': images,
+      'images': images?.build(),
       'created_at': createdAt,
       'modified_at': modifiedAt,
     },

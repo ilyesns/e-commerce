@@ -1,42 +1,46 @@
+import 'package:blueraymarket/backend/schema/product/product_record.dart';
+import 'package:blueraymarket/backend/schema/sub_category/sub_category_record.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/components/product_card.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
+import '../../../tools/util.dart';
 import 'section_title.dart';
 
-class PopularProducts extends StatelessWidget {
+class SubCategoriesSection extends StatelessWidget {
+  SubCategoriesSection({required this.subcategory, required this.products});
+  final SubCategoryRecord subcategory;
+
+  late List<ProductRecord?> products;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: getProportionateScreenWidth(context, 20)),
-          child: SectionTitle(title: "Popular Products", press: () {}),
-        ),
-        SizedBox(height: getProportionateScreenWidth(context, 20)),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              // ############# edhy bch nbadlouha b product mte3na
-              // ...List.generate(
-              //   demoProducts.length,
-              //   (index) {
-              //     if (demoProducts[index].isPopular)
-              //       return InkWell(
-              //           onTap: () {},
-              //           child: ProductCard(product: demoProducts[index]));
-
-              //     return SizedBox
-              //         .shrink(); // here by default width and height is 0
-              //   },
-              // ),
-              SizedBox(width: getProportionateScreenWidth(context, 20)),
-            ],
+    return Container(
+      width: getProportionateScreenWidth(context, 50),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: getProportionateScreenWidth(context, 20)),
+            child: SectionTitle(
+                title: subcategory.subCategoryName as String, press: () {}),
           ),
-        )
-      ],
+          SizedBox(height: getProportionateScreenWidth(context, 20)),
+          Container(
+            width: SizeConfig().screenWidth,
+            height: getProportionateScreenHeight(context, 170),
+            child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final productItem = products[index];
+                  return ProductCard(
+                    product: productItem!,
+                  );
+                }),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,3 +1,6 @@
+import 'package:blueraymarket/backend/backend.dart';
+import 'package:blueraymarket/backend/schema/product/product_record.dart';
+import 'package:blueraymarket/backend/schema/variant/variant_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,10 +14,15 @@ class AppState extends ChangeNotifier {
 
   static SharedPreferences? _prefs;
 
-  AppState._internal();
+  AppState._internal() {
+    initialize();
+  }
 
   Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
+
+    products = await queryProductsRecordOnce();
+    variants = await queryVariantsRecordOnce();
   }
 
   factory AppState() {
@@ -36,6 +44,14 @@ class AppState extends ChangeNotifier {
     prefs!.setStringList(kFavorite, _value.map((x) => x.path).toList());
   }
 
+  List<ProductRecord?> _products = [];
+  List<ProductRecord?> get products => _products;
+  set products(List<ProductRecord?> _value) => _products = _value;
+
+  List<VariantRecord?> _variants = [];
+  List<VariantRecord?> get variants => _variants;
+  set variants(List<VariantRecord?> _value) => _variants = _value;
+
   void deleteFavorite() {
     prefs!.setStringList(kFavorite, []);
   }
@@ -55,22 +71,21 @@ class AppState extends ChangeNotifier {
     prefs!.setStringList(kFavorite, _favorite.map((x) => x.path).toList());
   }
 
-  List<DocumentReference> _RecentlyViewed = [];
-  List<DocumentReference> get RecentlyViewed => _RecentlyViewed;
-  set RecentlyViewed(List<DocumentReference> _value) {
-    _RecentlyViewed = _value;
-  }
+  List<DocumentReference> _recentlyViewed = [];
+  List<DocumentReference> get recentlyViewed => _recentlyViewed;
+  set recentlyViewed(List<DocumentReference> _value) =>
+      _recentlyViewed = _value;
 
   void addToRecentlyViewed(DocumentReference _value) {
-    _RecentlyViewed.add(_value);
+    _recentlyViewed.add(_value);
   }
 
   void removeFromRecentlyViewed(DocumentReference _value) {
-    _RecentlyViewed.remove(_value);
+    _recentlyViewed.remove(_value);
   }
 
   void removeAtIndexFromRecentlyViewed(int _index) {
-    _RecentlyViewed.removeAt(_index);
+    _recentlyViewed.removeAt(_index);
   }
 
 // ###### cart list

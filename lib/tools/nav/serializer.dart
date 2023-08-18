@@ -8,7 +8,7 @@ import '../../backend/schema/serializers.dart';
 
 enum ParamType {
   int,
-  Product,
+  ProductRecord,
   double,
   String,
   bool,
@@ -19,6 +19,56 @@ enum ParamType {
   JSON,
   Document,
   DocumentReference,
+}
+
+String? serializeParam(
+  dynamic param,
+  ParamType paramType, [
+  bool isList = false,
+]) {
+  try {
+    if (param == null) {
+      return null;
+    }
+    if (isList) {
+      final serializedValues = (param as Iterable)
+          .map((p) => serializeParam(p, paramType, false))
+          .where((p) => p != null)
+          .map((p) => p!)
+          .toList();
+      return json.encode(serializedValues);
+    }
+    switch (paramType) {
+      case ParamType.int:
+        return param.toString();
+      case ParamType.double:
+        return param.toString();
+      case ParamType.String:
+        return param;
+      case ParamType.bool:
+        return param ? 'true' : 'false';
+      case ParamType.DateTime:
+        return (param as DateTime).millisecondsSinceEpoch.toString();
+      case ParamType.DateTimeRange:
+        return dateTimeRangeToString(param as DateTimeRange);
+
+      case ParamType.Color:
+        return (param as Color).toCssString();
+      case ParamType.JSON:
+        return json.encode(param);
+      case ParamType.DocumentReference:
+        return _serializeDocumentReference(param as DocumentReference);
+      case ParamType.Document:
+        final reference = (param as dynamic).reference as DocumentReference;
+        return _serializeDocumentReference(reference);
+
+      default:
+        return null;
+    }
+  } catch (e) {
+    print('Error serializing parameter: $e');
+    return null;
+  }
 }
 
 dynamic deserializeParam<T>(

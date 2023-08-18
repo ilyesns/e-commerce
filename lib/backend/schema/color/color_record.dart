@@ -19,6 +19,9 @@ abstract class ColorRecord implements Built<ColorRecord, ColorRecordBuilder> {
   @BuiltValueField(wireName: 'color_code')
   Color? get colorCode;
 
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('colors');
 
@@ -40,8 +43,9 @@ abstract class ColorRecord implements Built<ColorRecord, ColorRecordBuilder> {
 
 Map<String, dynamic> createColorRecordData(
     {String? colorName, Color? colorCode}) {
+  print(colorName);
   final firestoreData = mapToFirestore(
-    <String, dynamic>{
+    {
       'color_name': colorName,
       'color_code': colorCode,
     },

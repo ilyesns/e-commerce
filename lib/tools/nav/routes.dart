@@ -1,3 +1,10 @@
+import 'package:blueraymarket/main.dart';
+import 'package:blueraymarket/screens/dashboard/manage_products/brands/brands_screen.dart';
+import 'package:blueraymarket/screens/dashboard/manage_products/categories/categories_screen.dart';
+import 'package:blueraymarket/screens/dashboard/manage_products/discounts/discounts_screen.dart';
+import 'package:blueraymarket/screens/dashboard/manage_products/products/products_screen.dart';
+import 'package:blueraymarket/screens/dashboard/manage_products/variants/variants_screen.dart';
+import 'package:blueraymarket/tools/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:blueraymarket/screens/cart/cart_screen.dart';
@@ -11,20 +18,29 @@ import 'package:blueraymarket/screens/profile/profile_screen.dart';
 import 'package:blueraymarket/screens/login/login.dart';
 import 'package:blueraymarket/screens/splash/splash_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../auth/auth_util.dart';
 import '../../auth/firebase_user_provider.dart';
 import '../../auth/firebase_user_provider.dart';
+import '../../screens/list_products/list_products_screen.dart';
+import '../../screens/dashboard/darshboard_screen.dart';
+import '../../screens/dashboard/manage_products/product_variants/products_variants_Screen.dart';
+import '../../screens/dashboard/manage_products/sub_categories/sub_categories_screen.dart';
 import 'serializer.dart';
 
 const kTransitionInfoKey = '__transition_info__';
+const kTransitionDuration = 250;
 
 class AppStateNotifier extends ChangeNotifier {
   FirebaseUserProvider? initialUser;
   FirebaseUserProvider? user;
   bool showSplashImage = true;
   String? _redirectLocation;
+  AppStateNotifier._();
 
+  static AppStateNotifier? _instance;
+  static AppStateNotifier get instance => _instance ??= AppStateNotifier._();
   bool notifyOnAuthChange = true;
 
   bool get loading => user == null || showSplashImage;
@@ -64,14 +80,19 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
     debugLogDiagnostics: true,
     refreshListenable: appStateNotifier,
     errorBuilder: (context, _) =>
-        appStateNotifier.loggedIn ? HomeScreen() : SplashScreen(),
+        appStateNotifier.loggedIn ? NavBarPage() : SplashScreen(),
     routes: [
       MyRoute(
         name: 'initialize',
         path: '/',
         builder: (context, state) =>
-            appStateNotifier.loggedIn ? HomeScreen() : SplashScreen(),
+            appStateNotifier.loggedIn ? NavBarPage() : SplashScreen(),
         routes: [
+          MyRoute(
+            name: 'NavBarPage',
+            path: 'navBarPage',
+            builder: (context, state) => NavBarPage(),
+          ),
           MyRoute(
             name: 'Login',
             path: 'login',
@@ -90,7 +111,20 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
           MyRoute(
             name: 'ProductDetailsScreen',
             path: 'productDetailsScreen',
-            builder: (context, state) => ProductDetailsScreen(),
+            builder: (context, state) => ProductDetailsScreen(
+              idproduct: state.getParam(
+                'idproduct',
+                ParamType.DocumentReference,
+                false,
+                ['products'],
+              ),
+              idSubCategory: state.getParam(
+                'idSubCategory',
+                ParamType.DocumentReference,
+                false,
+                ['categories', 'sub_categories'],
+              ),
+            ),
           ),
           MyRoute(
             name: 'CartPage',
@@ -98,10 +132,85 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
             requireAuth: true,
             builder: (context, state) => CartScreen(),
           ),
+          MyRoute(
+            name: 'ProfilePage',
+            path: 'profilePage',
+            builder: (context, state) => ProfileScreen(),
+          ),
+          MyRoute(
+            name: 'ListProductsPage',
+            path: 'listProductsPage',
+            builder: (context, state) => ListProductsScreen(
+                idSubCategory: state.getParam(
+                    'idSubCategory',
+                    ParamType.DocumentReference,
+                    false,
+                    ['categories', 'sub_categories']),
+                subCategoryName: state.getParam(
+                  'subCategoryName',
+                  ParamType.String,
+                )),
+          ),
+          MyRoute(
+            name: 'DashboardScreen',
+            path: 'dashboardScreen',
+            builder: (context, state) => DashboardScreen(),
+            isRequireRole: true,
+          ),
+          MyRoute(
+            name: 'BrandsPage',
+            path: 'brandsPage',
+            requireAuth: true,
+            builder: (context, state) => BrandsScreen(),
+          ),
+          MyRoute(
+            name: 'CategoriesPage',
+            path: 'categoriesPage',
+            requireAuth: true,
+            builder: (context, state) => CategoriesScreen(),
+          ),
+          MyRoute(
+            name: 'SubCategoriesPage',
+            path: 'subCategoriesPage',
+            requireAuth: true,
+            builder: (context, state) => SubCategoriesScreen(),
+          ),
+          MyRoute(
+            name: 'DiscountsPage',
+            path: 'discountsPage',
+            requireAuth: true,
+            builder: (context, state) => DiscountsScreen(),
+          ),
+          MyRoute(
+            name: 'ProductsPage',
+            path: 'productsPage',
+            requireAuth: true,
+            builder: (context, state) => ProductsScreen(),
+          ),
+          MyRoute(
+            name: 'VariantsPage',
+            path: 'variantsPage',
+            requireAuth: true,
+            builder: (context, state) => VariantsScreen(),
+          ),
+          MyRoute(
+            name: 'ProductsVariantsPage',
+            path: 'productsVariantsPage',
+            requireAuth: true,
+            builder: (context, state) => ProductsVariantsScreen(),
+          ),
         ].map((r) => r.toRoute(appStateNotifier)).toList(),
       ),
     ].map((r) => r.toRoute(appStateNotifier)).toList(),
   );
+}
+
+extension NavParamExtensions on Map<String, String?> {
+  Map<String, String> get withoutNulls => Map.fromEntries(
+        entries
+            .where((e) => e.value != null)
+            .map((e) => MapEntry(e.key, e.value!)),
+      );
 }
 
 extension NavigationExtensions on BuildContext {
@@ -151,7 +260,7 @@ extension NavigationExtensions on BuildContext {
 }
 
 extension GoRouterExtensions on GoRouter {
-  AppStateNotifier? get appState => AppStateNotifier();
+  AppStateNotifier? get appState => AppStateNotifier._instance;
   void prepareAuthEvent([bool ignoreRedirect = false]) =>
       appState!.hasRedirect() && !ignoreRedirect
           ? null
@@ -163,12 +272,27 @@ extension GoRouterExtensions on GoRouter {
       appState!.updateNotifyOnAuthChange(false);
 }
 
+extension _GoRouterStateExtensions on GoRouterState {
+  Map<String, dynamic> get extraMap =>
+      extra != null ? extra as Map<String, dynamic> : {};
+
+  Map<String, dynamic> get allParams => <String, dynamic>{}
+    ..addAll(pathParameters)
+    ..addAll(queryParameters)
+    ..addAll(extraMap);
+  TransitionInfo get transitionInfo => extraMap.containsKey(kTransitionInfoKey)
+      ? extraMap[kTransitionInfoKey] as TransitionInfo
+      : TransitionInfo.appDefault();
+}
+
 class MyRoute {
   const MyRoute({
     required this.name,
     required this.path,
     required this.builder,
     this.requireAuth = false,
+    this.isRequireRole = false,
+    this.requireRole = 'customer',
     this.asyncParams = const {},
     this.routes = const [],
   });
@@ -176,6 +300,8 @@ class MyRoute {
   final String name;
   final String path;
   final bool requireAuth;
+  final String requireRole;
+  final bool isRequireRole;
   final Map<String, Future<dynamic> Function(String)> asyncParams;
   final Widget Function(BuildContext, Parameters) builder;
   final List<GoRoute> routes;
@@ -194,16 +320,17 @@ class MyRoute {
             appStateNotifier.setRedirectLocationIfUnset(state.location);
             return '/login';
           }
+
           return null;
         },
         pageBuilder: (context, state) {
-          final Params = Parameters(state, asyncParams);
-          final page = Params.hasFutures
+          final params = Parameters(state, asyncParams);
+          final page = params.hasFutures
               ? FutureBuilder(
-                  future: Params.completeFutures(),
-                  builder: (context, _) => builder(context, Params),
+                  future: params.completeFutures(),
+                  builder: (context, _) => builder(context, params),
                 )
-              : builder(context, Params);
+              : builder(context, params);
           final child = appStateNotifier.loading
               ? Container(
                   color: Colors.transparent,
@@ -217,7 +344,22 @@ class MyRoute {
                 )
               : page;
 
-          return MaterialPage(key: state.pageKey, child: child);
+          final transitionInfo = state.transitionInfo;
+
+          return transitionInfo.hasTransition
+              ? CustomTransitionPage(
+                  key: state.pageKey,
+                  child: child,
+                  transitionDuration: transitionInfo.duration,
+                  transitionsBuilder: PageTransition(
+                    type: transitionInfo.transitionType,
+                    duration: transitionInfo.duration,
+                    reverseDuration: transitionInfo.duration,
+                    alignment: transitionInfo.alignment,
+                    child: child,
+                  ).transitionsBuilder,
+                )
+              : MaterialPage(key: state.pageKey, child: child);
         },
         routes: routes,
       );
@@ -277,11 +419,18 @@ class Parameters {
   }
 }
 
-extension _GoRouterStateExtensions on GoRouterState {
-  Map<String, dynamic> get extraMap =>
-      extra != null ? extra as Map<String, dynamic> : {};
-  Map<String, dynamic> get allParams => <String, dynamic>{}
-    ..addAll(pathParameters)
-    ..addAll(queryParameters)
-    ..addAll(extraMap);
+class TransitionInfo {
+  TransitionInfo({
+    required this.hasTransition,
+    this.transitionType = PageTransitionType.rightToLeftWithFade,
+    this.duration = const Duration(milliseconds: kTransitionDuration),
+    this.alignment,
+  });
+
+  final bool hasTransition;
+  final PageTransitionType transitionType;
+  late Duration duration;
+  final Alignment? alignment;
+
+  static TransitionInfo appDefault() => TransitionInfo(hasTransition: false);
 }

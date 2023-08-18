@@ -2,6 +2,7 @@ import 'package:blueraymarket/backend/schema/brand/brand_record.dart';
 import 'package:blueraymarket/backend/schema/category/category_record.dart';
 import 'package:blueraymarket/backend/schema/color/color_record.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
+import 'package:blueraymarket/backend/schema/feature/feature_record.dart';
 import 'package:blueraymarket/backend/schema/order_details/order_details_record.dart';
 import 'package:blueraymarket/backend/schema/order_item/order_item_record.dart';
 import 'package:blueraymarket/backend/schema/product/product_record.dart';
@@ -158,6 +159,29 @@ Future<List<VariantRecord>> queryVariantsRecordOnce({
       singleRecord: singleRecord,
     );
 
+Future<int> queryProductsRecordCount({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+}) =>
+    queryCollectionCount(
+      ProductRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+Future<List<ProductRecord>> queryProductsPage({
+  Query Function(Query)? queryBuilder,
+  DocumentSnapshot? nextPageMarker,
+  required int pageSize,
+  required bool isStream,
+}) =>
+    queryCollectionPage(
+      ProductRecord.collection,
+      ProductRecord.serializer,
+      queryBuilder: queryBuilder,
+      nextPageMarker: nextPageMarker,
+      pageSize: pageSize,
+      isStream: isStream,
+    );
 // Stream query Products
 Stream<List<ProductRecord>> queryProductsRecord({
   Query Function(Query)? queryBuilder,
@@ -326,6 +350,34 @@ Future<List<SizeRecord>> querySizesRecordOnce({
       singleRecord: singleRecord,
     );
 
+// Stream query Size
+Stream<List<FeatureRecord>> queryFeaturesRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollection(
+      FeatureRecord.collection,
+      FeatureRecord.serializer,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+// Future query Size
+Future<List<FeatureRecord>> queryFeaturesRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollectionOnce(
+      FeatureRecord.collection,
+      FeatureRecord.serializer,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
 // ##################### Abstract query Collections Methods
 Future<int> queryCollectionCount(
   Query collection, {
@@ -401,4 +453,48 @@ extension QueryExtension on Query {
       (list?.isEmpty ?? true)
           ? where(field, arrayContainsAny: null)
           : where(field, arrayContainsAny: list);
+}
+
+class FirestorePage<T> {
+  final List<T> data;
+  final Stream<List<T>>? dataStream;
+  final QueryDocumentSnapshot? nextPageMarker;
+
+  FirestorePage(this.data, this.dataStream, this.nextPageMarker);
+}
+
+Future<List<T>> queryCollectionPage<T>(
+  Query collection,
+  Serializer<T> serializer, {
+  Query Function(Query)? queryBuilder,
+  DocumentSnapshot? nextPageMarker,
+  required int pageSize,
+  required bool isStream,
+}) async {
+  final builder = queryBuilder ?? (q) => q;
+  var query = builder(collection).limit(pageSize);
+  if (nextPageMarker != null) {
+    query = query.startAfterDocument(nextPageMarker);
+  }
+  Stream<QuerySnapshot>? docSnapshotStream;
+  QuerySnapshot docSnapshot;
+  if (isStream) {
+    docSnapshotStream = query.snapshots();
+    docSnapshot = await docSnapshotStream.first;
+  } else {
+    docSnapshot = await query.get();
+  }
+  final getDocs = (QuerySnapshot s) => s.docs
+      .map(
+        (d) => safeGet(
+          () => serializers.deserializeWith(serializer, serializedData(d)),
+          (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
+        ),
+      )
+      .where((d) => d != null)
+      .map((d) => d!)
+      .toList();
+  final data = getDocs(docSnapshot);
+  final dataStream = docSnapshotStream?.map(getDocs);
+  return data;
 }

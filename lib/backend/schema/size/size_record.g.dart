@@ -26,6 +26,14 @@ class _$SizeRecordSerializer implements StructuredSerializer<SizeRecord> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -44,6 +52,12 @@ class _$SizeRecordSerializer implements StructuredSerializer<SizeRecord> {
           result.sizeCode = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -54,11 +68,13 @@ class _$SizeRecordSerializer implements StructuredSerializer<SizeRecord> {
 class _$SizeRecord extends SizeRecord {
   @override
   final String? sizeCode;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$SizeRecord([void Function(SizeRecordBuilder)? updates]) =>
       (new SizeRecordBuilder()..update(updates))._build();
 
-  _$SizeRecord._({this.sizeCode}) : super._();
+  _$SizeRecord._({this.sizeCode, this.ffRef}) : super._();
 
   @override
   SizeRecord rebuild(void Function(SizeRecordBuilder) updates) =>
@@ -70,13 +86,16 @@ class _$SizeRecord extends SizeRecord {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is SizeRecord && sizeCode == other.sizeCode;
+    return other is SizeRecord &&
+        sizeCode == other.sizeCode &&
+        ffRef == other.ffRef;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, sizeCode.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -84,7 +103,8 @@ class _$SizeRecord extends SizeRecord {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'SizeRecord')
-          ..add('sizeCode', sizeCode))
+          ..add('sizeCode', sizeCode)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -96,6 +116,10 @@ class SizeRecordBuilder implements Builder<SizeRecord, SizeRecordBuilder> {
   String? get sizeCode => _$this._sizeCode;
   set sizeCode(String? sizeCode) => _$this._sizeCode = sizeCode;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   SizeRecordBuilder() {
     SizeRecord._initializeBuilder(this);
   }
@@ -104,6 +128,7 @@ class SizeRecordBuilder implements Builder<SizeRecord, SizeRecordBuilder> {
     final $v = _$v;
     if ($v != null) {
       _sizeCode = $v.sizeCode;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -124,7 +149,8 @@ class SizeRecordBuilder implements Builder<SizeRecord, SizeRecordBuilder> {
   SizeRecord build() => _build();
 
   _$SizeRecord _build() {
-    final _$result = _$v ?? new _$SizeRecord._(sizeCode: sizeCode);
+    final _$result =
+        _$v ?? new _$SizeRecord._(sizeCode: sizeCode, ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

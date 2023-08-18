@@ -33,6 +33,14 @@ class _$ColorRecordSerializer implements StructuredSerializer<ColorRecord> {
         ..add(
             serializers.serialize(value, specifiedType: const FullType(Color)));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -55,6 +63,12 @@ class _$ColorRecordSerializer implements StructuredSerializer<ColorRecord> {
           result.colorCode = serializers.deserialize(value,
               specifiedType: const FullType(Color)) as Color?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -67,11 +81,13 @@ class _$ColorRecord extends ColorRecord {
   final String? colorName;
   @override
   final Color? colorCode;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$ColorRecord([void Function(ColorRecordBuilder)? updates]) =>
       (new ColorRecordBuilder()..update(updates))._build();
 
-  _$ColorRecord._({this.colorName, this.colorCode}) : super._();
+  _$ColorRecord._({this.colorName, this.colorCode, this.ffRef}) : super._();
 
   @override
   ColorRecord rebuild(void Function(ColorRecordBuilder) updates) =>
@@ -85,7 +101,8 @@ class _$ColorRecord extends ColorRecord {
     if (identical(other, this)) return true;
     return other is ColorRecord &&
         colorName == other.colorName &&
-        colorCode == other.colorCode;
+        colorCode == other.colorCode &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -93,6 +110,7 @@ class _$ColorRecord extends ColorRecord {
     var _$hash = 0;
     _$hash = $jc(_$hash, colorName.hashCode);
     _$hash = $jc(_$hash, colorCode.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -101,7 +119,8 @@ class _$ColorRecord extends ColorRecord {
   String toString() {
     return (newBuiltValueToStringHelper(r'ColorRecord')
           ..add('colorName', colorName)
-          ..add('colorCode', colorCode))
+          ..add('colorCode', colorCode)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -117,6 +136,10 @@ class ColorRecordBuilder implements Builder<ColorRecord, ColorRecordBuilder> {
   Color? get colorCode => _$this._colorCode;
   set colorCode(Color? colorCode) => _$this._colorCode = colorCode;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   ColorRecordBuilder() {
     ColorRecord._initializeBuilder(this);
   }
@@ -126,6 +149,7 @@ class ColorRecordBuilder implements Builder<ColorRecord, ColorRecordBuilder> {
     if ($v != null) {
       _colorName = $v.colorName;
       _colorCode = $v.colorCode;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -146,8 +170,9 @@ class ColorRecordBuilder implements Builder<ColorRecord, ColorRecordBuilder> {
   ColorRecord build() => _build();
 
   _$ColorRecord _build() {
-    final _$result =
-        _$v ?? new _$ColorRecord._(colorName: colorName, colorCode: colorCode);
+    final _$result = _$v ??
+        new _$ColorRecord._(
+            colorName: colorName, colorCode: colorCode, ffRef: ffRef);
     replace(_$result);
     return _$result;
   }

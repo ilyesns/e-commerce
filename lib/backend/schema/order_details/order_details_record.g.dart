@@ -61,6 +61,14 @@ class _$OrderDetailsRecordSerializer
         ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
     }
+    value = object.ffRef;
+    if (value != null) {
+      result
+        ..add('Document__Reference__Field')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                DocumentReference, const [const FullType.nullable(Object)])));
+    }
     return result;
   }
 
@@ -101,6 +109,12 @@ class _$OrderDetailsRecordSerializer
           result.modifiedAt = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
           break;
+        case 'Document__Reference__Field':
+          result.ffRef = serializers.deserialize(value,
+              specifiedType: const FullType(DocumentReference, const [
+                const FullType.nullable(Object)
+              ])) as DocumentReference<Object?>?;
+          break;
       }
     }
 
@@ -119,6 +133,8 @@ class _$OrderDetailsRecord extends OrderDetailsRecord {
   final DateTime? createdAt;
   @override
   final DateTime? modifiedAt;
+  @override
+  final DocumentReference<Object?>? ffRef;
 
   factory _$OrderDetailsRecord(
           [void Function(OrderDetailsRecordBuilder)? updates]) =>
@@ -129,7 +145,8 @@ class _$OrderDetailsRecord extends OrderDetailsRecord {
       this.status,
       this.orderItemsId,
       this.createdAt,
-      this.modifiedAt})
+      this.modifiedAt,
+      this.ffRef})
       : super._();
 
   @override
@@ -149,7 +166,8 @@ class _$OrderDetailsRecord extends OrderDetailsRecord {
         status == other.status &&
         orderItemsId == other.orderItemsId &&
         createdAt == other.createdAt &&
-        modifiedAt == other.modifiedAt;
+        modifiedAt == other.modifiedAt &&
+        ffRef == other.ffRef;
   }
 
   @override
@@ -160,6 +178,7 @@ class _$OrderDetailsRecord extends OrderDetailsRecord {
     _$hash = $jc(_$hash, orderItemsId.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, modifiedAt.hashCode);
+    _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -171,7 +190,8 @@ class _$OrderDetailsRecord extends OrderDetailsRecord {
           ..add('status', status)
           ..add('orderItemsId', orderItemsId)
           ..add('createdAt', createdAt)
-          ..add('modifiedAt', modifiedAt))
+          ..add('modifiedAt', modifiedAt)
+          ..add('ffRef', ffRef))
         .toString();
   }
 }
@@ -202,6 +222,10 @@ class OrderDetailsRecordBuilder
   DateTime? get modifiedAt => _$this._modifiedAt;
   set modifiedAt(DateTime? modifiedAt) => _$this._modifiedAt = modifiedAt;
 
+  DocumentReference<Object?>? _ffRef;
+  DocumentReference<Object?>? get ffRef => _$this._ffRef;
+  set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
+
   OrderDetailsRecordBuilder() {
     OrderDetailsRecord._initializeBuilder(this);
   }
@@ -214,6 +238,7 @@ class OrderDetailsRecordBuilder
       _orderItemsId = $v.orderItemsId?.toBuilder();
       _createdAt = $v.createdAt;
       _modifiedAt = $v.modifiedAt;
+      _ffRef = $v.ffRef;
       _$v = null;
     }
     return this;
@@ -242,7 +267,8 @@ class OrderDetailsRecordBuilder
               status: status,
               orderItemsId: _orderItemsId?.build(),
               createdAt: createdAt,
-              modifiedAt: modifiedAt);
+              modifiedAt: modifiedAt,
+              ffRef: ffRef);
     } catch (_) {
       late String _$failedField;
       try {

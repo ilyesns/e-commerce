@@ -29,8 +29,8 @@ abstract class UserRecord implements Built<UserRecord, UserRecordBuilder> {
   @BuiltValueField(wireName: 'role')
   String? get role;
 
-  @BuiltValueField(wireName: 'age')
-  String? get age;
+  @BuiltValueField(wireName: 'address')
+  String? get address;
 
   @BuiltValueField(wireName: kDocumentReferenceField)
   DocumentReference? get ffRef;
@@ -59,7 +59,7 @@ abstract class UserRecord implements Built<UserRecord, UserRecordBuilder> {
     ..photoUrl = ''
     ..uid = ''
     ..role = ''
-    ..age = '';
+    ..address = '';
 
   UserRecord._();
   factory UserRecord([void Function(UserRecordBuilder) updates]) = _$UserRecord;
@@ -73,7 +73,7 @@ Map<String, dynamic> createUserRecordData({
   DateTime? createdTime,
   String? uid,
   String? role,
-  String? age,
+  String? address,
 }) {
   final firestoreData = serializers
       .toFirestore(
@@ -87,7 +87,7 @@ Map<String, dynamic> createUserRecordData({
             ..createdTime = createdTime
             ..uid = uid
             ..role = role
-            ..age = age,
+            ..address = address,
         ),
       )
       .withoutNulls;

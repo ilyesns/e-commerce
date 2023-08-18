@@ -68,10 +68,10 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    value = object.age;
+    value = object.address;
     if (value != null) {
       result
-        ..add('age')
+        ..add('address')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
@@ -125,8 +125,8 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
           result.role = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
-        case 'age':
-          result.age = serializers.deserialize(value,
+        case 'address':
+          result.address = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
         case 'Document__Reference__Field':
@@ -158,7 +158,7 @@ class _$UserRecord extends UserRecord {
   @override
   final String? role;
   @override
-  final String? age;
+  final String? address;
   @override
   final DocumentReference<Object?>? ffRef;
 
@@ -173,7 +173,7 @@ class _$UserRecord extends UserRecord {
       this.createdTime,
       this.uid,
       this.role,
-      this.age,
+      this.address,
       this.ffRef})
       : super._();
 
@@ -195,7 +195,7 @@ class _$UserRecord extends UserRecord {
         createdTime == other.createdTime &&
         uid == other.uid &&
         role == other.role &&
-        age == other.age &&
+        address == other.address &&
         ffRef == other.ffRef;
   }
 
@@ -209,7 +209,7 @@ class _$UserRecord extends UserRecord {
     _$hash = $jc(_$hash, createdTime.hashCode);
     _$hash = $jc(_$hash, uid.hashCode);
     _$hash = $jc(_$hash, role.hashCode);
-    _$hash = $jc(_$hash, age.hashCode);
+    _$hash = $jc(_$hash, address.hashCode);
     _$hash = $jc(_$hash, ffRef.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -225,7 +225,7 @@ class _$UserRecord extends UserRecord {
           ..add('createdTime', createdTime)
           ..add('uid', uid)
           ..add('role', role)
-          ..add('age', age)
+          ..add('address', address)
           ..add('ffRef', ffRef))
         .toString();
   }
@@ -262,9 +262,9 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
   String? get role => _$this._role;
   set role(String? role) => _$this._role = role;
 
-  String? _age;
-  String? get age => _$this._age;
-  set age(String? age) => _$this._age = age;
+  String? _address;
+  String? get address => _$this._address;
+  set address(String? address) => _$this._address = address;
 
   DocumentReference<Object?>? _ffRef;
   DocumentReference<Object?>? get ffRef => _$this._ffRef;
@@ -284,7 +284,7 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
       _createdTime = $v.createdTime;
       _uid = $v.uid;
       _role = $v.role;
-      _age = $v.age;
+      _address = $v.address;
       _ffRef = $v.ffRef;
       _$v = null;
     }
@@ -315,7 +315,7 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
             createdTime: createdTime,
             uid: uid,
             role: role,
-            age: age,
+            address: address,
             ffRef: ffRef);
     replace(_$result);
     return _$result;

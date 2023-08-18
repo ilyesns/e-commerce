@@ -2,40 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/tools/constants.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../tools/nav/theme.dart';
 
 class CustomAppBar extends StatelessWidget {
-  CustomAppBar();
+  CustomAppBar({required this.title});
 
-  @override
-  // AppBar().preferredSize.height provide us the height that appy on our app bar
-  Size get preferredSize => Size.fromHeight(AppBar().preferredSize.height);
+  final String title;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: MyTheme.of(context).secondaryBackground,
+      ),
       child: Padding(
         padding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(context, 20)),
+          vertical: getProportionateScreenHeight(context, 10),
+          horizontal: getProportionateScreenWidth(context, 7),
+        ),
         child: Row(
           children: [
             SizedBox(
               height: getProportionateScreenWidth(context, 40),
               width: getProportionateScreenWidth(context, 40),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(60),
+              child: InkWell(
+                onTap: () {
+                  context.pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: SvgPicture.asset(
+                    'assets/icons/arrow-left.svg', // grid-2
+                    width: 30,
+                    color: MyTheme.of(context).grayDark,
                   ),
-                  primary: kPrimaryColor,
-                  backgroundColor: Colors.white,
-                  padding: EdgeInsets.zero,
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: SvgPicture.asset(
-                  "assets/icons/Back ICon.svg",
-                  height: 15,
                 ),
               ),
+            ),
+            Spacer(),
+            Row(
+              children: [
+                Text(
+                  title,
+                  style: MyTheme.of(context).headlineSmall,
+                )
+              ],
             ),
             Spacer(),
             Container(

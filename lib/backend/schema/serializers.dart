@@ -12,6 +12,7 @@ import 'package:from_css_color/from_css_color.dart';
 import 'category/category_record.dart';
 import 'color/color_record.dart';
 import 'discount/discount_record.dart';
+import 'feature/feature_record.dart';
 import 'order_details/order_details_record.dart';
 import 'order_item/order_item_record.dart';
 import 'sub_category/sub_category_record.dart';
@@ -33,6 +34,7 @@ const kDocumentReferenceField = 'Document__Reference__Field';
   SizeRecord,
   OrderItemRecord,
   OrderDetailsRecord,
+  FeatureRecord,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(DocumentReferenceSerializer())
@@ -177,6 +179,9 @@ Map<String, dynamic> mapToFirestore(Map<String, dynamic> data) =>
     data.where((k, v) => k != FirestoreUtilData.name).map((key, value) {
       if (value is Map) {
         value = mapFromFirestore(value as Map<String, dynamic>);
+      }
+      if (value is Color) {
+        value = value.toCssString();
       }
       if (value is Iterable && value.isNotEmpty && value.first is Map) {
         value = value

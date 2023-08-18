@@ -118,7 +118,7 @@ Map<String, dynamic> createProductRecordData({
       'id_category': idCategory,
       'category_name': categoryName,
       'id_subcategory': idSubcategory,
-      'subcategory_name': categoryName,
+      'subcategory_name': subcategoryName,
       'id_discount': idDiscount,
       'created_at': createdAt,
       'modified_at': modifiedAt,

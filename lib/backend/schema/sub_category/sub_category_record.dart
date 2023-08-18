@@ -20,6 +20,9 @@ abstract class SubCategoryRecord
   @BuiltValueField(wireName: 'image')
   String? get image;
 
+  @BuiltValueField(wireName: 'display_at_home')
+  bool? get displayAtHome;
+
   @BuiltValueField(wireName: 'created_at')
   DateTime? get createdAt;
 
@@ -27,6 +30,10 @@ abstract class SubCategoryRecord
   DateTime? get modifiedAt;
   @BuiltValueField(wireName: 'created_by')
   DocumentReference? get createdBy;
+
+  @BuiltValueField(wireName: kDocumentReferenceField)
+  DocumentReference? get ffRef;
+  DocumentReference get reference => ffRef!;
 
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
       parent != null
@@ -55,16 +62,18 @@ abstract class SubCategoryRecord
 }
 
 Map<String, dynamic> createSubCategoryRecordData({
-  String? categoryName,
+  String? subCategoryName,
   String? image,
   DateTime? createdAt,
   DateTime? modifiedAt,
   DocumentReference? createdBy,
+  bool displayAtHome = false,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
-      'category_name': categoryName,
+      'sub_category_name': subCategoryName,
       'image': image,
+      'display_at_home': displayAtHome,
       'created_at': createdAt,
       'modified_at': modifiedAt,
       'created_by': createdBy,

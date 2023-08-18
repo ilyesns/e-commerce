@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
@@ -16,18 +17,14 @@ class SectionTitle extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: getProportionateScreenWidth(context, 18),
-            color: Colors.black,
-          ),
-        ),
+        Text(title,
+            style: MyTheme.of(context).titleMedium.copyWith(
+                fontFamily: 'Open Sans', color: MyTheme.of(context).primary)),
         GestureDetector(
           onTap: press,
           child: Text(
             "See More",
-            style: TextStyle(color: Color(0xFFBBBBBB)),
+            style: MyTheme.of(context).bodySmall,
           ),
         ),
       ],

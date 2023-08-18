@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+const roleUser = 'customer';
 
 const kPrimaryColor = Color(0xFFFE4B4B);
 //const kPrimaryColor = Color(0xFFFF7643);
@@ -7,7 +10,11 @@ const kPrimaryLightColor = Color(0xFFFFECDF);
 const kPrimaryGradientColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0xFFFFA53E), Color(0xFFFF7643)],
+  colors: [
+    Color.fromARGB(255, 238, 144, 144),
+    Color.fromARGB(255, 255, 105, 105),
+    Color(0xFFFE4B4B)
+  ],
 );
 const kSecondaryColor = Color(0xFF979797);
 const kTextColor = Color(0xFF757575);
@@ -16,6 +23,12 @@ const kAnimationDuration = Duration(milliseconds: 200);
 
 final headingStyle = TextStyle(
   fontSize: 28, // getProportionateScreenWidth(context,15)
+  fontWeight: FontWeight.bold,
+  color: Colors.black,
+  height: 1.5,
+);
+final labelMediumStyle = TextStyle(
+  fontSize: 20,
   fontWeight: FontWeight.bold,
   color: Colors.black,
   height: 1.5,
