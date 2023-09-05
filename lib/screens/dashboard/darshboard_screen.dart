@@ -50,7 +50,7 @@ class Body extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 2.6,
             decoration: BoxDecoration(
-              gradient: MyTheme.of(context).linearGradient,
+              color: MyTheme.of(context).secondary,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(70),
               ),

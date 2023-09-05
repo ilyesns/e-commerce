@@ -8,7 +8,9 @@ import 'package:blueraymarket/screens/cart/cart_screen.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 
+import '../../../tools/app_state.dart';
 import '../../home/components/search_field.dart';
 
 class ListProductsHeader extends StatefulWidget {
@@ -23,6 +25,14 @@ class ListProductsHeader extends StatefulWidget {
 }
 
 class _ListProductsHeaderState extends State<ListProductsHeader> {
+  late final TextEditingController _textEditingController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController = TextEditingController(text: widget.subname);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -62,10 +72,45 @@ class _ListProductsHeaderState extends State<ListProductsHeader> {
                     child: Container(
                         height: getProportionateScreenHeight(context, 40),
                         child: SearchField(
-                            initValue: widget.subname,
+                            controller: _textEditingController,
                             disable: true,
                             onChanged: (string) {},
                             hintText: "Search bar")),
+                  ),
+                  Container(
+                    height: getProportionateScreenWidth(context, 38),
+                    width: getProportionateScreenWidth(context, 38),
+                    padding: EdgeInsets.all(5),
+                    child: InkWell(
+                      onTap: () {
+                        context.pushNamed(
+                          'CartPage',
+                          extra: <String, dynamic>{
+                            kTransitionInfoKey: TransitionInfo(
+                              hasTransition: true,
+                              transitionType:
+                                  PageTransitionType.rightToLeftWithFade,
+                              duration:
+                                  Duration(milliseconds: kTransitionDuration),
+                            ),
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Badge(
+                          offset: Offset(8, -3),
+                          label: Text('${AppState().cart.length}'),
+                          textColor: Colors.white,
+                          backgroundColor: MyTheme.of(context).primary,
+                          child: SvgPicture.asset(
+                            'assets/icons/Cart Icon.svg', // grid-2
+                            width: 30,
+                            color: MyTheme.of(context).primaryText,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

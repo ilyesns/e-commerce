@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:blueraymarket/backend/cache/hive_box.dart';
 import 'package:blueraymarket/screens/details/details_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:blueraymarket/backend/backend.dart';
 import 'package:blueraymarket/backend/schema/product/product_record.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
+import '../../tools/app_state.dart';
 import '../../tools/nav/serializer.dart';
 import 'components/header.dart';
 
@@ -27,23 +29,72 @@ class ListProductsScreen extends StatefulWidget {
 }
 
 class _ListProductsScreenState extends State<ListProductsScreen> {
-  late Future<List<ProductRecord?>> future;
+  late List<ProductRecord?> future;
   double maxCrossAxisExtent = 450;
   double childAspectRatio = 1.9;
   bool switchGrid = false;
-  late ScrollController controller;
+  final ScrollController scrollController = ScrollController();
   bool isload = false;
-  int limit = 5;
+  final int limit = 5;
+  late List<ProductRecord?> products = [];
+  bool isHasNext = true;
+  bool firstTime = false;
+
+  late FirestorePage<ProductRecord> paginateFuture;
+  DocumentSnapshot<Object?>? nextPage;
 
   @override
   void initState() {
     super.initState();
+    fetchData();
+    scrollController.addListener(scrollListener);
+  }
 
-    future = ProductHive().getDataFromCache();
+  void fetchData() async {
+    if (!firstTime)
+      setState(() {
+        isload = true;
+        firstTime = true;
+      });
+
+    future = await queryProductsRecordOnce(
+      queryBuilder: (q) => q
+          .orderBy('title', descending: false)
+          .where('id_subcategory', isEqualTo: widget.idSubCategory),
+    );
+
+    paginateFuture = await queryProductsPage(
+        queryBuilder: (q) => q
+            .orderBy('title', descending: false)
+            .where('id_subcategory', isEqualTo: widget.idSubCategory),
+        isStream: false,
+        pageSize: 5,
+        nextPageMarker: nextPage);
+    setState(() {
+      products.addAll(paginateFuture.data);
+      nextPage = paginateFuture.nextPageMarker;
+    });
+    if (future.length <= products.length) {
+      setState(() {
+        isHasNext = false;
+      });
+    }
+
+    setState(() {
+      isload = false;
+    });
+  }
+
+  scrollListener() {
+    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) if (isHasNext) {
+      fetchData();
+    }
   }
 
   @override
   void dispose() {
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -60,7 +111,6 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
               onTap: () {
                 setState(() {
                   switchGrid = !switchGrid;
-
                   maxCrossAxisExtent = maxCrossAxisExtent == 450 ? 300 : 450;
                   childAspectRatio = childAspectRatio == 1.9 ? 0.55 : 1.9;
                 });
@@ -71,85 +121,97 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
                 color: MyTheme.of(context).primary,
                 onRefresh: () async {
                   setState(() {
-                    clearProductsBox();
-                    future = ProductHive().getDataFromCache();
+                    nextPage = null;
+                    firstTime = false;
+                    isHasNext = true;
+                    products = [];
                   });
+
+                  fetchData();
                 },
                 child: SingleChildScrollView(
-                  // controller: controller,
-                  child: FutureBuilder<List<ProductRecord?>>(
-                    future: future,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return ShimmerGridView(
-                          switchGrid: switchGrid,
-                          childAspectRatio: childAspectRatio,
-                          maxCrossAxisExtent: maxCrossAxisExtent,
-                        );
-                      }
-                      if (!snapshot.hasData || snapshot.data == null) {
-                        return listEmpty("List Products Page", context);
-                      }
-                      final products = snapshot.data!
-                          .where((element) =>
-                              element!.idSubCategory == widget.idSubCategory)
-                          .toList();
-                      final itemCount =
-                          products.length < limit ? products.length : limit;
-                      return Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(
-                                getProportionateScreenWidth(context, 10)),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'All ${products.length} Products',
-                                  style: MyTheme.of(context).labelMedium,
+                    controller: scrollController,
+                    child: isload
+                        ? ShimmerGridView(
+                            switchGrid: switchGrid,
+                            childAspectRatio: childAspectRatio,
+                            maxCrossAxisExtent: maxCrossAxisExtent,
+                          )
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(
+                                    getProportionateScreenWidth(context, 10)),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'All ${future.length} Products',
+                                      style: MyTheme.of(context).labelMedium,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          GridView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: maxCrossAxisExtent,
-                              childAspectRatio: childAspectRatio,
-                              crossAxisSpacing: 5.0,
-                              mainAxisSpacing: 5.0,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: itemCount,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                  onTap: () {
-                                    context.pushNamed('ProductDetailsScreen',
-                                        queryParameters: {
-                                          'idproduct': serializeParam(
-                                            products[index]!.ffRef!,
-                                            ParamType.DocumentReference,
-                                          ),
-                                          'idSubCategory': serializeParam(
-                                            products[index]!.idSubCategory,
-                                            ParamType.DocumentReference,
-                                          )
+                              ),
+                              GridView.builder(
+                                padding: EdgeInsets.only(bottom: 30),
+                                physics: NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: maxCrossAxisExtent,
+                                  childAspectRatio: childAspectRatio,
+                                  crossAxisSpacing: 5.0,
+                                  mainAxisSpacing: 5.0,
+                                ),
+                                shrinkWrap: true,
+                                itemCount: products.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                      onTap: () {
+                                        context.pushNamed(
+                                            'ProductDetailsScreen',
+                                            queryParameters: {
+                                              'idproduct': serializeParam(
+                                                products[index]!.ffRef!,
+                                                ParamType.DocumentReference,
+                                              ),
+                                              'idSubCategory': serializeParam(
+                                                products[index]!.idSubCategory,
+                                                ParamType.DocumentReference,
+                                              )
+                                            });
+
+                                        setState(() {
+                                          AppState().addToRecentlyViewed(
+                                              products[index]!.reference);
+
+                                          print(
+                                              AppState().recentlyViewed.length);
                                         });
-                                  },
-                                  child: switchGrid
-                                      ? ProductItemMedium(
-                                          product: products[index]!,
-                                        )
-                                      : ProductItemLarge(
-                                          product: products[index]!,
-                                        ));
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                                      },
+                                      child: switchGrid
+                                          ? ProductItemMedium(
+                                              product: products[index]!,
+                                            )
+                                          : ProductItemLarge(
+                                              product: products[index]!,
+                                            ));
+                                },
+                              ),
+                              if (isHasNext && firstTime)
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 30),
+                                    child: Container(
+                                        width: getProportionateScreenWidth(
+                                            context, 30),
+                                        height: getProportionateScreenHeight(
+                                            context, 30),
+                                        child: CircularProgressIndicator(
+                                          color: MyTheme.of(context).primary,
+                                        )),
+                                  ),
+                                )
+                            ],
+                          )),
               ),
             ),
           ],
@@ -448,7 +510,7 @@ class ShimmerProductLargeItem extends StatelessWidget {
     return Container(
       color: MyTheme.of(context).secondaryBackground,
       width: MediaQuery.sizeOf(context).width,
-      height: getProportionateScreenHeight(context, 170),
+      height: getProportionateScreenHeight(context, 180),
       child: Padding(
         padding: EdgeInsets.all(10),
         child: Row(

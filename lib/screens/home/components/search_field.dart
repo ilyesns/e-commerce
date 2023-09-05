@@ -11,65 +11,70 @@ class SearchField extends StatefulWidget {
       required this.onChanged,
       required this.hintText,
       this.disable = false,
-      this.initValue})
+      this.initValue,
+      this.controller})
       : super(key: key);
   final ValueChanged<String> onChanged;
   final String hintText;
   final bool disable;
   final String? initValue;
-
+  final TextEditingController? controller;
   @override
   State<SearchField> createState() => _SearchFieldState();
 }
 
 class _SearchFieldState extends State<SearchField> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   FocusNode focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: kSecondaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(100),
+        color: MyTheme.of(context).reverse,
+        borderRadius: BorderRadius.circular(5),
       ),
       child: TextField(
-        controller: TextEditingController(text: widget.initValue),
+        controller: widget.controller,
         readOnly: widget.disable,
         focusNode: focusNode,
         onChanged: widget.onChanged,
         style: MyTheme.of(context).labelLarge.override(
-            color: MyTheme.of(context).primaryText, fontFamily: 'Open Sans'),
+            color: MyTheme.of(context).secondaryBackground,
+            fontFamily: 'Open Sans'),
         decoration: InputDecoration(
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.all(Radius.circular(5))),
+            fillColor: Colors.white,
             contentPadding:
                 EdgeInsets.all(getProportionateScreenHeight(context, 15)),
             border:
                 OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: MyTheme.of(context).primary),
-                borderRadius: BorderRadius.all(Radius.circular(100))),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             floatingLabelAlignment: FloatingLabelAlignment.start,
             labelStyle: TextStyle(
-              color: focusNode.hasFocus
-                  ? MyTheme.of(context).primary
-                  : Colors.grey,
+              color: Colors.grey,
             ),
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.all(Radius.circular(20))),
+                borderRadius: BorderRadius.all(Radius.circular(5))),
             hintText: widget.hintText,
             hintStyle: MyTheme.of(context)
                 .titleMedium
                 .override(fontSize: 14, fontFamily: 'Roboto'),
-            suffixIcon: InkWell(
+            prefixIcon: InkWell(
               onTap: () {
                 KeyboardUtil.hideKeyboard(context);
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               child: Icon(
                 Icons.search,
-                color: focusNode.hasFocus
-                    ? MyTheme.of(context).primary
-                    : MyTheme.of(context).secondaryText,
+                color: MyTheme.of(context).grayDark,
               ),
             )),
       ),

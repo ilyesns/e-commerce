@@ -33,6 +33,13 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.gender;
+    if (value != null) {
+      result
+        ..add('gender')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     value = object.phoneNumber;
     if (value != null) {
       result
@@ -51,6 +58,13 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
     if (value != null) {
       result
         ..add('created_time')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(DateTime)));
+    }
+    value = object.birthday;
+    if (value != null) {
+      result
+        ..add('birthday')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
     }
@@ -105,6 +119,10 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
           result.email = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'gender':
+          result.gender = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
         case 'phone_number':
           result.phoneNumber = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
@@ -115,6 +133,10 @@ class _$UserRecordSerializer implements StructuredSerializer<UserRecord> {
           break;
         case 'created_time':
           result.createdTime = serializers.deserialize(value,
+              specifiedType: const FullType(DateTime)) as DateTime?;
+          break;
+        case 'birthday':
+          result.birthday = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime?;
           break;
         case 'uid':
@@ -148,11 +170,15 @@ class _$UserRecord extends UserRecord {
   @override
   final String? email;
   @override
+  final String? gender;
+  @override
   final String? phoneNumber;
   @override
   final String? photoUrl;
   @override
   final DateTime? createdTime;
+  @override
+  final DateTime? birthday;
   @override
   final String? uid;
   @override
@@ -168,9 +194,11 @@ class _$UserRecord extends UserRecord {
   _$UserRecord._(
       {this.name,
       this.email,
+      this.gender,
       this.phoneNumber,
       this.photoUrl,
       this.createdTime,
+      this.birthday,
       this.uid,
       this.role,
       this.address,
@@ -190,9 +218,11 @@ class _$UserRecord extends UserRecord {
     return other is UserRecord &&
         name == other.name &&
         email == other.email &&
+        gender == other.gender &&
         phoneNumber == other.phoneNumber &&
         photoUrl == other.photoUrl &&
         createdTime == other.createdTime &&
+        birthday == other.birthday &&
         uid == other.uid &&
         role == other.role &&
         address == other.address &&
@@ -204,9 +234,11 @@ class _$UserRecord extends UserRecord {
     var _$hash = 0;
     _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, email.hashCode);
+    _$hash = $jc(_$hash, gender.hashCode);
     _$hash = $jc(_$hash, phoneNumber.hashCode);
     _$hash = $jc(_$hash, photoUrl.hashCode);
     _$hash = $jc(_$hash, createdTime.hashCode);
+    _$hash = $jc(_$hash, birthday.hashCode);
     _$hash = $jc(_$hash, uid.hashCode);
     _$hash = $jc(_$hash, role.hashCode);
     _$hash = $jc(_$hash, address.hashCode);
@@ -220,9 +252,11 @@ class _$UserRecord extends UserRecord {
     return (newBuiltValueToStringHelper(r'UserRecord')
           ..add('name', name)
           ..add('email', email)
+          ..add('gender', gender)
           ..add('phoneNumber', phoneNumber)
           ..add('photoUrl', photoUrl)
           ..add('createdTime', createdTime)
+          ..add('birthday', birthday)
           ..add('uid', uid)
           ..add('role', role)
           ..add('address', address)
@@ -242,6 +276,10 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
   String? get email => _$this._email;
   set email(String? email) => _$this._email = email;
 
+  String? _gender;
+  String? get gender => _$this._gender;
+  set gender(String? gender) => _$this._gender = gender;
+
   String? _phoneNumber;
   String? get phoneNumber => _$this._phoneNumber;
   set phoneNumber(String? phoneNumber) => _$this._phoneNumber = phoneNumber;
@@ -253,6 +291,10 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
   DateTime? _createdTime;
   DateTime? get createdTime => _$this._createdTime;
   set createdTime(DateTime? createdTime) => _$this._createdTime = createdTime;
+
+  DateTime? _birthday;
+  DateTime? get birthday => _$this._birthday;
+  set birthday(DateTime? birthday) => _$this._birthday = birthday;
 
   String? _uid;
   String? get uid => _$this._uid;
@@ -279,9 +321,11 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
     if ($v != null) {
       _name = $v.name;
       _email = $v.email;
+      _gender = $v.gender;
       _phoneNumber = $v.phoneNumber;
       _photoUrl = $v.photoUrl;
       _createdTime = $v.createdTime;
+      _birthday = $v.birthday;
       _uid = $v.uid;
       _role = $v.role;
       _address = $v.address;
@@ -310,9 +354,11 @@ class UserRecordBuilder implements Builder<UserRecord, UserRecordBuilder> {
         new _$UserRecord._(
             name: name,
             email: email,
+            gender: gender,
             phoneNumber: phoneNumber,
             photoUrl: photoUrl,
             createdTime: createdTime,
+            birthday: birthday,
             uid: uid,
             role: role,
             address: address,

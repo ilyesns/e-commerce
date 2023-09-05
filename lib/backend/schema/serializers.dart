@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:from_css_color/from_css_color.dart';
 
+import 'address_books/address_books_record.dart';
 import 'category/category_record.dart';
 import 'color/color_record.dart';
 import 'discount/discount_record.dart';
@@ -35,6 +36,7 @@ const kDocumentReferenceField = 'Document__Reference__Field';
   OrderItemRecord,
   OrderDetailsRecord,
   FeatureRecord,
+  AddressBooksRecord,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(DocumentReferenceSerializer())

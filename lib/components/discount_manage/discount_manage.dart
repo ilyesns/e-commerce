@@ -1,8 +1,10 @@
 import 'package:blueraymarket/backend/schema/category/category_record.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../backend/firebase_storage/storage.dart';
 import '../../helper/keyboard.dart';
@@ -167,45 +169,94 @@ class _DiscountManageState extends State<DiscountManage> {
                                                   desc:
                                                       'You want delete this item! \n Note: this item may be related by another product items',
                                                   btnOkOnPress: () async {
-                                                    if (discountItem
-                                                        .image!.isNotEmpty)
-                                                      deleteFileFRomFirebase(
-                                                          discountItem.image!);
-
-                                                    discountItem.reference
-                                                        .delete();
-
-                                                    Navigator.pop(context);
-                                                    ScaffoldMessenger.of(
-                                                            widget.context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        backgroundColor:
-                                                            MyTheme.of(context)
-                                                                .alternate,
-                                                        content: Text(
-                                                          'You deleted a discount item with success!',
-                                                          style: MyTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                  fontFamily:
-                                                                      'Roboto',
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: MyTheme.of(
-                                                                          context)
-                                                                      .primary),
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                    final isDiscRelated =
+                                                        AppState()
+                                                            .products
+                                                            .where((element) =>
+                                                                element!
+                                                                    .idDiscount ==
+                                                                discountItem
+                                                                    .reference)
+                                                            .firstOrNull;
+                                                    print(isDiscRelated);
+                                                    if (isDiscRelated != null) {
+                                                      context.pop();
+                                                      ScaffoldMessenger.of(
+                                                              widget.context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          backgroundColor:
+                                                              MyTheme.of(
+                                                                      context)
+                                                                  .alternate,
+                                                          content: Text(
+                                                            'Discounts tied to products cannot be deleted!',
+                                                            style: MyTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                    fontFamily:
+                                                                        'Roboto',
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: MyTheme.of(
+                                                                            context)
+                                                                        .primary),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          duration: Duration(
+                                                              seconds:
+                                                                  3), // Set the duration for the SnackBar
                                                         ),
-                                                        duration: Duration(
-                                                            seconds:
-                                                                3), // Set the duration for the SnackBar
-                                                      ),
-                                                    );
+                                                      );
+                                                    } else {
+                                                      discountItem.reference
+                                                          .delete();
+
+                                                      if (discountItem
+                                                          .image!.isNotEmpty)
+                                                        deleteFileFRomFirebase(
+                                                            discountItem
+                                                                .image!);
+
+                                                      Navigator.pop(context);
+                                                      ScaffoldMessenger.of(
+                                                              widget.context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          backgroundColor:
+                                                              MyTheme.of(
+                                                                      context)
+                                                                  .alternate,
+                                                          content: Text(
+                                                            'You deleted a discount item with success!',
+                                                            style: MyTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                    fontFamily:
+                                                                        'Roboto',
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: MyTheme.of(
+                                                                            context)
+                                                                        .primary),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          duration: Duration(
+                                                              seconds:
+                                                                  3), // Set the duration for the SnackBar
+                                                        ),
+                                                      );
+                                                    }
                                                   },
                                                   btnCancelOnPress: () {},
                                                   btnOkIcon: Icons.cancel,
@@ -451,10 +502,10 @@ class _DiscountManageState extends State<DiscountManage> {
                                                             "This field is required",
                                                         list: errorsPercent);
                                                   }
-                                                  if (value.length <= 3) {
+                                                  if (value.length <= 6) {
                                                     removeError(
                                                         error:
-                                                            "The percent must not above a 3 digits",
+                                                            "The percent must not above a 6 digits",
                                                         list: errorsPercent);
                                                   }
                                                   return null;
@@ -467,10 +518,10 @@ class _DiscountManageState extends State<DiscountManage> {
                                                         list: errorsPercent);
                                                     return "";
                                                   }
-                                                  if (value.length > 3) {
+                                                  if (value.length > 6) {
                                                     addError(
                                                         error:
-                                                            "The percent must not above a 3 digits",
+                                                            "The percent must not above a 6 digits",
                                                         list: errorsPercent);
                                                     return "";
                                                   }

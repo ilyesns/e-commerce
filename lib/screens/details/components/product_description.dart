@@ -1,5 +1,6 @@
 import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
+import 'package:blueraymarket/tools/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/tools/size_config.dart';
@@ -29,7 +30,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
           padding: EdgeInsets.symmetric(
               horizontal: getProportionateScreenWidth(context, 20)),
           child: Text(
-            widget.product!.title!.toUpperCase(), // product title
+            widget.product!.title!.capitalize(), // product title
             style: MyTheme.of(context).titleLarge,
           ),
         ),
@@ -47,24 +48,34 @@ class _ProductDescriptionState extends State<ProductDescription> {
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: Container(
-            padding: EdgeInsets.all(getProportionateScreenWidth(context, 15)),
-            width: getProportionateScreenWidth(context, 64),
-            decoration: BoxDecoration(
-              color: AppState().favorite.contains(widget.product!.reference)
-                  ? Color(0xFFFFE6E6)
-                  : Color(0xFFF5F6F9),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                if (!AppState().favorite.contains(widget.product!.reference))
+                  AppState().addToFavorite(widget.product!.reference);
+                else
+                  AppState().removeFromFavorite(widget.product!.ffRef!);
+              });
+            },
+            child: Container(
+              padding: EdgeInsets.all(getProportionateScreenWidth(context, 15)),
+              width: getProportionateScreenWidth(context, 64),
+              decoration: BoxDecoration(
+                color: AppState().favorite.contains(widget.product!.reference)
+                    ? Color(0xFFFFE6E6)
+                    : Color(0xFFF5F6F9),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
               ),
-            ),
-            child: SvgPicture.asset(
-              "assets/icons/Heart Icon_2.svg",
-              color: AppState().favorite.contains(widget.product!.reference)
-                  ? Color(0xFFFF4848)
-                  : Color(0xFFDBDEE4),
-              height: getProportionateScreenWidth(context, 16),
+              child: SvgPicture.asset(
+                "assets/icons/Heart Icon_2.svg",
+                color: AppState().favorite.contains(widget.product!.reference)
+                    ? Color(0xFFFF4848)
+                    : Color(0xFFDBDEE4),
+                height: getProportionateScreenWidth(context, 16),
+              ),
             ),
           ),
         ),
@@ -88,7 +99,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
             onTap: () {
               setState(() {
                 seeMore = !seeMore;
-                // AppState().favorite.add(widget.product!.ffRef!);
               });
             },
             child: Row(

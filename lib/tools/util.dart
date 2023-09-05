@@ -77,7 +77,8 @@ class CustomTextField extends StatelessWidget {
   final void Function({String? error})? removeError;
   final void Function({String? error})? addError;
   late Widget? suffixIcon;
-
+  final bool readOnly;
+  final void Function()? onTap;
   CustomTextField(
       {required this.labelText,
       required this.hintText,
@@ -92,11 +93,15 @@ class CustomTextField extends StatelessWidget {
       this.minLines = 1,
       this.validator,
       this.onChanged,
-      this.suffixIcon});
+      this.suffixIcon,
+      this.readOnly = false,
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onTap: onTap,
+      readOnly: readOnly,
       minLines: minLines,
       maxLines: maxLines,
       keyboardType: keyboardType,
@@ -127,13 +132,10 @@ class CustomTextField extends StatelessWidget {
 
 Widget loadingIndicator(context) {
   return Container(
-    width: SizeConfig().screenWidth,
-    height:
-        SizeConfig().screenHeight - getProportionateScreenWidth(context, 200),
     child: Center(
       child: Container(
-          width: getProportionateScreenWidth(context, 40),
-          height: getProportionateScreenHeight(context, 40),
+          width: getProportionateScreenWidth(context, 30),
+          height: getProportionateScreenHeight(context, 30),
           child: LoadingIndicator(
             indicatorType: Indicator.ballRotateChase,
             colors: Theme.of(context).brightness == Brightness.dark
@@ -186,13 +188,15 @@ class CustomDropDownMenu extends StatelessWidget {
       required this.hint,
       this.value,
       required this.validator,
-      required this.onSaved});
+      this.onSaved,
+      this.onChange});
 
   final List<String?> items;
   final String hint;
   final String? value;
   final String? Function(String?)? validator;
   final String? Function(String?)? onSaved;
+  final String? Function(String?)? onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -224,9 +228,7 @@ class CustomDropDownMenu extends StatelessWidget {
               ))
           .toList(),
       validator: validator,
-      onChanged: (value) {
-        //Do something when selected item is changed.
-      },
+      onChanged: onChange,
       onSaved: onSaved,
       buttonStyleData: const ButtonStyleData(
         padding: EdgeInsets.only(right: 8),
@@ -247,5 +249,21 @@ class CustomDropDownMenu extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16),
       ),
     );
+  }
+}
+
+// ############# RegEx for email
+
+final emailRegex = RegExp(
+  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+);
+
+extension CapitalizeFirstLetter on String {
+  String capitalize() {
+    if (this == null || this.isEmpty) {
+      return this;
+    }
+    // Convert the first character to uppercase and concatenate it with the rest of the string.
+    return this[0].toUpperCase() + this.substring(1);
   }
 }

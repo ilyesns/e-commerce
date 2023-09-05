@@ -21,10 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: MyTheme.of(context).primary,
-        title: Text("Profile"),
-      ),
       body: Body(),
     );
   }

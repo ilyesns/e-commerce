@@ -46,6 +46,8 @@ abstract class MyTheme {
   late Color warning;
   late Color error;
   late Color info;
+  late Color reverse;
+  late Color secondaryReverse;
   late LinearGradient linearGradient;
 
   late Color background;
@@ -89,8 +91,10 @@ abstract class MyTheme {
 }
 
 class LightModeTheme extends MyTheme {
-  late Color primary = const Color(0xFFFE4B4B);
-  late Color secondary = const Color(0xFFFF7643);
+  // late Color primary = const Color(0xFFFE4B4B);
+  // late Color secondary = const Color(0xFFFF7643);
+  late Color primary = const Color(0xFF4A919E); //0xFF76CDCD
+  late Color secondary = const Color(0xFF76CDCD);
   late Color tertiary = const Color(0xFF729CA6);
   late Color alternate = const Color(0xFFFFFFFF);
   late Color primaryText = const Color(0xFF1A1F24);
@@ -105,7 +109,8 @@ class LightModeTheme extends MyTheme {
   late Color warning = const Color(0xFFFCDC0C);
   late Color error = const Color(0xFFE21C3D);
   late Color info = const Color(0xFF1C4494);
-
+  late Color reverse = Colors.black;
+  late Color secondaryReverse = Colors.white;
   late LinearGradient linearGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -123,8 +128,8 @@ class LightModeTheme extends MyTheme {
 }
 
 class DarkModeTheme extends MyTheme {
-  late Color primary = const Color(0xFFFF7643); // 0xFFFF7643
-  late Color secondary = const Color(0xFFFE4B4B);
+  late Color primary = const Color(0xFFFE4B4B); // 0xFFFF7643
+  late Color secondary = const Color(0xFFFF7643);
   late Color tertiary = const Color(0xFF39D2C0);
   late Color alternate = const Color(0xFFFFFFFF);
   late Color primaryText = const Color(0xFFFFFFFF);
@@ -139,6 +144,8 @@ class DarkModeTheme extends MyTheme {
   late Color warning = const Color(0xFFFCDC0C);
   late Color error = const Color(0xFFE21C3D);
   late Color info = const Color(0xFF1C4494);
+  late Color reverse = Colors.white;
+  late Color secondaryReverse = Colors.black;
 
   late LinearGradient linearGradient = LinearGradient(
     begin: Alignment.topLeft,

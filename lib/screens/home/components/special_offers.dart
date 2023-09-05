@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../backend/schema/product/product_record.dart';
 import '../../../backend/schema/sub_category/sub_category_record.dart';
+import '../../../tools/nav/theme.dart';
 import 'section_title.dart';
 
 class SpecialOffers extends StatelessWidget {
@@ -15,18 +17,14 @@ class SpecialOffers extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: getProportionateScreenWidth(context, 20)),
-          child: SectionTitle(
-            title: "Special for you",
-            press: () {},
-          ),
+        SectionTitle(
+          title: "Special for you",
+          press: () {},
         ),
         SizedBox(height: getProportionateScreenWidth(context, 20)),
         Container(
           width: MediaQuery.of(context).size.width,
-          height: 120,
+          height: 100,
           child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: subCategories.length,
@@ -68,10 +66,10 @@ class SpecialOfferCard extends StatelessWidget {
       child: GestureDetector(
         onTap: press,
         child: SizedBox(
-          width: getProportionateScreenWidth(context, 242),
+          width: getProportionateScreenWidth(context, 150),
           height: getProportionateScreenWidth(context, 100),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(5),
             child: Stack(
               children: [
                 CachedNetworkImage(
@@ -110,6 +108,77 @@ class SpecialOfferCard extends StatelessWidget {
                         ),
                         TextSpan(text: "$numOfBrands Products")
                       ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ShimmerSpecialOffers extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ShimmerSectionTitle(),
+        SizedBox(height: getProportionateScreenWidth(context, 20)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: 120,
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 2,
+              itemBuilder: (_, index) {
+                return ShimmerSpecialOfferCard();
+              }),
+        )
+      ],
+    );
+  }
+}
+
+class ShimmerSpecialOfferCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: getProportionateScreenWidth(context, 20)),
+      child: SizedBox(
+        width: getProportionateScreenWidth(context, 242),
+        height: getProportionateScreenWidth(context, 100),
+        child: Shimmer.fromColors(
+          baseColor: MyTheme.of(context).grayLight,
+          highlightColor: MyTheme.of(context).grayDark,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Stack(
+              children: [
+                Container(),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF343434).withOpacity(0.4),
+                        Color(0xFF343434).withOpacity(0.15),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: getProportionateScreenWidth(context, 15.0),
+                    vertical: getProportionateScreenWidth(context, 10),
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      style: TextStyle(color: Colors.white),
+                      children: [],
                     ),
                   ),
                 ),

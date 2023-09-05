@@ -480,9 +480,9 @@ class _BodyState extends State<Body> {
                     removeError(
                         error: "This field is required", list: errorsPercent);
                   }
-                  if (value.length <= 3) {
+                  if (value.length <= 6) {
                     removeError(
-                        error: "The percent must not above a 3 digits",
+                        error: "The percent must not above a 6 digits",
                         list: errorsPercent);
                   }
                   return null;
@@ -493,9 +493,9 @@ class _BodyState extends State<Body> {
                         error: "This field is required", list: errorsPercent);
                     return "";
                   }
-                  if (value.length > 3) {
+                  if (value.length > 6) {
                     addError(
-                        error: "The percent must not above a 3 digits",
+                        error: "The percent must not above a 6 digits",
                         list: errorsPercent);
                     return "";
                   }
