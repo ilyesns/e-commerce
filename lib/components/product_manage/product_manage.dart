@@ -708,12 +708,6 @@ class _ProductManageState extends State<ProductManage> {
                                                   FocusManager
                                                       .instance.primaryFocus
                                                       ?.unfocus();
-                                                  final discountref =
-                                                      await DiscountRecord
-                                                          .collection
-                                                          .add(createDiscountRecordData(
-                                                              createdAt:
-                                                                  getCurrentTimestamp));
 
                                                   final category =
                                                       await getNameRefCategory(
@@ -740,7 +734,6 @@ class _ProductManageState extends State<ProductManage> {
                                                             : uploadedFileUrl,
                                                     modifiedAt:
                                                         getCurrentTimestamp,
-                                                    idDiscount: discountref,
                                                   );
 
                                                   widget.productId

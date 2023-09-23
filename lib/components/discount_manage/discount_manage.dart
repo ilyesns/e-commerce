@@ -58,6 +58,7 @@ class _DiscountManageState extends State<DiscountManage> {
   bool isLoading = false;
   bool? checkbox;
   bool? displayAt;
+  bool withPicture = false;
 
   void addError({String? error, required List<String?> list}) {
     if (!list.contains(error))
@@ -178,7 +179,6 @@ class _DiscountManageState extends State<DiscountManage> {
                                                                 discountItem
                                                                     .reference)
                                                             .firstOrNull;
-                                                    print(isDiscRelated);
                                                     if (isDiscRelated != null) {
                                                       context.pop();
                                                       ScaffoldMessenger.of(
@@ -279,153 +279,183 @@ class _DiscountManageState extends State<DiscountManage> {
                                             )),
                                       ],
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: getProportionateScreenHeight(
-                                              context, 20)),
-                                      child: SizedBox(
-                                        height: 115,
-                                        width: 115,
-                                        child: Stack(
-                                          fit: StackFit.expand,
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            isDataUploading
-                                                ? loadingIndicator(context)
-                                                : DottedBorder(
-                                                    color: MyTheme.of(context)
-                                                        .primaryText,
-                                                    dashPattern: [8, 8],
-                                                    borderType:
-                                                        BorderType.Circle,
-                                                    child:
-                                                        discountItem.image!
-                                                                .isNotEmpty
-                                                            ? Container(
-                                                                width: 120,
-                                                                height: 120,
-                                                                decoration: BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            50)),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(5),
+                                    if (withPicture)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: getProportionateScreenHeight(
+                                                context, 20)),
+                                        child: SizedBox(
+                                          height: 115,
+                                          width: 115,
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              isDataUploading
+                                                  ? loadingIndicator(context)
+                                                  : DottedBorder(
+                                                      color: MyTheme.of(context)
+                                                          .primaryText,
+                                                      dashPattern: [8, 8],
+                                                      borderType:
+                                                          BorderType.Circle,
+                                                      child:
+                                                          discountItem.image!
+                                                                  .isNotEmpty
+                                                              ? Container(
+                                                                  width: 120,
+                                                                  height: 120,
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              50)),
                                                                   child:
-                                                                      CircleAvatar(
-                                                                    backgroundImage:
-                                                                        Image(image: NetworkImage(uploadedFileUrl.isEmpty ? discountItem.image! : uploadedFileUrl))
-                                                                            .image,
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(5),
+                                                                    child:
+                                                                        CircleAvatar(
+                                                                      backgroundImage:
+                                                                          Image(image: NetworkImage(uploadedFileUrl.isEmpty ? discountItem.image! : uploadedFileUrl))
+                                                                              .image,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              )
-                                                            : Container(
-                                                                width: 120,
-                                                                height: 100,
-                                                                child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Image
-                                                                          .asset(
-                                                                        'assets/images/upload_img.png',
-                                                                        width:
-                                                                            50,
-                                                                        height:
-                                                                            50,
-                                                                      ),
-                                                                      Text(
-                                                                        "Select an image",
-                                                                        style: MyTheme.of(context)
-                                                                            .labelMedium,
-                                                                      )
-                                                                    ]),
-                                                              )),
-                                          ],
+                                                                )
+                                                              : Container(
+                                                                  width: 120,
+                                                                  height: 100,
+                                                                  child: Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Image
+                                                                            .asset(
+                                                                          'assets/images/upload_img.png',
+                                                                          width:
+                                                                              50,
+                                                                          height:
+                                                                              50,
+                                                                        ),
+                                                                        Text(
+                                                                          "Select an image",
+                                                                          style:
+                                                                              MyTheme.of(context).labelMedium,
+                                                                        )
+                                                                      ]),
+                                                                )),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
                                     SizedBox(
                                       height: getProportionateScreenHeight(
                                           context, 20),
                                     ),
-                                    Container(
-                                      width: getProportionateScreenWidth(
-                                          context, 150),
-                                      height: getProportionateScreenHeight(
-                                          context, 40),
-                                      child: DefaultButton(
-                                        text: "Upload Image",
-                                        press: () async {
-                                          await deleteFileFRomFirebase(
-                                              discountItem!.image!);
+                                    if (withPicture)
+                                      Container(
+                                        width: getProportionateScreenWidth(
+                                            context, 150),
+                                        height: getProportionateScreenHeight(
+                                            context, 40),
+                                        child: DefaultButton(
+                                          text: "Upload Image",
+                                          press: () async {
+                                            await deleteFileFRomFirebase(
+                                                discountItem!.image!);
 
-                                          final selectedMedia =
-                                              await selectMediaWithSourceBottomSheet(
-                                            context: context,
-                                            allowPhoto: true,
-                                          );
-                                          if (selectedMedia != null &&
-                                              selectedMedia.every((m) =>
-                                                  validateFileFormat(
-                                                      m.storagePath,
-                                                      context))) {
-                                            setState(
-                                                () => isDataUploading = true);
-                                            var selectedUploadedFiles =
-                                                <UploadedFile>[];
-                                            var downloadUrls = <String>[];
-                                            try {
-                                              selectedUploadedFiles =
-                                                  selectedMedia
-                                                      .map((m) => UploadedFile(
-                                                            name: m.storagePath
-                                                                .split('/')
-                                                                .last,
-                                                            bytes: m.bytes,
-                                                            height: m.dimensions
-                                                                ?.height,
-                                                            width: m.dimensions
-                                                                ?.width,
-                                                            blurHash:
-                                                                m.blurHash,
-                                                          ))
-                                                      .toList();
+                                            final selectedMedia =
+                                                await selectMediaWithSourceBottomSheet(
+                                              context: context,
+                                              allowPhoto: true,
+                                            );
+                                            if (selectedMedia != null &&
+                                                selectedMedia.every((m) =>
+                                                    validateFileFormat(
+                                                        m.storagePath,
+                                                        context))) {
+                                              setState(
+                                                  () => isDataUploading = true);
+                                              var selectedUploadedFiles =
+                                                  <UploadedFile>[];
+                                              var downloadUrls = <String>[];
+                                              try {
+                                                selectedUploadedFiles =
+                                                    selectedMedia
+                                                        .map((m) =>
+                                                            UploadedFile(
+                                                              name: m
+                                                                  .storagePath
+                                                                  .split('/')
+                                                                  .last,
+                                                              bytes: m.bytes,
+                                                              height: m
+                                                                  .dimensions
+                                                                  ?.height,
+                                                              width: m
+                                                                  .dimensions
+                                                                  ?.width,
+                                                              blurHash:
+                                                                  m.blurHash,
+                                                            ))
+                                                        .toList();
 
-                                              downloadUrls = (await Future.wait(
-                                                selectedMedia.map(
-                                                  (m) async => await uploadData(
-                                                      m.storagePath, m.bytes),
-                                                ),
-                                              ))
-                                                  .where((u) => u != null)
-                                                  .map((u) => u!)
-                                                  .toList();
-                                            } finally {
-                                              isDataUploading = false;
+                                                downloadUrls =
+                                                    (await Future.wait(
+                                                  selectedMedia.map(
+                                                    (m) async =>
+                                                        await uploadData(
+                                                            m.storagePath,
+                                                            m.bytes),
+                                                  ),
+                                                ))
+                                                        .where((u) => u != null)
+                                                        .map((u) => u!)
+                                                        .toList();
+                                              } finally {
+                                                isDataUploading = false;
+                                              }
+                                              if (selectedUploadedFiles
+                                                          .length ==
+                                                      selectedMedia.length &&
+                                                  downloadUrls.length ==
+                                                      selectedMedia.length) {
+                                                setState(() {
+                                                  uploadedLocalFile =
+                                                      selectedUploadedFiles
+                                                          .first;
+                                                  uploadedFileUrl =
+                                                      downloadUrls.first;
+                                                });
+                                              } else {
+                                                setState(() {});
+                                                return;
+                                              }
                                             }
-                                            if (selectedUploadedFiles.length ==
-                                                    selectedMedia.length &&
-                                                downloadUrls.length ==
-                                                    selectedMedia.length) {
-                                              setState(() {
-                                                uploadedLocalFile =
-                                                    selectedUploadedFiles.first;
-                                                uploadedFileUrl =
-                                                    downloadUrls.first;
-                                              });
-                                            } else {
-                                              setState(() {});
-                                              return;
-                                            }
-                                          }
-                                        },
+                                          },
+                                        ),
                                       ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Checkbox(
+                                            activeColor:
+                                                MyTheme.of(context).primary,
+                                            value: withPicture,
+                                            onChanged: (value) => setState(() {
+                                                  withPicture = value!;
+                                                })),
+                                        Text(
+                                          overflow: TextOverflow.visible,
+                                          "Check this if you want an image for discount.",
+                                          style:
+                                              MyTheme.of(context).labelMedium,
+                                        ),
+                                      ],
                                     ),
                                     SizedBox(
                                       height: getProportionateScreenHeight(
@@ -705,6 +735,7 @@ class _DiscountManageState extends State<DiscountManage> {
                                                                   : uploadedFileUrl,
                                                           modifiedAt:
                                                               getCurrentTimestamp,
+                                                          active: checkbox,
                                                           displayAtHome:
                                                               displayAt!);
 

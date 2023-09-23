@@ -11,6 +11,7 @@ import '../../../backend/firebase_storage/storage.dart';
 import '../../../backend/schema/user/user_record.dart';
 import '../../../components/default_button.dart';
 import '../../../components/form_error.dart';
+import '../../../tools/internationalization.dart';
 import '../../../tools/nav/routes.dart';
 import '../../../tools/nav/theme.dart';
 import '../../../tools/upload_data.dart';
@@ -111,9 +112,10 @@ class _BodyState extends State<Body> {
             child: Column(
               children: [
                 SizedBox(height: SizeConfig().screenHeight * 0.03),
-                Text("Complete Profile", style: headingStyle),
+                Text(MyLocalizations.of(context).getText('C8pP6'),
+                    style: headingStyle),
                 Text(
-                  "Complete your details or continue  \nwith social media",
+                  MyLocalizations.of(context).getText('C5mY7'),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: SizeConfig().screenHeight * 0.06),
@@ -125,17 +127,21 @@ class _BodyState extends State<Body> {
                         child: CustomTextField(
                           textFieldController: _textFieldControllerUserName,
                           focusNode: focusNodeUserName,
-                          labelText: 'Full Name',
-                          hintText: "Enter full name",
+                          labelText:
+                              MyLocalizations.of(context).getText('F5lN8'),
+                          hintText:
+                              MyLocalizations.of(context).getText('E7rF1'),
                           onChanged: (value) {
                             if (value != null && value.isNotEmpty) {
                               removeError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsName);
                             }
                             if (value != null && value.length > 3) {
                               removeError(
-                                  error: "At least 3 characters",
+                                  error: MyLocalizations.of(context)
+                                      .getText('A9tL2'),
                                   list: errorsName);
                             }
                             return null;
@@ -143,13 +149,15 @@ class _BodyState extends State<Body> {
                           validator: (value) {
                             if (value != null && value.isEmpty) {
                               addError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsName);
                               return "";
                             }
                             if (value != null && value.length < 3) {
                               addError(
-                                  error: "At least 3 characters",
+                                  error: MyLocalizations.of(context)
+                                      .getText('A9tL2'),
                                   list: errorsName);
                               return "";
                             }
@@ -169,12 +177,14 @@ class _BodyState extends State<Body> {
                             width: getProportionateScreenWidth(context, 100),
                             height: 80,
                             child: CustomDropDownMenu(
-                              hint: 'Please select a prefix',
+                              hint:
+                                  MyLocalizations.of(context).getText('P5sP9'),
                               items: numberPrefixes,
                               validator: (value) {
                                 if (value != null && value.isEmpty) {
                                   addError(
-                                      error: "This field is required",
+                                      error: MyLocalizations.of(context)
+                                          .getText('T6sF4'),
                                       list: errorsPhone);
                                   return "";
                                 }
@@ -197,13 +207,16 @@ class _BodyState extends State<Body> {
                                 textFieldController:
                                     _textFieldControllerPhoneNumber,
                                 focusNode: focusNodePhoneNumber,
-                                labelText: 'Phone Number',
-                                hintText: "Number phone etc 12345678...",
+                                labelText: MyLocalizations.of(context)
+                                    .getText('P6hN8'),
+                                hintText: MyLocalizations.of(context)
+                                    .getText('N4mP7'),
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
                                   if (value!.isNotEmpty) {
                                     removeError(
-                                        error: "This field is required",
+                                        error: MyLocalizations.of(context)
+                                            .getText('T6sF4'),
                                         list: errorsPhone);
                                   }
 
@@ -212,7 +225,8 @@ class _BodyState extends State<Body> {
                                 validator: (value) {
                                   if (value != null && value.isEmpty) {
                                     addError(
-                                        error: "This field is required",
+                                        error: MyLocalizations.of(context)
+                                            .getText('T6sF4'),
                                         list: errorsPhone);
                                     return "";
                                   }
@@ -230,12 +244,16 @@ class _BodyState extends State<Body> {
                       ),
                       Container(
                         child: CustomDropDownMenu(
-                          hint: 'Please select a gender',
-                          items: ['Male', 'Female'],
+                          hint: MyLocalizations.of(context).getText('P8sG5'),
+                          items: [
+                            MyLocalizations.of(context).getText('M4lE1'),
+                            MyLocalizations.of(context).getText('F5mL2')
+                          ],
                           validator: (value) {
                             if (value != null && value.isEmpty) {
                               addError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsGender);
                               return "";
                             }
@@ -257,12 +275,15 @@ class _BodyState extends State<Body> {
                           readOnly: true,
                           textFieldController: _textFieldControllerBirthday,
                           focusNode: focusNodeBirthday,
-                          labelText: 'Birthday',
-                          hintText: "Enter your birthday",
+                          labelText:
+                              MyLocalizations.of(context).getText('B7rT3'),
+                          hintText:
+                              MyLocalizations.of(context).getText('E8rY2'),
                           onChanged: (value) {
                             if (value!.isNotEmpty) {
                               removeError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsBirthday);
                             }
 
@@ -271,7 +292,8 @@ class _BodyState extends State<Body> {
                           validator: (value) {
                             if (value != null && value.isEmpty) {
                               addError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsBirthday);
                               return "";
                             }
@@ -310,7 +332,7 @@ class _BodyState extends State<Body> {
                         height: getProportionateScreenHeight(context, 50),
                         child: DefaultButton(
                           isLoading: isLoading,
-                          text: "Continue",
+                          text: MyLocalizations.of(context).getText('C8nE1'),
                           press: () async {
                             if (_formKey.currentState!.validate()) {
                               setState(() {
@@ -348,7 +370,7 @@ class _BodyState extends State<Body> {
                 ),
                 SizedBox(height: getProportionateScreenHeight(context, 30)),
                 Text(
-                  "By continuing your confirm that you agree \nwith our Term and Condition",
+                  MyLocalizations.of(context).getText('B4yC7'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.caption,
                 ),

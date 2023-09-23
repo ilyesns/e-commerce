@@ -419,7 +419,7 @@ class _BodyState extends State<Body> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Title: ${productItem.title as String}',
+                                                'Title: ${productItem.title?.truncateText(20) as String}',
                                                 style: MyTheme.of(context)
                                                     .labelLarge
                                                     .override(

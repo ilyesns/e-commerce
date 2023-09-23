@@ -14,15 +14,12 @@ import '../../../tools/nav/routes.dart';
 import '../../../tools/nav/serializer.dart';
 
 class CartCard extends StatelessWidget {
-  CartCard({required this.cartItem, required this.cartNumber});
+  CartCard({required this.cartItem});
 
   final ProductRecord cartItem;
-  late Map<DocumentReference, int> cartNumber;
 
   @override
   Widget build(BuildContext context) {
-    Map<DocumentReference?, int> productCountMap = {};
-
     return Row(
       children: [
         SizedBox(
@@ -56,7 +53,7 @@ class CartCard extends StatelessWidget {
                     fontWeight: FontWeight.w600, color: kPrimaryColor),
                 children: [
                   TextSpan(
-                      text: " x${cartNumber[cartItem.reference]}",
+                      text: " x${AppState().cart[cartItem.reference]!.values}",
                       style: Theme.of(context).textTheme.bodyText1),
                 ],
               ),

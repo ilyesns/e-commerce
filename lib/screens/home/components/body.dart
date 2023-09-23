@@ -3,6 +3,7 @@ import 'package:blueraymarket/backend/cache/hive_box.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/backend/schema/sub_category/sub_category_record.dart';
 import 'package:blueraymarket/tools/app_state.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:blueraymarket/tools/util.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +76,9 @@ class _BodyState extends State<Body> {
                       return ShimmerHome();
                     }
                     if (!snapshot.hasData && snapshot.data == null) {
-                      return listEmpty("Home Page", context);
+                      return listEmpty(
+                          MyLocalizations.of(context).getText('H4mP1'),
+                          context);
                     }
 
                     final subCategories =

@@ -1,4 +1,5 @@
 import 'package:blueraymarket/screens/home/home_screen.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/routes.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -146,7 +147,8 @@ class _SignFormState extends State<SignForm> {
                   onTap: () => Navigator.pushNamed(
                       context, ForgotPasswordScreen.routeName),
                   child: Text(
-                    "Forgot Password",
+                    MyLocalizations.of(context)
+                        .getText('D9zP6'), // Forget Password
                     style: TextStyle(decoration: TextDecoration.underline),
                   ),
                 )
@@ -158,7 +160,7 @@ class _SignFormState extends State<SignForm> {
               width: MediaQuery.sizeOf(context).width,
               height: getProportionateScreenHeight(context, 50),
               child: DefaultButton(
-                text: "Sign in",
+                text: MyLocalizations.of(context).getText('A2bX7'), // "Sign in"
                 isLoading: isLoading,
                 press: () async {
                   if (_formKey.currentState!.validate()) {
@@ -192,7 +194,7 @@ class _SignFormState extends State<SignForm> {
             Container(
               height: getProportionateScreenHeight(context, 50),
               child: DefaultButton(
-                text: "Skip",
+                text: MyLocalizations.of(context).getText('E5yQ8'),
                 bgColor: Colors.white,
                 textColor: MyTheme.of(context).primary,
                 press: () {
@@ -216,7 +218,7 @@ class _SignFormState extends State<SignForm> {
                 )),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Text('Or sign in with'),
+                  child: Text(MyLocalizations.of(context).getText('F4wR7')),
                 ),
                 Expanded(
                     child: Container(
@@ -269,7 +271,7 @@ class _SignFormState extends State<SignForm> {
                             press: () {},
                           ),
                           Text(
-                            'Sign in with Facebook',
+                            MyLocalizations.of(context).getText('F2vS9'),
                             style: MyTheme.of(context).bodyLarge.copyWith(
                                 fontFamily: 'Outfit',
                                 fontSize: 12,
@@ -300,7 +302,7 @@ class _SignFormState extends State<SignForm> {
                         press: () {},
                       ),
                       Text(
-                        'Sign in with Phone',
+                        MyLocalizations.of(context).getText('P5hN7'),
                         style: MyTheme.of(context).bodyLarge.copyWith(
                             fontFamily: 'Outfit',
                             fontSize: 13,

@@ -1,10 +1,17 @@
+import 'package:blueraymarket/backend/schema/color/color_record.dart';
+import 'package:blueraymarket/backend/schema/size/size_record.dart';
+import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:blueraymarket/tools/size_config.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+
+import '../backend/schema/discount/discount_record.dart';
+import '../backend/schema/variant/variant_record.dart';
 
 DateTime get getCurrentTimestamp => DateTime.now();
 
@@ -57,7 +64,7 @@ extension TruncateText on String {
     if (this.length <= maxLength) {
       return this;
     } else {
-      return this.substring(0, maxLength - 1) + '.';
+      return this.substring(0, maxLength - 1) + '..';
     }
   }
 }
@@ -189,7 +196,8 @@ class CustomDropDownMenu extends StatelessWidget {
       this.value,
       required this.validator,
       this.onSaved,
-      this.onChange});
+      this.onChange,
+      this.disable = false});
 
   final List<String?> items;
   final String hint;
@@ -197,56 +205,60 @@ class CustomDropDownMenu extends StatelessWidget {
   final String? Function(String?)? validator;
   final String? Function(String?)? onSaved;
   final String? Function(String?)? onChange;
+  final bool disable;
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField2<String>(
-      isExpanded: true,
-      decoration: InputDecoration(
-        // Add Horizontal padding using menuItemStyleData.padding so it matches
-        // the menu padding when button's width is not specified.
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5),
+    return IgnorePointer(
+      ignoring: disable,
+      child: DropdownButtonFormField2<String>(
+        isExpanded: true,
+        decoration: InputDecoration(
+          // Add Horizontal padding using menuItemStyleData.padding so it matches
+          // the menu padding when button's width is not specified.
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          // Add more decoration..
         ),
-        // Add more decoration..
-      ),
-      value: value,
-      hint: Text(
-        hint,
-        style: TextStyle(fontSize: 14),
-      ),
-      items: items
-          .map((item) => DropdownMenuItem<String>(
-                value: item,
-                child: Text(
-                  item!,
-                  style: const TextStyle(
-                    fontSize: 14,
+        value: value,
+        hint: Text(
+          hint,
+          style: TextStyle(fontSize: 14),
+        ),
+        items: items
+            .map((item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-              ))
-          .toList(),
-      validator: validator,
-      onChanged: onChange,
-      onSaved: onSaved,
-      buttonStyleData: const ButtonStyleData(
-        padding: EdgeInsets.only(right: 8),
-      ),
-      iconStyleData: const IconStyleData(
-        icon: Icon(
-          Icons.arrow_drop_down,
-          color: Colors.black45,
+                ))
+            .toList(),
+        validator: validator,
+        onChanged: onChange,
+        onSaved: onSaved,
+        buttonStyleData: const ButtonStyleData(
+          padding: EdgeInsets.only(right: 8),
         ),
-        iconSize: 24,
-      ),
-      dropdownStyleData: DropdownStyleData(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
+        iconStyleData: const IconStyleData(
+          icon: Icon(
+            Icons.arrow_drop_down,
+            color: Colors.black45,
+          ),
+          iconSize: 24,
         ),
-      ),
-      menuItemStyleData: const MenuItemStyleData(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        dropdownStyleData: DropdownStyleData(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+        ),
       ),
     );
   }
@@ -266,4 +278,33 @@ extension CapitalizeFirstLetter on String {
     // Convert the first character to uppercase and concatenate it with the rest of the string.
     return this[0].toUpperCase() + this.substring(1);
   }
+}
+
+DiscountRecord? getDiscountRecord(DocumentReference<Object?> id) {
+  return AppState()
+      .discounts
+      .where((element) => element!.reference == id)
+      .firstOrNull;
+}
+
+List<ColorRecord?>? getColorsFromVariants(List<VariantRecord?> variants) {
+  List<ColorRecord?>? list = [];
+  if (variants.isNotEmpty)
+    list = AppState()
+        .colors
+        .where((color) => variants.any((v) => v!.idColor == color?.reference))
+        .toList();
+
+  return list;
+}
+
+List<SizeRecord?>? getSizesFromVariants(List<VariantRecord?> variants) {
+  List<SizeRecord?>? list = [];
+  if (variants.isNotEmpty)
+    list = AppState()
+        .sizes
+        .where((size) => variants.any((v) => v!.idSize == size!.reference))
+        .toList();
+
+  return list;
 }

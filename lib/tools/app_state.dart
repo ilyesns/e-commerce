@@ -1,6 +1,8 @@
 import 'package:blueraymarket/backend/backend.dart';
+import 'package:blueraymarket/backend/schema/color/color_record.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/backend/schema/product/product_record.dart';
+import 'package:blueraymarket/backend/schema/size/size_record.dart';
 import 'package:blueraymarket/backend/schema/variant/variant_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -39,11 +41,21 @@ class AppState extends ChangeNotifier {
       final cartPaths = _prefs!.getStringList(kCart);
 
       if (cartPaths != null) {
-        cart = Map.fromEntries(cartPaths.map((path) {
+        // Initialize an empty cart with products and variants
+        cart = {};
+
+        // Loop through the stored paths and parse them into product and variant references
+        for (String path in cartPaths) {
           final docRef = FirebaseFirestore.instance.doc(path);
-          return MapEntry<DocumentReference<Object?>, int>(
-              docRef, 1); // Set initial quantity as 1
-        }));
+          final List<String> parts = path.split(':');
+          if (parts.length == 2) {
+            final productRef = FirebaseFirestore.instance.doc(parts[0]);
+            final variantRef = FirebaseFirestore.instance.doc(parts[1]);
+
+            // Add the product and variant to the cart with an initial quantity of 1
+            addToCart(productRef, variantRef, 1);
+          }
+        }
       } else {
         cart = {}; // Initialize an empty map if no cartPaths are found
       }
@@ -52,6 +64,8 @@ class AppState extends ChangeNotifier {
     products = await queryProductsRecordOnce();
     discounts = await queryDiscountsRecordOnce();
     variants = await queryVariantsRecordOnce();
+    colors = await queryColorsRecordOnce();
+    sizes = await querySizesRecordOnce();
   }
 
   Future _safeInitAsync(Function() initializeField) async {
@@ -90,6 +104,14 @@ class AppState extends ChangeNotifier {
   List<VariantRecord?> _variants = [];
   List<VariantRecord?> get variants => _variants;
   set variants(List<VariantRecord?> _value) => _variants = _value;
+
+  List<ColorRecord?> _colors = [];
+  List<ColorRecord?> get colors => _colors;
+  set colors(List<ColorRecord?> _value) => _colors = _value;
+
+  List<SizeRecord?> _sizes = [];
+  List<SizeRecord?> get sizes => _sizes;
+  set sizes(List<SizeRecord?> _value) => _sizes = _value;
 
   void deleteFavorite() {
     prefs!.setStringList(kFavorite, []);
@@ -134,16 +156,21 @@ class AppState extends ChangeNotifier {
   }
 
 // ###### cart list
+  Map<DocumentReference, Map<DocumentReference, int>> _cart = {};
+  Map<DocumentReference, Map<DocumentReference, int>> get cart => _cart;
 
-  Map<DocumentReference, int> _cart = {};
-  Map<DocumentReference, int> get cart => _cart;
-  set cart(Map<DocumentReference, int> _value) {
+  set cart(Map<DocumentReference, Map<DocumentReference, int>> _value) {
     _cart = _value;
     prefs!.setStringList(
       kCart,
-      _value.entries
-          .map((entry) => "${entry.key.path}:${entry.value}")
-          .toList(),
+      _value.entries.map((entry) {
+        var productPath = entry.key.path;
+        var variantQuantities = entry.value.entries
+            .map((variantEntry) =>
+                "${variantEntry.key.path}:${variantEntry.value}")
+            .join(',');
+        return "$productPath:{$variantQuantities}";
+      }).toList(),
     );
   }
 
@@ -152,46 +179,60 @@ class AppState extends ChangeNotifier {
     prefs!.remove(kCart); // Remove the cart data from shared preferences
   }
 
-  void addToCart(DocumentReference _value, int quantity) {
+  void addToCart(DocumentReference productReference,
+      DocumentReference variantReference, int quantity) {
     _cart.putIfAbsent(
-        _value, () => quantity); // Add an item with a quantity of 1
+      productReference,
+      () => {variantReference: quantity},
+    ); // Add an item with the product and variant references along with quantity
     _updateCartInPrefs();
   }
 
-  void removeFromCart(DocumentReference _value) {
-    _cart.remove(_value); // Remove the item from the cart map
-    _updateCartInPrefs();
-  }
+  void removeFromCart(DocumentReference productReference) {
+    if (_cart.containsKey(productReference)) {
+      _cart.remove(productReference);
 
-  void removeAtIndexFromCart(int _index) {
-    if (_index >= 0 && _index < _cart.length) {
-      _cart.remove(_cart.keys
-          .elementAt(_index)); // Remove the item at the specified index
       _updateCartInPrefs();
     }
   }
 
-  void increaseQuantity(DocumentReference itemReference) {
-    if (_cart.containsKey(itemReference)) {
-      _cart[itemReference] = _cart[itemReference]! + 1;
-      _updateCartInPrefs();
+  void increaseQuantity(
+      DocumentReference productReference, DocumentReference variantReference) {
+    if (_cart.containsKey(productReference)) {
+      var productCart = _cart[productReference];
+      if (productCart!.containsKey(variantReference)) {
+        productCart[variantReference] = productCart[variantReference]! + 1;
+        _updateCartInPrefs();
+      }
     }
   }
 
-  void decreaseQuantity(DocumentReference itemReference) {
-    if (_cart.containsKey(itemReference) && _cart[itemReference]! > 1) {
-      _cart[itemReference] = _cart[itemReference]! - 1;
-
-      _updateCartInPrefs();
-    } else if (_cart.containsKey(itemReference) && _cart[itemReference]! == 1) {
-      removeFromCart(itemReference);
+  void decreaseQuantity(
+      DocumentReference productReference, DocumentReference variantReference) {
+    if (_cart.containsKey(productReference)) {
+      var productCart = _cart[productReference];
+      if (productCart!.containsKey(variantReference)) {
+        if (productCart[variantReference]! > 1) {
+          productCart[variantReference] = productCart[variantReference]! - 1;
+          _updateCartInPrefs();
+        } else if (productCart[variantReference]! == 1) {
+          removeFromCart(productReference);
+        }
+      }
     }
   }
 
   void _updateCartInPrefs() {
     prefs!.setStringList(
       kCart,
-      _cart.entries.map((entry) => "${entry.key.path}:${entry.value}").toList(),
+      _cart.entries.map((entry) {
+        var productPath = entry.key.path;
+        var variantQuantities = entry.value.entries
+            .map((variantEntry) =>
+                "${variantEntry.key.path}:${variantEntry.value}")
+            .join(',');
+        return "$productPath:{$variantQuantities}";
+      }).toList(),
     );
   }
 

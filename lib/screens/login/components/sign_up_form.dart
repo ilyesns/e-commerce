@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/components/custom_surfix_icon.dart';
@@ -208,26 +209,26 @@ class _SignUpFormState extends State<SignUpForm> {
                 Row(
                   children: [
                     Text(
-                      "I agree to the ",
+                      MyLocalizations.of(context).getText('A9gR1'),
                       style: MyTheme.of(context)
                           .bodyMedium
                           .copyWith(fontFamily: 'Outfit', fontSize: 12),
                     ),
                     Text(
-                      "User Agreement ",
+                      MyLocalizations.of(context).getText('U4rA8'),
                       style: MyTheme.of(context).bodyMedium.copyWith(
                           fontFamily: 'Outfit',
                           fontSize: 12,
                           color: MyTheme.of(context).primary),
                     ),
                     Text(
-                      "and the ",
+                      MyLocalizations.of(context).getText('A3nD7'),
                       style: MyTheme.of(context)
                           .bodyMedium
                           .copyWith(fontFamily: 'Outfit', fontSize: 12),
                     ),
                     Text(
-                      "Privacy Policy",
+                      MyLocalizations.of(context).getText('P6lI2'),
                       style: MyTheme.of(context).bodyMedium.copyWith(
                           fontFamily: 'Outfit',
                           color: MyTheme.of(context).primary,
@@ -244,7 +245,7 @@ class _SignUpFormState extends State<SignUpForm> {
               child: DefaultButton(
                 disable: !checkBox,
                 isLoading: isLoading,
-                text: "Register",
+                text: MyLocalizations.of(context).getText('R7gI4'),
                 press: () async {
                   if (!_formKey.currentState!.validate()) {
                     setState(() {
@@ -252,17 +253,17 @@ class _SignUpFormState extends State<SignUpForm> {
                     });
                     _formKey.currentState!.save();
                     GoRouter.of(context).prepareAuthEvent();
-                    // final user = await createAccountWithEmail(
-                    //   context,
-                    //   _textFieldControllerEmail.text,
-                    //   _textFieldControllerPassword.text,
-                    // );
+                    final user = await createAccountWithEmail(
+                      context,
+                      _textFieldControllerEmail.text,
+                      _textFieldControllerPassword.text,
+                    );
 
-                    // if (user == null) {
-                    //   return;
-                    // }
+                    if (user == null) {
+                      return;
+                    }
 
-                    // await sendEmailVerification();
+                    await sendEmailVerification();
                     context.goNamedAuth('CompleteProfile', context.mounted,
                         extra: <String, dynamic>{
                           kTransitionInfoKey: TransitionInfo(

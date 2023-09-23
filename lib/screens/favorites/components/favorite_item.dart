@@ -81,7 +81,7 @@ class FavoriteCard extends StatelessWidget {
             child: DefaultButton(
                 text: 'Buy Now'.truncateText(15),
                 press: () async {
-                  AppState().addToCart(favoriteItem.reference, 1);
+                  //  AppState().addToCart(favoriteItem.reference, 1);
                   Flushbar(
                     backgroundColor: MyTheme.of(context).success,
                     message: "Cart updated with success",

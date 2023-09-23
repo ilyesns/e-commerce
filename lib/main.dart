@@ -1,6 +1,8 @@
 import 'package:blueraymarket/backend/cache/hive_box.dart';
 import 'package:blueraymarket/tools/animations.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +56,7 @@ class _MyAppState extends State<MyApp> {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
   ThemeMode _themeMode = MyTheme.themeMode;
+  Locale? _locale;
 
   @override
   void initState() {
@@ -75,6 +78,10 @@ class _MyAppState extends State<MyApp> {
         MyTheme.saveThemeMode(mode);
       });
 
+  void setLocale(String language) {
+    setState(() => _locale = createLocale(language));
+  }
+
   @override
   void dispose() {
     Hive.box<ProductHive>('subcategories').close();
@@ -91,6 +98,17 @@ class _MyAppState extends State<MyApp> {
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: _themeMode,
       routerConfig: _router,
+      localizationsDelegates: [
+        MyLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ar'),
+        Locale('fr'),
+      ],
     );
   }
 }

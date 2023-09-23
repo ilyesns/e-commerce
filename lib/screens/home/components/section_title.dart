@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
@@ -31,7 +32,7 @@ class SectionTitle extends StatelessWidget {
           GestureDetector(
             onTap: press,
             child: Text(
-              "See More",
+              MyLocalizations.of(context).getText('S4eM7'),
               style: MyTheme.of(context).bodySmall,
             ),
           ),
@@ -63,7 +64,7 @@ class ShimmerSectionTitle extends StatelessWidget {
           ),
           GestureDetector(
             child: Text(
-              "See More",
+              MyLocalizations.of(context).getText('S4eM7'),
               style: MyTheme.of(context).bodySmall,
             ),
           ),

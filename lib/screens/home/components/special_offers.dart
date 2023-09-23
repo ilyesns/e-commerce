@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
@@ -8,32 +9,47 @@ import '../../../backend/schema/sub_category/sub_category_record.dart';
 import '../../../tools/nav/theme.dart';
 import 'section_title.dart';
 
-class SpecialOffers extends StatelessWidget {
+class SpecialOffers extends StatefulWidget {
   SpecialOffers({Key? key, required this.subCategories, required this.products})
       : super(key: key);
   List<SubCategoryRecord?> subCategories;
   List<ProductRecord?> products;
+
+  @override
+  State<SpecialOffers> createState() => _SpecialOffersState();
+}
+
+class _SpecialOffersState extends State<SpecialOffers> {
+  final PageController _pageController =
+      PageController(viewportFraction: 0.8, initialPage: 1);
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SectionTitle(
-          title: "Special for you",
+          title: MyLocalizations.of(context).getText('S8lF3'),
           press: () {},
         ),
         SizedBox(height: getProportionateScreenWidth(context, 20)),
         Container(
           width: MediaQuery.of(context).size.width,
           height: 100,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: subCategories.length,
+          child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.subCategories.length,
               itemBuilder: (_, index) {
-                final subCategory = subCategories[index];
+                final subCategory = widget.subCategories[index];
                 return SpecialOfferCard(
                   image: subCategory!.image!,
                   category: subCategory.subCategoryName!,
-                  numOfBrands: products
+                  numOfBrands: widget.products
                       .where((product) =>
                           product!.idSubCategory == subCategory.reference)
                       .length,
@@ -106,7 +122,9 @@ class SpecialOfferCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        TextSpan(text: "$numOfBrands Products")
+                        TextSpan(
+                            text:
+                                "$numOfBrands ${MyLocalizations.of(context).getText('P5sS1')}")
                       ],
                     ),
                   ),

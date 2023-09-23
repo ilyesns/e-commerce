@@ -1,5 +1,6 @@
 import 'package:blueraymarket/screens/login/components/sign_up_form.dart';
 import 'package:blueraymarket/tools/constants.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 import '../../../tools/nav/theme.dart';
@@ -24,9 +25,10 @@ class _BodyState extends State<Body> {
           child: Column(
             children: [
               SizedBox(height: widget.sizeConfig.screenHeight * 0.04),
-              Text("Welcome Back", style: MyTheme.of(context).headlineLarge),
+              Text(MyLocalizations.of(context).getText('W3lC6'),
+                  style: MyTheme.of(context).headlineLarge),
               Text(
-                "Sign in with your email and password  \nor continue with social media",
+                MyLocalizations.of(context).getText('S9nI8'),
                 style: MyTheme.of(context).bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -50,10 +52,12 @@ class _BodyState extends State<Body> {
                           indicatorWeight: 3.0,
                           tabs: [
                             Tab(
-                              text: 'Log In',
+                              text:
+                                  MyLocalizations.of(context).getText('L5gI1'),
                             ),
                             Tab(
-                              text: 'Create Account',
+                              text:
+                                  MyLocalizations.of(context).getText('C9rA2'),
                             ),
                           ],
                         ),

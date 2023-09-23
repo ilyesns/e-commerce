@@ -89,9 +89,7 @@ class CheckoutCard extends StatelessWidget {
                         createdBy: currentUserDocument!.ffRef,
                       );
                       final result = await ProductRecord.collection.add(brand);
-                      print(result);
                       final r = await ProductRecord.getDocumentOnce(result);
-                      print(r.title);
                     },
                   ),
                 ),

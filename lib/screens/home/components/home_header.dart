@@ -1,6 +1,7 @@
 import 'package:blueraymarket/auth/auth_util.dart';
 import 'package:blueraymarket/auth/firebase_user_provider.dart';
 import 'package:blueraymarket/backend/schema/user/user_record.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/routes.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,8 @@ class HomeHeader extends StatelessWidget {
                       child: SearchField(
                           disable: true,
                           onChanged: (string) {},
-                          hintText: "Search on Blue Ray")),
+                          hintText:
+                              MyLocalizations.of(context).getText('S6hB8'))),
                 ),
                 SizedBox(
                   width: 7,
@@ -75,7 +77,7 @@ class HomeHeader extends StatelessWidget {
                   Center(
                     child: Container(
                       child: Text(
-                        'For Ordering Call +974 50 38 06 40',
+                        MyLocalizations.of(context).getText('F4rO1'),
                         style: MyTheme.of(context)
                             .titleMedium
                             .copyWith(color: MyTheme.of(context).alternate),
