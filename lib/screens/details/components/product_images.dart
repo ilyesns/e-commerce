@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +9,11 @@ import '../../../tools/app_state.dart';
 import '../../../tools/constants.dart';
 
 class ProductImages extends StatefulWidget {
-  ProductImages({Key? key, this.tag, required this.image, this.images})
+  ProductImages({Key? key, this.tag, this.images, this.image})
       : super(key: key);
   final DocumentReference? tag;
-  final String image;
   late List<String>? images;
+  late String? image;
   @override
   _ProductImagesState createState() => _ProductImagesState();
 }
@@ -23,8 +24,8 @@ class _ProductImagesState extends State<ProductImages> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
 
+    super.initState();
     selectedImage = widget.image;
   }
 
@@ -39,7 +40,7 @@ class _ProductImagesState extends State<ProductImages> {
             child: Hero(
               tag: widget.tag.toString(), // id product
               child: CachedNetworkImage(
-                  imageUrl: selectedImage!,
+                  imageUrl: widget.image!,
                   placeholder: (context, url) => Image.asset(
                       'assets/images/blue_ray_image.jpg'), // Placeholder widget
                   errorWidget: (context, url, error) =>
@@ -60,11 +61,11 @@ class _ProductImagesState extends State<ProductImages> {
     );
   }
 
-  GestureDetector buildSmallProductPreview(String index) {
-    return GestureDetector(
+  Widget buildSmallProductPreview(String index) {
+    return InkWell(
       onTap: () {
         setState(() {
-          selectedImage = index;
+          widget.image = index;
         });
       },
       child: AnimatedContainer(
@@ -77,7 +78,9 @@ class _ProductImagesState extends State<ProductImages> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: kPrimaryColor.withOpacity(selectedImage == index ? 1 : 0)),
+              color: MyTheme.of(context)
+                  .primary
+                  .withOpacity(widget.image == index ? 1 : 0)),
         ),
         child: CachedNetworkImage(imageUrl: index), // the image
       ),

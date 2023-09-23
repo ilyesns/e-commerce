@@ -168,7 +168,7 @@ Future<int> queryProductsRecordCount({
       queryBuilder: queryBuilder,
       limit: limit,
     );
-Future<List<ProductRecord>> queryProductsPage({
+Future<FirestorePage<ProductRecord>> queryProductsPage({
   Query Function(Query)? queryBuilder,
   DocumentSnapshot? nextPageMarker,
   required int pageSize,
@@ -463,7 +463,7 @@ class FirestorePage<T> {
   FirestorePage(this.data, this.dataStream, this.nextPageMarker);
 }
 
-Future<List<T>> queryCollectionPage<T>(
+Future<FirestorePage<T>> queryCollectionPage<T>(
   Query collection,
   Serializer<T> serializer, {
   Query Function(Query)? queryBuilder,
@@ -496,5 +496,6 @@ Future<List<T>> queryCollectionPage<T>(
       .toList();
   final data = getDocs(docSnapshot);
   final dataStream = docSnapshotStream?.map(getDocs);
-  return data;
+  final nextPageToken = docSnapshot.docs.isEmpty ? null : docSnapshot.docs.last;
+  return FirestorePage(data, dataStream, nextPageToken);
 }

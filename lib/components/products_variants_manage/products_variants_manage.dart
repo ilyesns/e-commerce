@@ -52,7 +52,7 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
     futureColor = queryColorsRecordOnce();
     futureSize = querySizesRecordOnce();
     futureFeature = queryFeaturesRecordOnce();
-    streamVariant = queryVariantsRecord();
+    streamVariant = queryVariantsRecord(parent: widget.productId);
     futureDiscount = DiscountRecord.getDocumentOnce(widget.discountId);
   }
 
@@ -66,9 +66,11 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
 
   late Future<DiscountRecord> futureDiscount;
 
-  late DocumentReference? colorRef;
-  late DocumentReference? sizeRef;
+  DocumentReference? colorRef;
+  DocumentReference? sizeRef;
   late DocumentReference? featureRef;
+  bool disableColor = false;
+  bool disableSize = false;
 
   late Future<List<ColorRecord>> futureColor;
   late Future<List<SizeRecord>> futureSize;
@@ -452,18 +454,21 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                                       .size
                                                       .width,
                                                   child: CustomDropDownMenu(
+                                                    disable: disableColor,
                                                     hint: "Select a Color",
                                                     items: colors
                                                         .map((element) =>
                                                             element.colorName!)
                                                         .toList(),
-                                                    validator: (value) {
-                                                      if (value == null) {
-                                                        return 'Please select a color.';
-                                                      }
-                                                      return null;
-                                                    },
-                                                    onSaved: (value) {
+                                                    validator: disableColor
+                                                        ? null
+                                                        : (value) {
+                                                            if (value == null) {
+                                                              return 'Please select a color.';
+                                                            }
+                                                            return null;
+                                                          },
+                                                    onChange: (value) {
                                                       colorRef = colors
                                                           .where((color) =>
                                                               color.colorName ==
@@ -481,10 +486,26 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                                 );
                                               },
                                             ),
-                                            SizedBox(
-                                              height:
-                                                  getProportionateScreenHeight(
-                                                      context, 20),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Checkbox(
+                                                    activeColor:
+                                                        MyTheme.of(context)
+                                                            .primary,
+                                                    value: disableColor,
+                                                    onChanged: (value) =>
+                                                        setState(() {
+                                                          disableColor = value!;
+                                                        })),
+                                                Text(
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                  "Check this if you want a variant without color.",
+                                                  style: MyTheme.of(context)
+                                                      .labelMedium,
+                                                ),
+                                              ],
                                             ),
                                             FutureBuilder<List<SizeRecord>>(
                                               future: futureSize,
@@ -502,18 +523,21 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                                       .size
                                                       .width,
                                                   child: CustomDropDownMenu(
+                                                    disable: disableSize,
                                                     hint: "Select a Size",
                                                     items: sizes
                                                         .map((element) =>
                                                             element.sizeCode!)
                                                         .toList(),
-                                                    validator: (value) {
-                                                      if (value == null) {
-                                                        return 'Please select a size.';
-                                                      }
-                                                      return null;
-                                                    },
-                                                    onSaved: (value) {
+                                                    validator: disableSize
+                                                        ? null
+                                                        : (value) {
+                                                            if (value == null) {
+                                                              return 'Please select a size.';
+                                                            }
+                                                            return null;
+                                                          },
+                                                    onChange: (value) {
                                                       sizeRef = sizes
                                                           .where((size) =>
                                                               size.sizeCode ==
@@ -528,9 +552,23 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                             ),
                                           ],
                                         )),
-                                    SizedBox(
-                                      height: getProportionateScreenHeight(
-                                          context, 20),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Checkbox(
+                                            activeColor:
+                                                MyTheme.of(context).primary,
+                                            value: disableSize,
+                                            onChanged: (value) => setState(() {
+                                                  disableSize = value!;
+                                                })),
+                                        Text(
+                                          overflow: TextOverflow.visible,
+                                          "Check this if you want a variant without size.",
+                                          style:
+                                              MyTheme.of(context).labelMedium,
+                                        ),
+                                      ],
                                     ),
                                     Container(
                                       width: getProportionateScreenWidth(
@@ -617,7 +655,6 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                                 } else {
                                                   return;
                                                 }
-                                                //Navigator.pop(context);
                                               },
                                               text: 'Add Variant'),
                                         ),
@@ -715,11 +752,12 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                           ),
                           Column(
                             children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                color: variant.colorCode,
-                              ),
+                              if (variant.idColor != null)
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  color: variant.colorCode,
+                                ),
                               SizedBox(
                                 width: getProportionateScreenWidth(context, 10),
                               ),
@@ -736,13 +774,15 @@ class _ProductsVariantsManageState extends State<ProductsVariantsManage> {
                                     height: getProportionateScreenHeight(
                                         context, 3),
                                   ),
-                                  Text(
-                                    "Size code : ${variant.sizeCode}",
-                                    style: MyTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                            fontSize: 15, fontFamily: 'Roboto'),
-                                  ),
+                                  if (variant.idSize != null)
+                                    Text(
+                                      "Size code : ${variant.sizeCode}",
+                                      style: MyTheme.of(context)
+                                          .labelLarge
+                                          .override(
+                                              fontSize: 15,
+                                              fontFamily: 'Roboto'),
+                                    ),
                                   SizedBox(
                                     height: getProportionateScreenHeight(
                                         context, 3),

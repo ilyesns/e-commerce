@@ -230,7 +230,6 @@ class _ColorManageState extends State<ColorManage> {
                                                 child: CustomColorPicker(
                                                   context: bottomSheetContext,
                                                   onChange: (color) {
-                                                    print(color);
                                                     setState(() {
                                                       selectedColor = color;
                                                     });

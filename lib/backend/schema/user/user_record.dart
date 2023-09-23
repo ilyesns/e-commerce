@@ -15,6 +15,9 @@ abstract class UserRecord implements Built<UserRecord, UserRecordBuilder> {
   @BuiltValueField(wireName: 'email')
   String? get email;
 
+  @BuiltValueField(wireName: 'gender')
+  String? get gender;
+
   @BuiltValueField(wireName: 'phone_number')
   String? get phoneNumber;
 
@@ -23,6 +26,9 @@ abstract class UserRecord implements Built<UserRecord, UserRecordBuilder> {
 
   @BuiltValueField(wireName: 'created_time')
   DateTime? get createdTime;
+
+  @BuiltValueField(wireName: 'birthday')
+  DateTime? get birthday;
 
   String? get uid;
 
@@ -68,6 +74,8 @@ abstract class UserRecord implements Built<UserRecord, UserRecordBuilder> {
 Map<String, dynamic> createUserRecordData({
   String? name,
   String? email,
+  String? gender,
+  DateTime? birthday,
   String? phoneNumber,
   String? photoUrl,
   DateTime? createdTime,
@@ -85,6 +93,8 @@ Map<String, dynamic> createUserRecordData({
             ..phoneNumber = phoneNumber
             ..photoUrl = photoUrl
             ..createdTime = createdTime
+            ..birthday = birthday
+            ..gender = gender
             ..uid = uid
             ..role = role
             ..address = address,

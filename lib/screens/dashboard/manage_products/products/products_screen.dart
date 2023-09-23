@@ -5,6 +5,7 @@ import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/backend/schema/product/product_record.dart';
 import 'package:blueraymarket/components/default_button.dart';
 import 'package:blueraymarket/components/product_manage/product_manage.dart';
+import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -81,22 +82,67 @@ class _BodyState extends State<Body> {
 
   late DocumentReference? subcategoryRef;
 
-  late Stream<List<ProductRecord>> stream;
+  late List<ProductRecord>? products = [];
+
+  late FirestorePage<ProductRecord> paginateStream;
+  ScrollController scrollController = ScrollController();
 
   bool isDataUploading = false;
   late UploadedFile uploadedLocalFile;
   String uploadedFileUrl = '';
   bool uploadImage = false;
   String search = '';
-
+  bool isHasNext = true;
+  bool firstTime = false;
   bool isLoading = false;
-
+  bool isProductsLoading = false;
+  QueryDocumentSnapshot<Object?>? nextPage;
   @override
   void initState() {
     super.initState();
     streamBrands = queryBrandsRecord();
-    stream = queryProductsRecord();
     streamSubCat = querySubCategoriesRecord();
+    _textFieldControllerProductSearch.addListener(onSearch);
+    scrollController.addListener(scrollListener);
+    fetchData();
+  }
+
+  onSearch() {
+    print(_textFieldControllerProductSearch.text);
+  }
+
+  void fetchData() async {
+    if (!firstTime)
+      setState(() {
+        isProductsLoading = true;
+        firstTime = true;
+      });
+
+    paginateStream = await queryProductsPage(
+        nextPageMarker: nextPage,
+        pageSize: 5,
+        isStream: false,
+        queryBuilder: (q) => q.orderBy('created_at', descending: true));
+
+    setState(() {
+      products!.addAll(paginateStream.data);
+      nextPage = paginateStream.nextPageMarker;
+      isProductsLoading = false;
+    });
+
+    // Add fetchedProducts to the stream
+    if (AppState().products.length <= products!.length) {
+      setState(() {
+        isHasNext = false;
+      });
+    }
+  }
+
+  scrollListener() {
+    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) if (isHasNext) {
+      fetchData();
+    }
   }
 
   @override
@@ -105,7 +151,6 @@ class _BodyState extends State<Body> {
     focusNodeProductTitle.dispose();
     focusNodeProductDescription.dispose();
     focusNodeProductPrice.dispose();
-
     _focusNode.dispose();
 
     focusNodeProductSearch.dispose();
@@ -129,333 +174,368 @@ class _BodyState extends State<Body> {
       });
   }
 
-  ScrollController scrollController = ScrollController();
-
   @override
   Widget build(BuildContext context) {
     final BuildContext _context = context;
     sizeConfig.init(context);
 
     return GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(_focusNode),
+      onTap: () {
+        FocusScope.of(context).requestFocus(_focusNode);
+        setState(() {
+          search;
+        });
+      },
       child: Container(
         width: sizeConfig.screenWidth,
         height: sizeConfig.screenHeight,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-              vertical: getProportionateScreenHeight(context, 20),
-              horizontal: getProportionateScreenWidth(context, 20)),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              uploadImageComponent(context),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (uploadImage)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        "Please upload an image",
-                        style: MyTheme.of(context).bodyMedium.override(
-                            color: MyTheme.of(context).error,
-                            fontFamily: 'Roboto'),
-                      ),
-                    ),
-                ],
-              ),
-              SizedBox(
-                height: getProportionateScreenHeight(context, 20),
-              ),
-              FormComponent(),
-              SizedBox(
-                height: getProportionateScreenHeight(context, 20),
-              ),
-              Container(
-                width: getProportionateScreenWidth(context, 120),
-                height: getProportionateScreenHeight(context, 50),
-                child: DefaultButton(
-                    isLoading: isLoading,
-                    press: () async {
-                      if (uploadedFileUrl.isEmpty) {
-                        setState(() {
-                          uploadImage = true;
-                        });
-                      }
-                      if (_formKey.currentState!.validate() &&
-                          uploadedFileUrl.isNotEmpty) {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        _formKey.currentState!.save();
-                        KeyboardUtil.hideKeyboard(context);
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        final discountref = await DiscountRecord.collection.add(
-                            createDiscountRecordData(
-                                createdAt: getCurrentTimestamp));
-
-                        final category =
-                            await getNameRefCategory(subcategoryRef);
-
-                        final product = createProductRecordData(
-                            title: _textFieldControllerProductTitle.text,
-                            description:
-                                _textFieldControllerProductDescription.text,
-                            price: double.tryParse(
-                                _textFieldControllerProductPrice.text),
-                            image: uploadedFileUrl,
-                            brandName: selectBrand,
-                            idBrand: brandRef,
-                            categoryName: category.$2,
-                            idCategory: category.$1,
-                            subcategoryName: selectSubCategory,
-                            idSubcategory: subcategoryRef,
-                            createdAt: getCurrentTimestamp,
-                            modifiedAt: getCurrentTimestamp,
-                            idDiscount: discountref);
-                        await ProductRecord.collection.add(product);
-                        setState(() {
-                          isLoading = false;
-
-                          uploadedFileUrl = '';
-                          uploadImage = false;
-                          _textFieldControllerProductTitle.clear();
-                          _textFieldControllerProductDescription.clear();
-                          _textFieldControllerProductPrice.clear();
-                        });
-                        ScaffoldMessenger.of(_context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: MyTheme.of(context).alternate,
-                            content: Text(
-                              'You added a product item with success!',
-                              style: MyTheme.of(context).bodyMedium.override(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: MyTheme.of(context).primary),
-                              textAlign: TextAlign.center,
-                            ),
-                            duration: Duration(
-                                seconds:
-                                    3), // Set the duration for the SnackBar
-                          ),
-                        );
-                      }
-                    },
-                    text: 'Create'),
-              ),
-              SizedBox(
-                height: getProportionateScreenHeight(context, 20),
-              ),
-              Container(
-                child: Row(
+        child: RefreshIndicator(
+          color: MyTheme.of(context).primary,
+          onRefresh: () async {
+            setState(() {
+              nextPage = null;
+              firstTime = false;
+              isHasNext = true;
+              products = [];
+            });
+          },
+          child: SingleChildScrollView(
+            controller: scrollController,
+            padding: EdgeInsets.symmetric(
+                vertical: getProportionateScreenHeight(context, 20),
+                horizontal: getProportionateScreenWidth(context, 20)),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                uploadImageComponent(context),
+                Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Product\'s list',
-                      style: MyTheme.of(context).titleMedium,
-                    ),
-                    Container(
-                        width: getProportionateScreenWidth(context, 200),
-                        height: 50,
-                        child: SearchField(
-                          onChanged: (value) {
-                            search = value;
-                          },
-                          hintText: "Search product",
-                        )),
+                    if (uploadImage)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          "Please upload an image",
+                          style: MyTheme.of(context).bodyMedium.override(
+                              color: MyTheme.of(context).error,
+                              fontFamily: 'Roboto'),
+                        ),
+                      ),
                   ],
                 ),
-              ),
-              ListItemsComponent(context, _context),
-            ],
+                SizedBox(
+                  height: getProportionateScreenHeight(context, 20),
+                ),
+                FormComponent(),
+                SizedBox(
+                  height: getProportionateScreenHeight(context, 20),
+                ),
+                Container(
+                  width: getProportionateScreenWidth(context, 120),
+                  height: getProportionateScreenHeight(context, 50),
+                  child: DefaultButton(
+                      isLoading: isLoading,
+                      press: () async {
+                        if (uploadedFileUrl.isEmpty) {
+                          setState(() {
+                            uploadImage = true;
+                          });
+                        }
+                        if (_formKey.currentState!.validate() &&
+                            uploadedFileUrl.isNotEmpty) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          _formKey.currentState!.save();
+                          KeyboardUtil.hideKeyboard(context);
+                          FocusManager.instance.primaryFocus?.unfocus();
+
+                          final discountref = await DiscountRecord.collection
+                              .add(createDiscountRecordData(
+                                  createdAt: getCurrentTimestamp));
+
+                          final category =
+                              await getNameRefCategory(subcategoryRef);
+
+                          final product = createProductRecordData(
+                              title: _textFieldControllerProductTitle.text,
+                              description:
+                                  _textFieldControllerProductDescription.text,
+                              price: double.tryParse(
+                                  _textFieldControllerProductPrice.text),
+                              image: uploadedFileUrl,
+                              brandName: selectBrand,
+                              idBrand: brandRef,
+                              categoryName: category.$2,
+                              idCategory: category.$1,
+                              subcategoryName: selectSubCategory,
+                              idSubcategory: subcategoryRef,
+                              createdAt: getCurrentTimestamp,
+                              modifiedAt: getCurrentTimestamp,
+                              idDiscount: discountref);
+                          await ProductRecord.collection.add(product);
+                          setState(() {
+                            isLoading = false;
+
+                            uploadedFileUrl = '';
+                            uploadImage = false;
+                            _textFieldControllerProductTitle.clear();
+                            _textFieldControllerProductDescription.clear();
+                            _textFieldControllerProductPrice.clear();
+                          });
+                          ScaffoldMessenger.of(_context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: MyTheme.of(context).alternate,
+                              content: Text(
+                                'You added a product item with success!',
+                                style: MyTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: MyTheme.of(context).primary),
+                                textAlign: TextAlign.center,
+                              ),
+                              duration: Duration(
+                                  seconds:
+                                      3), // Set the duration for the SnackBar
+                            ),
+                          );
+                        }
+                      },
+                      text: 'Create'),
+                ),
+                SizedBox(
+                  height: getProportionateScreenHeight(context, 20),
+                ),
+                Container(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Product\'s list',
+                        style: MyTheme.of(context).titleMedium,
+                      ),
+                      Container(
+                          width: getProportionateScreenWidth(context, 200),
+                          height: 50,
+                          child: SearchField(
+                            controller: _textFieldControllerProductSearch,
+                            onChanged: (value) {
+                              search = value;
+                            },
+                            hintText: "Search product",
+                          )),
+                    ],
+                  ),
+                ),
+                ListItemsComponent(context, _context),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Padding ListItemsComponent(BuildContext context, BuildContext _context) {
+  Widget ListItemsComponent(BuildContext context, BuildContext _context) {
     return Padding(
-      padding: EdgeInsets.only(top: getProportionateScreenHeight(context, 20)),
-      child: StreamBuilder<List<ProductRecord>>(
-          stream: stream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return loadingIndicator(context);
-            }
-            if (snapshot.data!.isEmpty) {
-              return listEmpty("Products", context);
-            }
-            final products = snapshot.data;
-            final productAfterSearch = products!
-                .where((e) =>
-                    e.title!.toLowerCase().contains(search.toLowerCase()))
-                .toList();
+        padding:
+            EdgeInsets.only(top: getProportionateScreenHeight(context, 20)),
+        child: products!.isEmpty
+            ? listEmpty('Products', context)
+            : isProductsLoading
+                ? loadingIndicator(context)
+                : Column(
+                    children: [
+                      ListView.builder(
+                          padding: EdgeInsets.only(
+                              top: getProportionateScreenHeight(context, 20)),
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: products!.length,
+                          itemBuilder: (context, index) {
+                            print(search);
+                            final productItem = products![index];
 
-            if (productAfterSearch.isEmpty) {
-              return searchNotAvailable("Products", context);
-            }
-
-            return ListView.builder(
-                padding: EdgeInsets.only(
-                    top: getProportionateScreenHeight(context, 20)),
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: productAfterSearch.length,
-                itemBuilder: (context, index) {
-                  final productItem = productAfterSearch[index];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: getProportionateScreenHeight(context, 10)),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: MyTheme.of(context).primaryBackground,
-                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 3,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  child: CachedNetworkImage(
-                                    imageUrl: productItem.image!,
-                                    // Placeholder widget while loading
-                                    placeholder: (context, url) => Image.asset(
-                                        'assets/images/blue_ray_image.jpg'), // Placeholder widget
-                                    errorWidget: (context, url, error) => Icon(
-                                      Icons.error,
-                                      color: Colors.black,
-                                    ), // Widget to display on error
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Title: ${productItem.title as String}',
-                                      style: MyTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                              fontSize: 15,
-                                              fontFamily: 'Roboto'),
-                                    ),
-                                    SizedBox(
-                                      height: getProportionateScreenHeight(
-                                          context, 3),
-                                    ),
-                                    Text(
-                                      'Description: ${productItem.description!.truncateText(15)}',
-                                      style: MyTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                              fontSize: 15,
-                                              fontFamily: 'Roboto'),
-                                    ),
-                                    SizedBox(
-                                      height: getProportionateScreenHeight(
-                                          context, 3),
-                                    ),
-                                    Text(
-                                      'Price: ${productItem.price}',
-                                      style: MyTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                              fontSize: 15,
-                                              fontFamily: 'Roboto'),
-                                    ),
-                                    SizedBox(
-                                      height: getProportionateScreenHeight(
-                                          context, 3),
-                                    ),
-                                    Text(
-                                      'Create at :${dateTimeFormat('M/d H:mm', productItem.createdAt)}',
-                                      style: MyTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                              fontSize: 14,
-                                              fontFamily: 'Roboto'),
-                                    ),
-                                    SizedBox(
-                                      height: getProportionateScreenHeight(
-                                          context, 3),
-                                    ),
-                                    Text(
-                                      'Modify at :${dateTimeFormat('M/d H:mm', productItem.modifiedAt)}',
-                                      style: MyTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                              fontSize: 14,
-                                              fontFamily: 'Roboto'),
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: getProportionateScreenHeight(
+                                      context, 10)),
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: MyTheme.of(context).primaryBackground,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 1,
+                                      blurRadius: 3,
+                                      offset: Offset(
+                                          0, 3), // changes position of shadow
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                await showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  enableDrag: true,
-                                  context: context,
-                                  builder: (bottomSheetContext) {
-                                    return Padding(
-                                      padding: MediaQuery.of(bottomSheetContext)
-                                          .viewInsets,
-                                      child: ProductManage(
-                                          productId: productItem.reference,
-                                          brandId: productItem.idBrand!,
-                                          subcategoryId:
-                                              productItem.idSubCategory!,
-                                          context: context),
-                                    );
-                                  },
-                                ).then((value) => setState(() {}));
-                              },
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                child: SvgPicture.asset(
-                                  'assets/icons/edit.svg',
-                                  color: MyTheme.of(context).primary,
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 40,
+                                            height: 40,
+                                            child: CachedNetworkImage(
+                                              imageUrl: productItem.image!,
+                                              // Placeholder widget while loading
+                                              placeholder: (context, url) =>
+                                                  Image.asset(
+                                                      'assets/images/blue_ray_image.jpg'), // Placeholder widget
+                                              errorWidget:
+                                                  (context, url, error) => Icon(
+                                                Icons.error,
+                                                color: Colors.black,
+                                              ), // Widget to display on error
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Title: ${productItem.title?.truncateText(20) as String}',
+                                                style: MyTheme.of(context)
+                                                    .labelLarge
+                                                    .override(
+                                                        fontSize: 15,
+                                                        fontFamily: 'Roboto'),
+                                              ),
+                                              SizedBox(
+                                                height:
+                                                    getProportionateScreenHeight(
+                                                        context, 3),
+                                              ),
+                                              Text(
+                                                'Description: ${productItem.description!.truncateText(15)}',
+                                                style: MyTheme.of(context)
+                                                    .labelLarge
+                                                    .override(
+                                                        fontSize: 15,
+                                                        fontFamily: 'Roboto'),
+                                              ),
+                                              SizedBox(
+                                                height:
+                                                    getProportionateScreenHeight(
+                                                        context, 3),
+                                              ),
+                                              Text(
+                                                'Price: ${productItem.price}',
+                                                style: MyTheme.of(context)
+                                                    .labelLarge
+                                                    .override(
+                                                        fontSize: 15,
+                                                        fontFamily: 'Roboto'),
+                                              ),
+                                              SizedBox(
+                                                height:
+                                                    getProportionateScreenHeight(
+                                                        context, 3),
+                                              ),
+                                              Text(
+                                                'Create at :${dateTimeFormat('M/d H:mm', productItem.createdAt)}',
+                                                style: MyTheme.of(context)
+                                                    .labelLarge
+                                                    .override(
+                                                        fontSize: 14,
+                                                        fontFamily: 'Roboto'),
+                                              ),
+                                              SizedBox(
+                                                height:
+                                                    getProportionateScreenHeight(
+                                                        context, 3),
+                                              ),
+                                              Text(
+                                                'Modify at :${dateTimeFormat('M/d H:mm', productItem.modifiedAt)}',
+                                                style: MyTheme.of(context)
+                                                    .labelLarge
+                                                    .override(
+                                                        fontSize: 14,
+                                                        fontFamily: 'Roboto'),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          await showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            enableDrag: true,
+                                            context: context,
+                                            builder: (bottomSheetContext) {
+                                              return Padding(
+                                                padding: MediaQuery.of(
+                                                        bottomSheetContext)
+                                                    .viewInsets,
+                                                child: ProductManage(
+                                                    productId:
+                                                        productItem.reference,
+                                                    brandId:
+                                                        productItem.idBrand!,
+                                                    subcategoryId: productItem
+                                                        .idSubCategory!,
+                                                    context: context),
+                                              );
+                                            },
+                                          ).then((value) => setState(() {}));
+                                        },
+                                        child: Container(
+                                          width: 20,
+                                          height: 20,
+                                          child: SvgPicture.asset(
+                                            'assets/icons/edit.svg',
+                                            color: MyTheme.of(context).primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                });
-          }),
-    );
+                            );
+                          }),
+                      if (isHasNext && firstTime)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 30),
+                            child: Container(
+                                width: getProportionateScreenWidth(context, 30),
+                                height:
+                                    getProportionateScreenHeight(context, 30),
+                                child: CircularProgressIndicator(
+                                  color: MyTheme.of(context).primary,
+                                )),
+                          ),
+                        )
+                    ],
+                  ));
   }
 
   String? selectBrand;

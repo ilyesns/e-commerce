@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/constants.dart';
@@ -10,6 +11,7 @@ import '../../../backend/firebase_storage/storage.dart';
 import '../../../backend/schema/user/user_record.dart';
 import '../../../components/default_button.dart';
 import '../../../components/form_error.dart';
+import '../../../tools/internationalization.dart';
 import '../../../tools/nav/routes.dart';
 import '../../../tools/nav/theme.dart';
 import '../../../tools/upload_data.dart';
@@ -27,15 +29,20 @@ class _BodyState extends State<Body> {
 
   final List<String?> errorsName = [];
   final List<String?> errorsPhone = [];
-  final List<String?> errorsAddress = [];
+  final List<String?> errorsGender = [];
+  final List<String?> errorsBirthday = [];
 
   final _textFieldControllerUserName = TextEditingController();
   final _textFieldControllerPhoneNumber = TextEditingController();
-  final _textFieldControllerAddress = TextEditingController();
+  final _textFieldControllerPrefix = TextEditingController();
+  String gender = '';
+  final _textFieldControllerBirthday = TextEditingController();
 
   final FocusNode focusNodeUserName = FocusNode();
+  final FocusNode focusNodePrefix = FocusNode();
   final FocusNode focusNodePhoneNumber = FocusNode();
-  final FocusNode focusNodeAddress = FocusNode();
+  final FocusNode focusNodeGender = FocusNode();
+  final FocusNode focusNodeBirthday = FocusNode();
 
   bool isLoading = false;
 
@@ -48,6 +55,8 @@ class _BodyState extends State<Body> {
   bool _uploadImage = false;
 
   bool get uploadImage => _uploadImage;
+
+  DateTime? birthdary;
   set uploadImage(b) => _uploadImage = b;
   void addError({String? error, required List<String?> list}) {
     if (!list.contains(error))
@@ -63,6 +72,34 @@ class _BodyState extends State<Body> {
       });
   }
 
+  List<String> numberPrefixes = [
+    '+1', // United States, Canada, and several other countries in the Americas
+    '+44', // United Kingdom
+    '+33', // France
+    '+49', // Germany
+    '+81', // Japan
+    '+86', // China
+    '+91', // India
+    '+61', // Australia
+    '+7', // Russia
+    '+55', // Brazil
+    '+34', // Spain
+    '+39', // Italy
+    '+52', // Mexico
+    '+65', // Singapore
+    '+82', // South Korea
+    '+64', // New Zealand
+    '+31', // Netherlands
+    '+41', // Switzerland
+    '+46', // Sweden
+    '+971', // United Arab Emirates
+    '+966', // Saudi Arabia
+    '+972', // Israel
+    '+20', // Egypt
+    '+234', // Nigeria
+    '+27', // South Africa
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -75,27 +112,11 @@ class _BodyState extends State<Body> {
             child: Column(
               children: [
                 SizedBox(height: SizeConfig().screenHeight * 0.03),
-                Text("Complete Profile", style: headingStyle),
+                Text(MyLocalizations.of(context).getText('C8pP6'),
+                    style: headingStyle),
                 Text(
-                  "Complete your details or continue  \nwith social media",
+                  MyLocalizations.of(context).getText('C5mY7'),
                   textAlign: TextAlign.center,
-                ),
-                uploadImageComponent(context),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (uploadImage)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          "Please upload an image",
-                          style: MyTheme.of(context).bodyMedium.override(
-                              color: MyTheme.of(context).error,
-                              fontFamily: 'Roboto'),
-                        ),
-                      ),
-                  ],
                 ),
                 SizedBox(height: SizeConfig().screenHeight * 0.06),
                 Form(
@@ -106,31 +127,37 @@ class _BodyState extends State<Body> {
                         child: CustomTextField(
                           textFieldController: _textFieldControllerUserName,
                           focusNode: focusNodeUserName,
-                          labelText: 'Name',
-                          hintText: "Enter name",
+                          labelText:
+                              MyLocalizations.of(context).getText('F5lN8'),
+                          hintText:
+                              MyLocalizations.of(context).getText('E7rF1'),
                           onChanged: (value) {
-                            if (value!.isNotEmpty) {
+                            if (value != null && value.isNotEmpty) {
                               removeError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsName);
                             }
-                            if (value.length > 3) {
+                            if (value != null && value.length > 3) {
                               removeError(
-                                  error: "At least 3 characters",
+                                  error: MyLocalizations.of(context)
+                                      .getText('A9tL2'),
                                   list: errorsName);
                             }
                             return null;
                           },
                           validator: (value) {
-                            if (value!.isEmpty) {
+                            if (value != null && value.isEmpty) {
                               addError(
-                                  error: "This field is required",
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
                                   list: errorsName);
                               return "";
                             }
-                            if (value.length < 3) {
+                            if (value != null && value.length < 3) {
                               addError(
-                                  error: "At least 3 characters",
+                                  error: MyLocalizations.of(context)
+                                      .getText('A9tL2'),
                                   list: errorsName);
                               return "";
                             }
@@ -142,122 +169,186 @@ class _BodyState extends State<Body> {
                       SizedBox(
                         height: getProportionateScreenHeight(context, 20),
                       ),
-                      Container(
-                        child: CustomTextField(
-                          textFieldController: _textFieldControllerPhoneNumber,
-                          focusNode: focusNodePhoneNumber,
-                          labelText: 'Phone Number',
-                          hintText: "Number phone etc +216 123456789...",
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            if (value!.isNotEmpty) {
-                              removeError(
-                                  error: "This field is required",
-                                  list: errorsPhone);
-                            }
-                            if (value.contains('+')) {
-                              removeError(
-                                  error:
-                                      "The number must begins with nation prefix",
-                                  list: errorsPhone);
-                            }
-                            return null;
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              addError(
-                                  error: "This field is required",
-                                  list: errorsPhone);
-                              return "";
-                            }
-                            if (!value.contains('+')) {
-                              addError(
-                                  error:
-                                      "The number must begins with nation prefix",
-                                  list: errorsPhone);
-                              return "";
-                            }
-                            return null;
-                          },
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: getProportionateScreenWidth(context, 100),
+                            height: 80,
+                            child: CustomDropDownMenu(
+                              hint:
+                                  MyLocalizations.of(context).getText('P5sP9'),
+                              items: numberPrefixes,
+                              validator: (value) {
+                                if (value != null && value.isEmpty) {
+                                  addError(
+                                      error: MyLocalizations.of(context)
+                                          .getText('T6sF4'),
+                                      list: errorsPhone);
+                                  return "";
+                                }
+
+                                return null;
+                              },
+                              onChange: (value) {
+                                _textFieldControllerPrefix.text = value!;
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: getProportionateScreenWidth(context, 10),
+                          ),
+                          Expanded(
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 80,
+                              child: CustomTextField(
+                                textFieldController:
+                                    _textFieldControllerPhoneNumber,
+                                focusNode: focusNodePhoneNumber,
+                                labelText: MyLocalizations.of(context)
+                                    .getText('P6hN8'),
+                                hintText: MyLocalizations.of(context)
+                                    .getText('N4mP7'),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  if (value!.isNotEmpty) {
+                                    removeError(
+                                        error: MyLocalizations.of(context)
+                                            .getText('T6sF4'),
+                                        list: errorsPhone);
+                                  }
+
+                                  return null;
+                                },
+                                validator: (value) {
+                                  if (value != null && value.isEmpty) {
+                                    addError(
+                                        error: MyLocalizations.of(context)
+                                            .getText('T6sF4'),
+                                        list: errorsPhone);
+                                    return "";
+                                  }
+
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       FormError(errors: errorsPhone),
                       SizedBox(
                         height: getProportionateScreenHeight(context, 20),
                       ),
                       Container(
-                        child: CustomTextField(
-                          textFieldController: _textFieldControllerAddress,
-                          focusNode: focusNodeAddress,
-                          labelText: 'Address',
-                          hintText: "Enter Address",
-                          maxLines: 5,
-                          onChanged: (value) {
-                            if (value!.isNotEmpty) {
-                              removeError(
-                                  error: "This field is required",
-                                  list: errorsAddress);
+                        child: CustomDropDownMenu(
+                          hint: MyLocalizations.of(context).getText('P8sG5'),
+                          items: [
+                            MyLocalizations.of(context).getText('M4lE1'),
+                            MyLocalizations.of(context).getText('F5mL2')
+                          ],
+                          validator: (value) {
+                            if (value != null && value.isEmpty) {
+                              addError(
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
+                                  list: errorsGender);
+                              return "";
                             }
-                            if (value.length >= 10) {
-                              removeError(
-                                  error: "At least 10 characters",
-                                  list: errorsAddress);
-                            }
+
                             return null;
                           },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              addError(
-                                  error: "This field is required",
-                                  list: errorsAddress);
-                              return "";
-                            }
-                            if (value.length < 10) {
-                              addError(
-                                  error: "At least 10 characters",
-                                  list: errorsAddress);
-                              return "";
-                            }
+                          onChange: (value) {
+                            gender = value!;
                             return null;
                           },
                         ),
                       ),
-                      FormError(errors: errorsAddress),
+                      FormError(errors: errorsGender),
+                      SizedBox(
+                        height: getProportionateScreenHeight(context, 20),
+                      ),
+                      Container(
+                        child: CustomTextField(
+                          readOnly: true,
+                          textFieldController: _textFieldControllerBirthday,
+                          focusNode: focusNodeBirthday,
+                          labelText:
+                              MyLocalizations.of(context).getText('B7rT3'),
+                          hintText:
+                              MyLocalizations.of(context).getText('E8rY2'),
+                          onChanged: (value) {
+                            if (value!.isNotEmpty) {
+                              removeError(
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
+                                  list: errorsBirthday);
+                            }
+
+                            return null;
+                          },
+                          validator: (value) {
+                            if (value != null && value.isEmpty) {
+                              addError(
+                                  error: MyLocalizations.of(context)
+                                      .getText('T6sF4'),
+                                  list: errorsBirthday);
+                              return "";
+                            }
+
+                            return null;
+                          },
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1950),
+                                //DateTime.now() - not to allow to choose before today.
+                                lastDate: DateTime(2100));
+
+                            if (pickedDate != null) {
+                              print(
+                                  pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                              String formattedDate =
+                                  dateTimeFormat('yyyy-MM-dd', pickedDate);
+                              print(
+                                  formattedDate); //formatted date output using intl package =>  2021-03-16
+                              setState(() {
+                                _textFieldControllerBirthday.text =
+                                    formattedDate;
+                                birthdary = pickedDate;
+                                //set output date to TextField value.
+                              });
+                            } else {}
+                          },
+                        ),
+                      ),
+                      FormError(errors: errorsBirthday),
                       SizedBox(
                           height: getProportionateScreenHeight(context, 40)),
                       Container(
-                        width: getProportionateScreenWidth(context, 150),
-                        height: getProportionateScreenHeight(context, 60),
+                        height: getProportionateScreenHeight(context, 50),
                         child: DefaultButton(
                           isLoading: isLoading,
-                          text: "continue",
+                          text: MyLocalizations.of(context).getText('C8nE1'),
                           press: () async {
-                            if (uploadedFileUrl.isEmpty) {
-                              setState(() {
-                                uploadImage = true;
-                              });
-                            }
-
-                            if (_formKey.currentState!.validate() &&
-                                uploadedFileUrl.isNotEmpty) {
+                            if (_formKey.currentState!.validate()) {
                               setState(() {
                                 isLoading = true;
                               });
                               final user = createUserRecordData(
                                   name: _textFieldControllerUserName.text,
                                   phoneNumber:
-                                      _textFieldControllerPhoneNumber.text,
-                                  address: _textFieldControllerAddress.text,
-                                  photoUrl: uploadedFileUrl,
+                                      '${_textFieldControllerPrefix.text} ${_textFieldControllerPhoneNumber.text}',
+                                  gender: gender,
+                                  birthday: birthdary,
                                   role: roleUser);
+                              print(user);
 
-                              await UserRecord.collection
-                                  .doc(currentUserDocument!.uid)
-                                  .update(user);
-                              setState(() {
-                                isLoading = true;
-                                uploadImage = false;
-                              });
+                              currentUserReference!.update(user);
+
                               context.pushReplacementNamed('NavBarPage',
                                   extra: <String, dynamic>{
                                     kTransitionInfoKey: TransitionInfo(
@@ -266,6 +357,10 @@ class _BodyState extends State<Body> {
                                         transitionType: PageTransitionType
                                             .rightToLeftWithFade)
                                   });
+
+                              setState(() {
+                                isLoading = false;
+                              });
                             }
                           },
                         ),
@@ -275,117 +370,12 @@ class _BodyState extends State<Body> {
                 ),
                 SizedBox(height: getProportionateScreenHeight(context, 30)),
                 Text(
-                  "By continuing your confirm that you agree \nwith our Term and Condition",
+                  MyLocalizations.of(context).getText('B4yC7'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.caption,
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  InkWell uploadImageComponent(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        final selectedMedia = await selectMediaWithSourceBottomSheet(
-          context: context,
-          allowPhoto: true,
-        );
-        if (selectedMedia != null &&
-            selectedMedia
-                .every((m) => validateFileFormat(m.storagePath, context))) {
-          setState(() => isDataUploading = true);
-          var selectedUploadedFiles = <UploadedFile>[];
-          var downloadUrls = <String>[];
-          try {
-            selectedUploadedFiles = selectedMedia
-                .map((m) => UploadedFile(
-                      name: m.storagePath.split('/').last,
-                      bytes: m.bytes,
-                      height: m.dimensions?.height,
-                      width: m.dimensions?.width,
-                      blurHash: m.blurHash,
-                    ))
-                .toList();
-
-            downloadUrls = (await Future.wait(
-              selectedMedia.map(
-                (m) async => await uploadData(m.storagePath, m.bytes),
-              ),
-            ))
-                .where((u) => u != null)
-                .map((u) => u!)
-                .toList();
-          } finally {
-            isDataUploading = false;
-          }
-          if (selectedUploadedFiles.length == selectedMedia.length &&
-              downloadUrls.length == selectedMedia.length) {
-            setState(() {
-              uploadedLocalFile = selectedUploadedFiles.first;
-              uploadedFileUrl = downloadUrls.first;
-              uploadImage = false;
-            });
-          } else {
-            setState(() {});
-            return;
-          }
-        }
-      },
-      child: Padding(
-        padding:
-            EdgeInsets.only(top: getProportionateScreenHeight(context, 20)),
-        child: SizedBox(
-          height: 115,
-          width: 115,
-          child: Stack(
-            fit: StackFit.expand,
-            clipBehavior: Clip.none,
-            children: [
-              isDataUploading
-                  ? loadingIndicator(context)
-                  : DottedBorder(
-                      color: MyTheme.of(context).primaryText,
-                      dashPattern: [8, 8],
-                      borderType: BorderType.Circle,
-                      child: uploadedFileUrl.isNotEmpty
-                          ? Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: CircleAvatar(
-                                  backgroundImage: Image(
-                                          image: NetworkImage(uploadedFileUrl))
-                                      .image,
-                                ),
-                              ),
-                            )
-                          : Container(
-                              width: 120,
-                              height: 100,
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/upload_img.png',
-                                      width: 50,
-                                      height: 50,
-                                    ),
-                                    Text(
-                                      "Select an image",
-                                      style: MyTheme.of(context).labelMedium,
-                                    )
-                                  ]),
-                            ),
-                    ),
-            ],
           ),
         ),
       ),

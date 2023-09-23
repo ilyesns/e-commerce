@@ -5,23 +5,29 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../tools/constants.dart';
 
 class ProfileMenu extends StatelessWidget {
-  const ProfileMenu(
-      {Key? key, required this.text, this.icon, this.press, this.secondIcon})
+  ProfileMenu(
+      {Key? key,
+      required this.text,
+      this.icon,
+      this.press,
+      this.secondIcon,
+      this.toggle = false})
       : super(key: key);
 
   final String text;
   final String? icon;
   final VoidCallback? press;
   final IconData? secondIcon;
+  bool toggle;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: TextButton(
         style: TextButton.styleFrom(
           primary: MyTheme.of(context).primary,
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(15),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           backgroundColor: Color(0xFFF5F6F9),
@@ -41,7 +47,8 @@ class ProfileMenu extends StatelessWidget {
                   ),
             SizedBox(width: 20),
             Expanded(child: Text(text)),
-            Icon(Icons.arrow_forward_ios),
+            if (!toggle) Icon(Icons.keyboard_arrow_right),
+            if (toggle) Icon(Icons.keyboard_arrow_down_sharp),
           ],
         ),
       ),

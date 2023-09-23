@@ -27,6 +27,11 @@ import '../../screens/list_products/list_products_screen.dart';
 import '../../screens/dashboard/darshboard_screen.dart';
 import '../../screens/dashboard/manage_products/product_variants/products_variants_Screen.dart';
 import '../../screens/dashboard/manage_products/sub_categories/sub_categories_screen.dart';
+import '../../screens/profile/edit_profile/base_infos/base_infos.dart';
+import '../../screens/profile/edit_profile/edit_profile.dart';
+import '../../screens/profile/my_orders/my_orders_screen.dart';
+import '../../screens/profile/notification/notification_screen.dart';
+import '../../screens/profile/settings/settings_screen.dart';
 import 'serializer.dart';
 
 const kTransitionInfoKey = '__transition_info__';
@@ -91,7 +96,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
           MyRoute(
             name: 'NavBarPage',
             path: 'navBarPage',
-            builder: (context, state) => NavBarPage(),
+            builder: (context, state) => NavBarPage(
+                initialPage: state.getParam('initialPage', ParamType.String)),
           ),
           MyRoute(
             name: 'Login',
@@ -198,6 +204,35 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
             path: 'productsVariantsPage',
             requireAuth: true,
             builder: (context, state) => ProductsVariantsScreen(),
+          ),
+          MyRoute(
+            name: 'MyOrdersPage',
+            path: 'myOrdersPage',
+            requireAuth: true,
+            builder: (context, state) => MyOrders(),
+          ),
+          MyRoute(
+            name: 'SettingsPage',
+            path: 'settingsPage',
+            builder: (context, state) => SettingsScreen(),
+          ),
+          MyRoute(
+            name: 'NotificationPage',
+            path: 'notificationPage',
+            requireAuth: true,
+            builder: (context, state) => NotificationScreen(),
+          ),
+          MyRoute(
+            name: 'EditProfilePage',
+            path: 'editProfileScreenPage',
+            requireAuth: true,
+            builder: (context, state) => EditProfileScreen(),
+          ),
+          MyRoute(
+            name: 'BaseInfosPage',
+            path: 'baseInfosPage',
+            requireAuth: true,
+            builder: (context, state) => BaseInfosScreen(),
           ),
         ].map((r) => r.toRoute(appStateNotifier)).toList(),
       ),
@@ -336,8 +371,8 @@ class MyRoute {
                   color: Colors.transparent,
                   child: Center(
                     child: Image.asset(
-                      'assets/images/splash_1.png',
-                      width: 150.0,
+                      'assets/images/splash.png',
+                      width: MediaQuery.sizeOf(context).width,
                       fit: BoxFit.fitWidth,
                     ),
                   ),

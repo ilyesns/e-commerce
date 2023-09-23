@@ -1,6 +1,8 @@
 import 'package:blueraymarket/screens/home/home_screen.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/routes.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/components/custom_surfix_icon.dart';
@@ -16,6 +18,7 @@ import '../../../auth/credentials.dart';
 import '../../../components/default_button.dart';
 import '../../../components/socal_card.dart';
 import '../../../tools/constants.dart';
+import '../../../tools/util.dart';
 
 class SignForm extends StatefulWidget {
   @override
@@ -27,20 +30,28 @@ class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
   String? email;
   String? password;
-  bool? remember = false;
-  final List<String?> errors = [];
+  final _textFieldControllerEmail = TextEditingController();
+  final _textFieldControllerPassword = TextEditingController();
+
+  final FocusNode focusNodeEmail = FocusNode();
+  final FocusNode focusNodePassword = FocusNode();
+
+  bool isHidden = true;
+  final List<String?> errorsPassword = [];
+  final List<String?> errorsEmail = [];
+
   bool isLoading = false;
-  void addError({String? error}) {
-    if (!errors.contains(error))
+  void addError({String? error, required List<String?> list}) {
+    if (!list.contains(error))
       setState(() {
-        errors.add(error);
+        list.add(error!);
       });
   }
 
-  void removeError({String? error}) {
-    if (errors.contains(error))
+  void removeError({String? error, required List<String?> list}) {
+    if (list.contains(error))
       setState(() {
-        errors.remove(error);
+        list.remove(error);
       });
   }
 
@@ -51,9 +62,82 @@ class _SignFormState extends State<SignForm> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            buildEmailFormField(),
+            Container(
+              child: CustomTextField(
+                suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
+                textFieldController: _textFieldControllerEmail,
+                focusNode: focusNodeEmail,
+                labelText: 'Email',
+                hintText: "Enter Your Email",
+                onChanged: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    removeError(
+                        error: "This field is required", list: errorsEmail);
+                  }
+                  if (emailRegex.hasMatch(value!)) {
+                    removeError(
+                        error: "Please enter a valid email", list: errorsEmail);
+                    return "";
+                  }
+                  return null;
+                },
+                validator: (value) {
+                  if (value != null && value.isEmpty) {
+                    addError(
+                        error: "This field is required", list: errorsEmail);
+                    return "";
+                  }
+                  if (!emailRegex.hasMatch(value!)) {
+                    addError(
+                        error: "Please enter a valid email", list: errorsEmail);
+                    return "";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            FormError(errors: errorsEmail),
             SizedBox(height: getProportionateScreenHeight(context, 30)),
-            buildPasswordFormField(),
+            Container(
+              child: CustomTextField(
+                obscureText: isHidden,
+                suffixIcon: InkWell(
+                  onTap: () {
+                    setState(() {
+                      isHidden = !isHidden;
+                    });
+                  },
+                  child: CustomSurffixIcon(
+                      svgIcon: isHidden
+                          ? 'assets/icons/eye.svg'
+                          : 'assets/icons/eye-slash.svg'),
+                ),
+                textFieldController: _textFieldControllerPassword,
+                focusNode: focusNodePassword,
+                labelText: 'Password',
+                hintText: "Enter Your Password",
+                onChanged: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    removeError(
+                        error: "This field is required", list: errorsPassword);
+                  }
+                  if (value != null && value.length > 3) {
+                    removeError(
+                        error: "At least 3 characters", list: errorsPassword);
+                  }
+                  return null;
+                },
+                validator: (value) {
+                  if (value != null && value!.isEmpty) {
+                    addError(
+                        error: "This field is required", list: errorsPassword);
+                    return "";
+                  }
+
+                  return null;
+                },
+              ),
+            ),
             SizedBox(height: getProportionateScreenHeight(context, 30)),
             Row(
               mainAxisSize: MainAxisSize.max,
@@ -63,19 +147,20 @@ class _SignFormState extends State<SignForm> {
                   onTap: () => Navigator.pushNamed(
                       context, ForgotPasswordScreen.routeName),
                   child: Text(
-                    "Forgot Password",
+                    MyLocalizations.of(context)
+                        .getText('D9zP6'), // Forget Password
                     style: TextStyle(decoration: TextDecoration.underline),
                   ),
                 )
               ],
             ),
-            FormError(errors: errors),
+            FormError(errors: errorsPassword),
             SizedBox(height: getProportionateScreenHeight(context, 20)),
             Container(
-              width: getProportionateScreenWidth(context, 150),
+              width: MediaQuery.sizeOf(context).width,
               height: getProportionateScreenHeight(context, 50),
               child: DefaultButton(
-                text: "Sign in",
+                text: MyLocalizations.of(context).getText('A2bX7'), // "Sign in"
                 isLoading: isLoading,
                 press: () async {
                   if (_formKey.currentState!.validate()) {
@@ -89,8 +174,8 @@ class _SignFormState extends State<SignForm> {
                     print(context.mounted);
                     final user = await signInWithEmail(
                       context,
-                      email!,
-                      password!,
+                      _textFieldControllerEmail.text!,
+                      _textFieldControllerPassword.text!,
                     );
                     if (user == null) return;
                     context.goNamedAuth('NavBarPage', context.mounted,
@@ -107,10 +192,9 @@ class _SignFormState extends State<SignForm> {
             ),
             SizedBox(height: getProportionateScreenHeight(context, 20)),
             Container(
-              width: getProportionateScreenWidth(context, 100),
               height: getProportionateScreenHeight(context, 50),
               child: DefaultButton(
-                text: "Skip",
+                text: MyLocalizations.of(context).getText('E5yQ8'),
                 bgColor: Colors.white,
                 textColor: MyTheme.of(context).primary,
                 press: () {
@@ -125,90 +209,118 @@ class _SignFormState extends State<SignForm> {
             ),
             SizedBox(height: getProportionateScreenHeight(context, 20)),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SocalCard(
-                  icon: "assets/icons/google-icon.svg",
-                  press: () {},
+                Expanded(
+                    child: Container(
+                  width: 100,
+                  height: 1,
+                  color: MyTheme.of(context).primary,
+                )),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Text(MyLocalizations.of(context).getText('F4wR7')),
                 ),
-                SocalCard(
-                  icon: "assets/icons/facebook-2.svg",
-                  press: () {},
+                Expanded(
+                    child: Container(
+                  width: 100,
+                  height: 1,
+                  color: MyTheme.of(context).primary,
+                )),
+              ],
+            ),
+            SizedBox(height: getProportionateScreenHeight(context, 20)),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: getProportionateScreenWidth(context, 150),
+                      height: getProportionateScreenHeight(context, 40),
+                      color: Color.fromARGB(255, 23, 128, 214),
+                      child: Row(
+                        children: [
+                          SocalCard(
+                            icon: "assets/icons/google-icon.svg",
+                            press: () {},
+                          ),
+                          Text(
+                            'Sign in with Google',
+                            style: MyTheme.of(context).bodyLarge.copyWith(
+                                fontFamily: 'Outfit',
+                                fontSize: 12,
+                                color: MyTheme.of(context).alternate),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      width: getProportionateScreenWidth(context, 150),
+                      height: getProportionateScreenHeight(context, 40),
+                      color: Color.fromARGB(255, 4, 81, 145),
+                      child: Row(
+                        children: [
+                          SocalCard(
+                            icon: "assets/icons/facebook-2.svg",
+                            press: () {},
+                          ),
+                          Text(
+                            MyLocalizations.of(context).getText('F2vS9'),
+                            style: MyTheme.of(context).bodyLarge.copyWith(
+                                fontFamily: 'Outfit',
+                                fontSize: 12,
+                                color: MyTheme.of(context).secondaryReverse),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                  ],
                 ),
-                SocalCard(
-                  icon: "assets/icons/twitter.svg",
-                  press: () {},
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  width: getProportionateScreenWidth(context, 150),
+                  height: getProportionateScreenHeight(context, 40),
+                  color: MyTheme.of(context).reverse,
+                  child: Row(
+                    children: [
+                      SocalCard(
+                        icon: "assets/icons/Phone.svg",
+                        press: () {},
+                      ),
+                      Text(
+                        MyLocalizations.of(context).getText('P5hN7'),
+                        style: MyTheme.of(context).bodyLarge.copyWith(
+                            fontFamily: 'Outfit',
+                            fontSize: 13,
+                            color: MyTheme.of(context).secondaryReverse),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
               ],
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  TextFormField buildPasswordFormField() {
-    return TextFormField(
-      obscureText: true,
-      onSaved: (newValue) => password = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if (value.length < 5) {
-          addError(error: kShortPassError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Password",
-        hintText: "Enter your password",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-      ),
-    );
-  }
-
-  TextFormField buildEmailFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kEmailNullError);
-          return "";
-        } else if (!emailValidatorRegExp.hasMatch(value)) {
-          addError(error: kInvalidEmailError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Email",
-        hintText: "Enter your email",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
       ),
     );
   }

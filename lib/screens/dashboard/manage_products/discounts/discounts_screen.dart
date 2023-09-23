@@ -15,6 +15,7 @@ import '../../../../backend/schema/user/user_record.dart';
 import '../../../../components/form_error.dart';
 import '../../../../components/socal_card.dart';
 import '../../../../helper/keyboard.dart';
+import '../../../../tools/app_state.dart';
 import '../../../../tools/nav/theme.dart';
 import '../../../../tools/upload_data.dart';
 import '../../../../tools/upload_file.dart';
@@ -67,6 +68,7 @@ class _BodyState extends State<Body> {
 
   FocusNode _focusNode = FocusNode();
   final FocusNode focusNodeDiscountSearch = FocusNode();
+  bool withPicture = false;
 
   SizeConfig sizeConfig = SizeConfig();
   late Stream<List<DiscountRecord>> stream;
@@ -140,16 +142,33 @@ class _BodyState extends State<Body> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (uploadImage)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        "Please upload an image",
-                        style: MyTheme.of(context).bodyMedium.override(
-                            color: MyTheme.of(context).error,
-                            fontFamily: 'Roboto'),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Checkbox(
+                          activeColor: MyTheme.of(context).primary,
+                          value: withPicture,
+                          onChanged: (value) => setState(() {
+                                withPicture = value!;
+                              })),
+                      Text(
+                        overflow: TextOverflow.visible,
+                        "Check this if you want an image for discount.",
+                        style: MyTheme.of(context).labelMedium,
                       ),
-                    ),
+                    ],
+                  ),
+                  if (withPicture)
+                    if (uploadImage)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          "Please upload an image",
+                          style: MyTheme.of(context).bodyMedium.override(
+                              color: MyTheme.of(context).error,
+                              fontFamily: 'Roboto'),
+                        ),
+                      ),
                 ],
               ),
               SizedBox(
@@ -165,58 +184,108 @@ class _BodyState extends State<Body> {
                 child: DefaultButton(
                     isLoading: isLoading,
                     press: () async {
-                      if (uploadedFileUrl.isEmpty) {
-                        setState(() {
-                          uploadImage = true;
-                        });
-                      }
-                      if (_formKey.currentState!.validate() &&
-                          uploadedFileUrl.isNotEmpty) {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        _formKey.currentState!.save();
-                        KeyboardUtil.hideKeyboard(context);
-                        FocusManager.instance.primaryFocus?.unfocus();
+                      if (!withPicture) {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          _formKey.currentState!.save();
+                          KeyboardUtil.hideKeyboard(context);
+                          FocusManager.instance.primaryFocus?.unfocus();
 
-                        final discount = createDiscountRecordData(
-                          title: _textFieldControllerDiscountTitle.text,
-                          description:
-                              _textFieldControllerDiscountDescription.text,
-                          discountPercent: double.tryParse(
-                              _textFieldControllerDiscountPercent.text),
-                          image: uploadedFileUrl,
-                          createdAt: getCurrentTimestamp,
-                          modifiedAt: getCurrentTimestamp,
-                        );
-                        await DiscountRecord.collection.add(discount);
+                          final discount = createDiscountRecordData(
+                            title: _textFieldControllerDiscountTitle.text,
+                            description:
+                                _textFieldControllerDiscountDescription.text,
+                            discountPercent: double.tryParse(
+                                _textFieldControllerDiscountPercent.text),
+                            image: uploadedFileUrl,
+                            createdAt: getCurrentTimestamp,
+                            modifiedAt: getCurrentTimestamp,
+                          );
+                          await DiscountRecord.collection.add(discount);
 
-                        setState(() {
-                          isLoading = false;
+                          setState(() {
+                            isLoading = false;
 
-                          uploadedFileUrl = '';
-                          uploadImage = false;
-                          _textFieldControllerDiscountTitle.clear();
-                          _textFieldControllerDiscountDescription.clear();
-                          _textFieldControllerDiscountPercent.clear();
-                        });
-                        ScaffoldMessenger.of(_context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: MyTheme.of(context).alternate,
-                            content: Text(
-                              'You added a discount item with success!',
-                              style: MyTheme.of(context).bodyMedium.override(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: MyTheme.of(context).primary),
-                              textAlign: TextAlign.center,
+                            uploadedFileUrl = '';
+                            uploadImage = false;
+                            _textFieldControllerDiscountTitle.clear();
+                            _textFieldControllerDiscountDescription.clear();
+                            _textFieldControllerDiscountPercent.clear();
+                          });
+                          ScaffoldMessenger.of(_context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: MyTheme.of(context).alternate,
+                              content: Text(
+                                'You added a discount item with success!',
+                                style: MyTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: MyTheme.of(context).primary),
+                                textAlign: TextAlign.center,
+                              ),
+                              duration: Duration(
+                                  seconds:
+                                      3), // Set the duration for the SnackBar
                             ),
-                            duration: Duration(
-                                seconds:
-                                    3), // Set the duration for the SnackBar
-                          ),
-                        );
+                          );
+                        }
+                      } else {
+                        if (uploadedFileUrl.isEmpty) {
+                          setState(() {
+                            uploadImage = true;
+                          });
+                        }
+                        if (_formKey.currentState!.validate() &&
+                            uploadedFileUrl.isNotEmpty) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          _formKey.currentState!.save();
+                          KeyboardUtil.hideKeyboard(context);
+                          FocusManager.instance.primaryFocus?.unfocus();
+
+                          final discount = createDiscountRecordData(
+                            title: _textFieldControllerDiscountTitle.text,
+                            description:
+                                _textFieldControllerDiscountDescription.text,
+                            discountPercent: double.tryParse(
+                                _textFieldControllerDiscountPercent.text),
+                            image: uploadedFileUrl,
+                            createdAt: getCurrentTimestamp,
+                            modifiedAt: getCurrentTimestamp,
+                          );
+                          await DiscountRecord.collection.add(discount);
+
+                          setState(() {
+                            isLoading = false;
+
+                            uploadedFileUrl = '';
+                            uploadImage = false;
+                            _textFieldControllerDiscountTitle.clear();
+                            _textFieldControllerDiscountDescription.clear();
+                            _textFieldControllerDiscountPercent.clear();
+                          });
+                          ScaffoldMessenger.of(_context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: MyTheme.of(context).alternate,
+                              content: Text(
+                                'You added a discount item with success!',
+                                style: MyTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: MyTheme.of(context).primary),
+                                textAlign: TextAlign.center,
+                              ),
+                              duration: Duration(
+                                  seconds:
+                                      3), // Set the duration for the SnackBar
+                            ),
+                          );
+                        }
                       }
                     },
                     text: 'Create'),
@@ -266,6 +335,7 @@ class _BodyState extends State<Body> {
               return listEmpty("Discounts", context);
             }
             final discounts = snapshot.data;
+
             final discountAfterSearch = discounts!
                 .where((e) =>
                     e.title!.toLowerCase().contains(search.toLowerCase()))
@@ -387,6 +457,21 @@ class _BodyState extends State<Body> {
                                               fontSize: 14,
                                               fontFamily: 'Roboto'),
                                     ),
+                                    if (AppState()
+                                            .products
+                                            .where((element) =>
+                                                element!.idDiscount ==
+                                                discountItem.reference)
+                                            .firstOrNull !=
+                                        null)
+                                      Text(
+                                        'Related to product: ${AppState().products.where((element) => element!.idDiscount == discountItem.reference).first!.title?.truncateText(20)}',
+                                        style: MyTheme.of(context)
+                                            .labelLarge
+                                            .override(
+                                                fontSize: 15,
+                                                fontFamily: 'Roboto'),
+                                      ),
                                   ],
                                 ),
                               ],
@@ -480,9 +565,9 @@ class _BodyState extends State<Body> {
                     removeError(
                         error: "This field is required", list: errorsPercent);
                   }
-                  if (value.length <= 3) {
+                  if (value.length <= 6) {
                     removeError(
-                        error: "The percent must not above a 3 digits",
+                        error: "The percent must not above a 6 digits",
                         list: errorsPercent);
                   }
                   return null;
@@ -493,9 +578,9 @@ class _BodyState extends State<Body> {
                         error: "This field is required", list: errorsPercent);
                     return "";
                   }
-                  if (value.length > 3) {
+                  if (value.length > 6) {
                     addError(
-                        error: "The percent must not above a 3 digits",
+                        error: "The percent must not above a 6 digits",
                         list: errorsPercent);
                     return "";
                   }

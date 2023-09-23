@@ -2,14 +2,13 @@ import 'package:blueraymarket/backend/backend.dart';
 import 'package:blueraymarket/backend/cache/hive_box.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/backend/schema/sub_category/sub_category_record.dart';
-import 'package:blueraymarket/tools/animations.dart';
 import 'package:blueraymarket/tools/app_state.dart';
+import 'package:blueraymarket/tools/internationalization.dart';
+import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:blueraymarket/tools/util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:blueraymarket/tools/size_config.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../backend/schema/product/product_record.dart';
 import 'categories.dart';
@@ -28,7 +27,7 @@ class _BodyState extends State<Body> {
   final SubCategoryHive subCategoryHive = SubCategoryHive();
   final ProductHive productHive = ProductHive();
   final DiscountHive discountHive = DiscountHive();
-  late final List<ProductRecord?> products;
+  late List<ProductRecord?> products;
   @override
   void initState() {
     super.initState();
@@ -49,82 +48,142 @@ class _BodyState extends State<Body> {
       children: [
         HomeHeader(),
         Expanded(
-          child: SingleChildScrollView(
-            child: FutureBuilder<List>(
-                future: Future.wait([
-                  subCategoryHive.getDataFromCache(
-                      limit: 5,
-                      queryBuilder: (q) =>
-                          q.orderBy('sub_category_name', descending: false)),
-                  discountHive.getDataFromCache(
-                      queryBuilder: (q) =>
-                          q.where('display_at_home', isEqualTo: true))
-                ]),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return loadingIndicator(context);
-                  }
-                  if (!snapshot.hasData && snapshot.data == null) {
-                    return listEmpty("Home Page", context);
-                  }
+          child: RefreshIndicator(
+            backgroundColor: Colors.white,
+            color: MyTheme.of(context).primary,
+            onRefresh: () async {
+              AppState().products = await queryProductsRecordOnce();
 
-                  final subCategories =
-                      snapshot.data![0] as List<SubCategoryRecord?>;
+              setState(() {
+                products = AppState().products;
+                clearDiscountsBox();
+                clearSubcategoryBox();
+              });
+            },
+            child: SingleChildScrollView(
+              child: FutureBuilder<List>(
+                  future: Future.wait([
+                    subCategoryHive.getDataFromCache(
+                        limit: 5,
+                        queryBuilder: (q) =>
+                            q.orderBy('sub_category_name', descending: false)),
+                    discountHive.getDataFromCache(
+                        queryBuilder: (q) =>
+                            q.where('display_at_home', isEqualTo: true))
+                  ]),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ShimmerHome();
+                    }
+                    if (!snapshot.hasData && snapshot.data == null) {
+                      return listEmpty(
+                          MyLocalizations.of(context).getText('H4mP1'),
+                          context);
+                    }
 
-                  final discounts = snapshot.data![1]! as List<DiscountRecord?>;
+                    final subCategories =
+                        snapshot.data![0] as List<SubCategoryRecord?>;
 
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          SizedBox(
-                              height: getProportionateScreenWidth(context, 10)),
-                          Container(
-                              width: MediaQuery.of(context).size.width,
-                              height:
-                                  getProportionateScreenHeight(context, 170),
-                              child: DiscountBanner(
-                                discounts: discounts,
-                              )),
-                          Categories(),
-                          SpecialOffers(
-                            subCategories: subCategories,
-                            products: products,
-                          ),
-                          SizedBox(
-                              height: getProportionateScreenWidth(context, 30)),
-                          ListView.separated(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: subCategories.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final subcategoryItem = subCategories[index];
-                              List<ProductRecord?> productsSubcategory =
-                                  products
-                                      .where((product) =>
-                                          product!.idSubCategory ==
-                                          subcategoryItem!.reference)
-                                      .toList();
-                              return SubCategoriesSection(
-                                  subcategory: subcategoryItem!,
-                                  products: productsSubcategory);
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return SizedBox(
-                                  height:
-                                      getProportionateScreenWidth(context, 20));
-                            },
-                          )
-                        ],
-                      ),
-                    ],
-                  );
-                }),
+                    final discounts =
+                        snapshot.data![1]! as List<DiscountRecord?>;
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                width: MediaQuery.of(context).size.width,
+                                height:
+                                    getProportionateScreenHeight(context, 120),
+                                child: DiscountBanner(
+                                  discounts: discounts,
+                                )),
+                            Categories(),
+                            SpecialOffers(
+                              subCategories: subCategories,
+                              products: products,
+                            ),
+                            SizedBox(
+                                height:
+                                    getProportionateScreenWidth(context, 15)),
+                            ListView.separated(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: subCategories.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final subcategoryItem = subCategories[index];
+                                List<ProductRecord?> productsSubcategory =
+                                    products
+                                        .where((product) =>
+                                            product!.idSubCategory ==
+                                            subcategoryItem!.reference)
+                                        .toList();
+                                return SubCategoriesSection(
+                                    subcategory: subcategoryItem!,
+                                    products: productsSubcategory);
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return SizedBox(
+                                    height: getProportionateScreenWidth(
+                                        context, 10));
+                              },
+                            )
+                          ],
+                        ),
+                      ],
+                    );
+                  }),
+            ),
           ),
         )
+      ],
+    );
+  }
+}
+
+class ShimmerHome extends StatefulWidget {
+  const ShimmerHome({super.key});
+
+  @override
+  State<ShimmerHome> createState() => _ShimmerHomeState();
+}
+
+class _ShimmerHomeState extends State<ShimmerHome> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                width: MediaQuery.of(context).size.width,
+                height: getProportionateScreenHeight(context, 150),
+                child: ShimmerDiscountBanner()),
+            ShimmerCategories(),
+            ShimmerSpecialOffers(),
+            SizedBox(height: getProportionateScreenWidth(context, 15)),
+            ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: 2,
+              itemBuilder: (BuildContext context, int index) {
+                return ShimmerSubCategoriesSection();
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                    height: getProportionateScreenWidth(context, 10));
+              },
+            )
+          ],
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:blueraymarket/tools/internationalization.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: MyTheme.of(context).primary,
-        title: Text('Complete profile'),
+        title: Text(MyLocalizations.of(context).getText('C8pP6')),
       ),
       body: Body(),
     );

@@ -69,12 +69,12 @@ class _BodyState extends State<Body> {
                     ),
                     Spacer(flex: 3),
                     Container(
-                      width: 200,
-                      height: 70,
+                      width: 120,
+                      height: 50,
                       child: DefaultButton(
                         text: "Continue",
                         press: () {
-                          context.pushReplacementNamed('Login');
+                          context.pushReplacementNamed('NavBarPage');
                         },
                       ),
                     ),

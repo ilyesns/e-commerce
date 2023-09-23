@@ -6,8 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:blueraymarket/components/default_button.dart';
 import 'package:blueraymarket/tools/size_config.dart';
 
-import '../../../backend/schema/product/product_record.dart';
-import '../../../tools/constants.dart';
+import '../../../../backend/schema/product/product_record.dart';
+import '../../../../tools/constants.dart';
 
 class CheckoutCard extends StatelessWidget {
   const CheckoutCard({

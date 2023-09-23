@@ -347,8 +347,6 @@ class _ProductsVariantsEditState extends State<ProductsVariantsEdit> {
                                                               uploadedFileUrl
                                                                   .remove(
                                                                       imageItem);
-                                                              print(
-                                                                  uploadedFileUrl);
                                                             });
                                                           },
                                                           child: Container(
@@ -652,7 +650,6 @@ class _ProductsVariantsEditState extends State<ProductsVariantsEdit> {
                                                         .validate() &&
                                                     uploadedFileUrl
                                                         .isNotEmpty) {
-                                                  print(uploadedFileUrl);
                                                   setState(() {
                                                     isLoading = true;
                                                     isEmpty = false;
@@ -667,7 +664,6 @@ class _ProductsVariantsEditState extends State<ProductsVariantsEdit> {
                                                       images =
                                                       ListBuilder<String>(
                                                           uploadedFileUrl);
-                                                  print(images!.build());
                                                   final variant =
                                                       createVariantRecordData(
                                                     modifiedAt:

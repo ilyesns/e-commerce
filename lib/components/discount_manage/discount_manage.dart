@@ -1,8 +1,10 @@
 import 'package:blueraymarket/backend/schema/category/category_record.dart';
 import 'package:blueraymarket/backend/schema/discount/discount_record.dart';
 import 'package:blueraymarket/components/default_button.dart';
+import 'package:blueraymarket/tools/app_state.dart';
 import 'package:blueraymarket/tools/nav/theme.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../backend/firebase_storage/storage.dart';
 import '../../helper/keyboard.dart';
@@ -56,6 +58,7 @@ class _DiscountManageState extends State<DiscountManage> {
   bool isLoading = false;
   bool? checkbox;
   bool? displayAt;
+  bool withPicture = false;
 
   void addError({String? error, required List<String?> list}) {
     if (!list.contains(error))
@@ -167,45 +170,93 @@ class _DiscountManageState extends State<DiscountManage> {
                                                   desc:
                                                       'You want delete this item! \n Note: this item may be related by another product items',
                                                   btnOkOnPress: () async {
-                                                    if (discountItem
-                                                        .image!.isNotEmpty)
-                                                      deleteFileFRomFirebase(
-                                                          discountItem.image!);
-
-                                                    discountItem.reference
-                                                        .delete();
-
-                                                    Navigator.pop(context);
-                                                    ScaffoldMessenger.of(
-                                                            widget.context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        backgroundColor:
-                                                            MyTheme.of(context)
-                                                                .alternate,
-                                                        content: Text(
-                                                          'You deleted a discount item with success!',
-                                                          style: MyTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                  fontFamily:
-                                                                      'Roboto',
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: MyTheme.of(
-                                                                          context)
-                                                                      .primary),
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                    final isDiscRelated =
+                                                        AppState()
+                                                            .products
+                                                            .where((element) =>
+                                                                element!
+                                                                    .idDiscount ==
+                                                                discountItem
+                                                                    .reference)
+                                                            .firstOrNull;
+                                                    if (isDiscRelated != null) {
+                                                      context.pop();
+                                                      ScaffoldMessenger.of(
+                                                              widget.context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          backgroundColor:
+                                                              MyTheme.of(
+                                                                      context)
+                                                                  .alternate,
+                                                          content: Text(
+                                                            'Discounts tied to products cannot be deleted!',
+                                                            style: MyTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                    fontFamily:
+                                                                        'Roboto',
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: MyTheme.of(
+                                                                            context)
+                                                                        .primary),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          duration: Duration(
+                                                              seconds:
+                                                                  3), // Set the duration for the SnackBar
                                                         ),
-                                                        duration: Duration(
-                                                            seconds:
-                                                                3), // Set the duration for the SnackBar
-                                                      ),
-                                                    );
+                                                      );
+                                                    } else {
+                                                      discountItem.reference
+                                                          .delete();
+
+                                                      if (discountItem
+                                                          .image!.isNotEmpty)
+                                                        deleteFileFRomFirebase(
+                                                            discountItem
+                                                                .image!);
+
+                                                      Navigator.pop(context);
+                                                      ScaffoldMessenger.of(
+                                                              widget.context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          backgroundColor:
+                                                              MyTheme.of(
+                                                                      context)
+                                                                  .alternate,
+                                                          content: Text(
+                                                            'You deleted a discount item with success!',
+                                                            style: MyTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                    fontFamily:
+                                                                        'Roboto',
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: MyTheme.of(
+                                                                            context)
+                                                                        .primary),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          duration: Duration(
+                                                              seconds:
+                                                                  3), // Set the duration for the SnackBar
+                                                        ),
+                                                      );
+                                                    }
                                                   },
                                                   btnCancelOnPress: () {},
                                                   btnOkIcon: Icons.cancel,
@@ -228,153 +279,183 @@ class _DiscountManageState extends State<DiscountManage> {
                                             )),
                                       ],
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: getProportionateScreenHeight(
-                                              context, 20)),
-                                      child: SizedBox(
-                                        height: 115,
-                                        width: 115,
-                                        child: Stack(
-                                          fit: StackFit.expand,
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            isDataUploading
-                                                ? loadingIndicator(context)
-                                                : DottedBorder(
-                                                    color: MyTheme.of(context)
-                                                        .primaryText,
-                                                    dashPattern: [8, 8],
-                                                    borderType:
-                                                        BorderType.Circle,
-                                                    child:
-                                                        discountItem.image!
-                                                                .isNotEmpty
-                                                            ? Container(
-                                                                width: 120,
-                                                                height: 120,
-                                                                decoration: BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            50)),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(5),
+                                    if (withPicture)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: getProportionateScreenHeight(
+                                                context, 20)),
+                                        child: SizedBox(
+                                          height: 115,
+                                          width: 115,
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              isDataUploading
+                                                  ? loadingIndicator(context)
+                                                  : DottedBorder(
+                                                      color: MyTheme.of(context)
+                                                          .primaryText,
+                                                      dashPattern: [8, 8],
+                                                      borderType:
+                                                          BorderType.Circle,
+                                                      child:
+                                                          discountItem.image!
+                                                                  .isNotEmpty
+                                                              ? Container(
+                                                                  width: 120,
+                                                                  height: 120,
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              50)),
                                                                   child:
-                                                                      CircleAvatar(
-                                                                    backgroundImage:
-                                                                        Image(image: NetworkImage(uploadedFileUrl.isEmpty ? discountItem.image! : uploadedFileUrl))
-                                                                            .image,
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(5),
+                                                                    child:
+                                                                        CircleAvatar(
+                                                                      backgroundImage:
+                                                                          Image(image: NetworkImage(uploadedFileUrl.isEmpty ? discountItem.image! : uploadedFileUrl))
+                                                                              .image,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              )
-                                                            : Container(
-                                                                width: 120,
-                                                                height: 100,
-                                                                child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Image
-                                                                          .asset(
-                                                                        'assets/images/upload_img.png',
-                                                                        width:
-                                                                            50,
-                                                                        height:
-                                                                            50,
-                                                                      ),
-                                                                      Text(
-                                                                        "Select an image",
-                                                                        style: MyTheme.of(context)
-                                                                            .labelMedium,
-                                                                      )
-                                                                    ]),
-                                                              )),
-                                          ],
+                                                                )
+                                                              : Container(
+                                                                  width: 120,
+                                                                  height: 100,
+                                                                  child: Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Image
+                                                                            .asset(
+                                                                          'assets/images/upload_img.png',
+                                                                          width:
+                                                                              50,
+                                                                          height:
+                                                                              50,
+                                                                        ),
+                                                                        Text(
+                                                                          "Select an image",
+                                                                          style:
+                                                                              MyTheme.of(context).labelMedium,
+                                                                        )
+                                                                      ]),
+                                                                )),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
                                     SizedBox(
                                       height: getProportionateScreenHeight(
                                           context, 20),
                                     ),
-                                    Container(
-                                      width: getProportionateScreenWidth(
-                                          context, 150),
-                                      height: getProportionateScreenHeight(
-                                          context, 40),
-                                      child: DefaultButton(
-                                        text: "Upload Image",
-                                        press: () async {
-                                          await deleteFileFRomFirebase(
-                                              discountItem!.image!);
+                                    if (withPicture)
+                                      Container(
+                                        width: getProportionateScreenWidth(
+                                            context, 150),
+                                        height: getProportionateScreenHeight(
+                                            context, 40),
+                                        child: DefaultButton(
+                                          text: "Upload Image",
+                                          press: () async {
+                                            await deleteFileFRomFirebase(
+                                                discountItem!.image!);
 
-                                          final selectedMedia =
-                                              await selectMediaWithSourceBottomSheet(
-                                            context: context,
-                                            allowPhoto: true,
-                                          );
-                                          if (selectedMedia != null &&
-                                              selectedMedia.every((m) =>
-                                                  validateFileFormat(
-                                                      m.storagePath,
-                                                      context))) {
-                                            setState(
-                                                () => isDataUploading = true);
-                                            var selectedUploadedFiles =
-                                                <UploadedFile>[];
-                                            var downloadUrls = <String>[];
-                                            try {
-                                              selectedUploadedFiles =
-                                                  selectedMedia
-                                                      .map((m) => UploadedFile(
-                                                            name: m.storagePath
-                                                                .split('/')
-                                                                .last,
-                                                            bytes: m.bytes,
-                                                            height: m.dimensions
-                                                                ?.height,
-                                                            width: m.dimensions
-                                                                ?.width,
-                                                            blurHash:
-                                                                m.blurHash,
-                                                          ))
-                                                      .toList();
+                                            final selectedMedia =
+                                                await selectMediaWithSourceBottomSheet(
+                                              context: context,
+                                              allowPhoto: true,
+                                            );
+                                            if (selectedMedia != null &&
+                                                selectedMedia.every((m) =>
+                                                    validateFileFormat(
+                                                        m.storagePath,
+                                                        context))) {
+                                              setState(
+                                                  () => isDataUploading = true);
+                                              var selectedUploadedFiles =
+                                                  <UploadedFile>[];
+                                              var downloadUrls = <String>[];
+                                              try {
+                                                selectedUploadedFiles =
+                                                    selectedMedia
+                                                        .map((m) =>
+                                                            UploadedFile(
+                                                              name: m
+                                                                  .storagePath
+                                                                  .split('/')
+                                                                  .last,
+                                                              bytes: m.bytes,
+                                                              height: m
+                                                                  .dimensions
+                                                                  ?.height,
+                                                              width: m
+                                                                  .dimensions
+                                                                  ?.width,
+                                                              blurHash:
+                                                                  m.blurHash,
+                                                            ))
+                                                        .toList();
 
-                                              downloadUrls = (await Future.wait(
-                                                selectedMedia.map(
-                                                  (m) async => await uploadData(
-                                                      m.storagePath, m.bytes),
-                                                ),
-                                              ))
-                                                  .where((u) => u != null)
-                                                  .map((u) => u!)
-                                                  .toList();
-                                            } finally {
-                                              isDataUploading = false;
+                                                downloadUrls =
+                                                    (await Future.wait(
+                                                  selectedMedia.map(
+                                                    (m) async =>
+                                                        await uploadData(
+                                                            m.storagePath,
+                                                            m.bytes),
+                                                  ),
+                                                ))
+                                                        .where((u) => u != null)
+                                                        .map((u) => u!)
+                                                        .toList();
+                                              } finally {
+                                                isDataUploading = false;
+                                              }
+                                              if (selectedUploadedFiles
+                                                          .length ==
+                                                      selectedMedia.length &&
+                                                  downloadUrls.length ==
+                                                      selectedMedia.length) {
+                                                setState(() {
+                                                  uploadedLocalFile =
+                                                      selectedUploadedFiles
+                                                          .first;
+                                                  uploadedFileUrl =
+                                                      downloadUrls.first;
+                                                });
+                                              } else {
+                                                setState(() {});
+                                                return;
+                                              }
                                             }
-                                            if (selectedUploadedFiles.length ==
-                                                    selectedMedia.length &&
-                                                downloadUrls.length ==
-                                                    selectedMedia.length) {
-                                              setState(() {
-                                                uploadedLocalFile =
-                                                    selectedUploadedFiles.first;
-                                                uploadedFileUrl =
-                                                    downloadUrls.first;
-                                              });
-                                            } else {
-                                              setState(() {});
-                                              return;
-                                            }
-                                          }
-                                        },
+                                          },
+                                        ),
                                       ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Checkbox(
+                                            activeColor:
+                                                MyTheme.of(context).primary,
+                                            value: withPicture,
+                                            onChanged: (value) => setState(() {
+                                                  withPicture = value!;
+                                                })),
+                                        Text(
+                                          overflow: TextOverflow.visible,
+                                          "Check this if you want an image for discount.",
+                                          style:
+                                              MyTheme.of(context).labelMedium,
+                                        ),
+                                      ],
                                     ),
                                     SizedBox(
                                       height: getProportionateScreenHeight(
@@ -451,10 +532,10 @@ class _DiscountManageState extends State<DiscountManage> {
                                                             "This field is required",
                                                         list: errorsPercent);
                                                   }
-                                                  if (value.length <= 3) {
+                                                  if (value.length <= 6) {
                                                     removeError(
                                                         error:
-                                                            "The percent must not above a 3 digits",
+                                                            "The percent must not above a 6 digits",
                                                         list: errorsPercent);
                                                   }
                                                   return null;
@@ -467,10 +548,10 @@ class _DiscountManageState extends State<DiscountManage> {
                                                         list: errorsPercent);
                                                     return "";
                                                   }
-                                                  if (value.length > 3) {
+                                                  if (value.length > 6) {
                                                     addError(
                                                         error:
-                                                            "The percent must not above a 3 digits",
+                                                            "The percent must not above a 6 digits",
                                                         list: errorsPercent);
                                                     return "";
                                                   }
@@ -654,6 +735,7 @@ class _DiscountManageState extends State<DiscountManage> {
                                                                   : uploadedFileUrl,
                                                           modifiedAt:
                                                               getCurrentTimestamp,
+                                                          active: checkbox,
                                                           displayAtHome:
                                                               displayAt!);
 

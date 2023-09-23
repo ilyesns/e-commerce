@@ -85,7 +85,11 @@ String get currentUserPhoto =>
 String get currentPhoneNumber =>
     currentUserDocument?.phoneNumber ?? currentUser?.user?.phoneNumber ?? '';
 
-String get currentUserRole => currentUserDocument?.role ?? '';
+String get currentUserGender => currentUserDocument?.gender ?? '';
+
+DateTime? get currentUserBirthday => currentUserDocument?.birthday ?? null;
+
+String? get currentUserRole => currentUserDocument?.role;
 
 DocumentReference? get currentUserReference =>
     loggedIn ? UserRecord.collection.doc(currentUser!.user!.uid) : null;
