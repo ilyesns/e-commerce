@@ -61,12 +61,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             element!.idSubCategory == widget.idSubCategory &&
             element.reference != widget.idproduct)
         .toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await callback();
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+ Future callback()async {
+    Future.delayed(Duration(seconds: 2), () {
+      print("hello after built this frame");
+    });
   }
 
   @override
